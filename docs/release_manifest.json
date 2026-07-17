@@ -1,0 +1,29 @@
+{
+  "boundary": "Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.",
+  "console_script": "portfolio-liquidity-runway-lab",
+  "files": [
+    "LICENSE",
+    "MANIFEST.in",
+    "README.md",
+    "demo/visual_receipt.md",
+    "docs/cold_start_walkthrough.md",
+    "docs/engineering_note.md",
+    "docs/release_manifest.json",
+    "docs/release_readiness_review.md",
+    "portfolio_liquidity_runway_lab/__init__.py",
+    "portfolio_liquidity_runway_lab/__main__.py",
+    "portfolio_liquidity_runway_lab/cli.py",
+    "portfolio_liquidity_runway_lab/core.py",
+    "portfolio_liquidity_runway_lab/examples/assumptions.json",
+    "portfolio_liquidity_runway_lab/examples/history.json",
+    "portfolio_liquidity_runway_lab/examples/ledger.json",
+    "portfolio_liquidity_runway_lab/examples/portfolio.json",
+    "pyproject.toml",
+    "skills/agent/portfolio-liquidity-runway-lab/SKILL.md",
+    "tests/test_cli.py",
+    "tests/test_core.py"
+  ],
+  "name": "portfolio-liquidity-runway-lab",
+  "runtime_dependencies": [],
+  "version": "0.1.0"
+}

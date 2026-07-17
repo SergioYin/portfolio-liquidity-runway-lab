@@ -1,0 +1,19 @@
+{
+  "snapshots": [
+    {
+      "label": "2026-01",
+      "same_day_reserve_months": 7.1,
+      "effective_monthly_burn": 3100
+    },
+    {
+      "label": "2026-04",
+      "same_day_reserve_months": 6.4,
+      "effective_monthly_burn": 3600
+    },
+    {
+      "label": "2026-07",
+      "same_day_reserve_months": 5.3,
+      "effective_monthly_burn": 4200
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+include README.md
+include LICENSE
+recursive-include portfolio_liquidity_runway_lab/examples *.json
+recursive-include docs *.md *.json
+recursive-include demo *.md
+recursive-include skills *.md
+global-exclude __pycache__/*
+global-exclude *.py[cod]

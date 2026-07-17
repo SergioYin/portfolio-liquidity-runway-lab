@@ -1,0 +1,30 @@
+{
+  "monthly_income": 5200,
+  "monthly_expenses": 9400,
+  "scheduled_events": [
+    {
+      "month": 2,
+      "type": "outflow",
+      "label": "Insurance renewal",
+      "amount": 1800
+    },
+    {
+      "month": 4,
+      "type": "inflow",
+      "label": "Contract receivable",
+      "amount": 7200
+    },
+    {
+      "month": 7,
+      "type": "outflow",
+      "label": "Estimated tax placeholder",
+      "amount": 5500
+    },
+    {
+      "month": 10,
+      "type": "outflow",
+      "label": "Home repair placeholder",
+      "amount": 6800
+    }
+  ]
+}

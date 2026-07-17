@@ -1,0 +1,41 @@
+{
+  "currency": "USD",
+  "name": "Synthetic household reserve portfolio",
+  "assets": [
+    {
+      "name": "Checking reserve",
+      "liquidity_tier": "same_day",
+      "value": 18000,
+      "annual_yield_rate": 0.001,
+      "annual_fee_rate": 0.0
+    },
+    {
+      "name": "Treasury money market",
+      "liquidity_tier": "same_day",
+      "value": 32000,
+      "annual_yield_rate": 0.035,
+      "annual_fee_rate": 0.0015
+    },
+    {
+      "name": "Short Treasury ETF placeholder",
+      "liquidity_tier": "one_week",
+      "value": 28000,
+      "annual_yield_rate": 0.031,
+      "annual_fee_rate": 0.001
+    },
+    {
+      "name": "CD ladder placeholder",
+      "liquidity_tier": "one_month",
+      "value": 22000,
+      "annual_yield_rate": 0.04,
+      "annual_fee_rate": 0.0
+    },
+    {
+      "name": "Private fund placeholder",
+      "liquidity_tier": "locked",
+      "value": 65000,
+      "annual_yield_rate": 0.0,
+      "annual_fee_rate": 0.012
+    }
+  ]
+}

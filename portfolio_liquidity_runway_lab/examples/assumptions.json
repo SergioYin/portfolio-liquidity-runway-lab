@@ -1,0 +1,27 @@
+{
+  "months": 12,
+  "target_reserve_months": 6,
+  "default_scenario": "base",
+  "scenarios": {
+    "base": {
+      "expense_multiplier": 1.0,
+      "income_multiplier": 1.0,
+      "liquidity_haircuts": {
+        "same_day": 0.0,
+        "one_week": 0.02,
+        "one_month": 0.05,
+        "locked": 0.25
+      }
+    },
+    "stress": {
+      "expense_multiplier": 1.18,
+      "income_multiplier": 0.70,
+      "liquidity_haircuts": {
+        "same_day": 0.0,
+        "one_week": 0.08,
+        "one_month": 0.15,
+        "locked": 0.40
+      }
+    }
+  }
+}

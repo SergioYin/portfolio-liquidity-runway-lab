@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+# Keep release artifacts in dist/ only when intentionally attached to GitHub Releases.
+dist/
+.venv/
+.pytest_cache/
+.mypy_cache/
+.DS_Store
