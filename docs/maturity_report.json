@@ -3,6 +3,8 @@
   "checks": {
     "agent_skill": true,
     "cold_start_walkthrough": true,
+    "demo_assumption_audit": true,
+    "demo_batch_compare": true,
     "demo_scenario_gallery": true,
     "demo_visual_receipt": true,
     "license": true,
@@ -15,5 +17,5 @@
     "release_readiness_review": true,
     "tests": true
   },
-  "score": 13
+  "score": 15
 }

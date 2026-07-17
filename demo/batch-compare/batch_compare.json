@@ -1,0 +1,78 @@
+{
+  "boundary": "Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.",
+  "portfolio_files": [
+    "portfolio.json",
+    "portfolio_concentrated.json"
+  ],
+  "scenario_names": [
+    "base",
+    "stress"
+  ],
+  "summary": [
+    {
+      "effective_monthly_burn": 4030.83,
+      "first_negative_month": null,
+      "portfolio_file": "portfolio.json",
+      "portfolio_name": "Synthetic household reserve portfolio",
+      "same_day_one_week_runway_months": 19.21,
+      "same_day_reserve_months": 5.32,
+      "scenario": "base",
+      "thirty_day_runway_months": 24.4,
+      "warning_count": 2
+    },
+    {
+      "effective_monthly_burn": 7282.83,
+      "first_negative_month": 10,
+      "portfolio_file": "portfolio.json",
+      "portfolio_name": "Synthetic household reserve portfolio",
+      "same_day_one_week_runway_months": 10.4,
+      "same_day_reserve_months": 4.51,
+      "scenario": "stress",
+      "thirty_day_runway_months": 12.97,
+      "warning_count": 3
+    },
+    {
+      "effective_monthly_burn": 2478.38,
+      "first_negative_month": 7,
+      "portfolio_file": "portfolio_concentrated.json",
+      "portfolio_name": "Synthetic concentrated liquidity portfolio",
+      "same_day_one_week_runway_months": 3.83,
+      "same_day_reserve_months": 1.01,
+      "scenario": "base",
+      "thirty_day_runway_months": 3.83,
+      "warning_count": 3
+    },
+    {
+      "effective_monthly_burn": 5730.38,
+      "first_negative_month": 2,
+      "portfolio_file": "portfolio_concentrated.json",
+      "portfolio_name": "Synthetic concentrated liquidity portfolio",
+      "same_day_one_week_runway_months": 1.66,
+      "same_day_reserve_months": 0.86,
+      "scenario": "stress",
+      "thirty_day_runway_months": 1.66,
+      "warning_count": 3
+    }
+  ],
+  "warnings": {
+    "portfolio:base": [
+      "Same-day reserve is 5.3 months, below the 6.0 month review threshold.",
+      "Locked or gated assets exceed 35% of gross assets while burn is positive."
+    ],
+    "portfolio:stress": [
+      "Liquid balance turns negative in month 10; review whether one_month or locked holdings would be needed.",
+      "Same-day reserve is 4.5 months, below the 6.0 month review threshold.",
+      "Locked or gated assets exceed 35% of gross assets while burn is positive."
+    ],
+    "portfolio_concentrated:base": [
+      "Liquid balance turns negative in month 7; review whether one_month or locked holdings would be needed.",
+      "Same-day reserve is 1.0 months, below the 6.0 month review threshold.",
+      "Locked or gated assets exceed 35% of gross assets while burn is positive."
+    ],
+    "portfolio_concentrated:stress": [
+      "Liquid balance turns negative in month 2; review whether one_month or locked holdings would be needed.",
+      "Same-day reserve is 0.9 months, below the 6.0 month review threshold.",
+      "Locked or gated assets exceed 35% of gross assets while burn is positive."
+    ]
+  }
+}

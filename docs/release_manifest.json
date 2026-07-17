@@ -6,6 +6,11 @@
     "LICENSE",
     "MANIFEST.in",
     "README.md",
+    "demo/assumption-audit/assumption_audit.json",
+    "demo/assumption-audit/assumption_audit.md",
+    "demo/batch-compare/batch_compare.html",
+    "demo/batch-compare/batch_compare.json",
+    "demo/batch-compare/batch_compare.md",
     "demo/scenario-gallery/scenario_gallery.html",
     "demo/scenario-gallery/scenario_gallery.json",
     "demo/scenario-gallery/scenario_gallery.md",
@@ -23,6 +28,7 @@
     "portfolio_liquidity_runway_lab/examples/history.json",
     "portfolio_liquidity_runway_lab/examples/ledger.json",
     "portfolio_liquidity_runway_lab/examples/portfolio.json",
+    "portfolio_liquidity_runway_lab/examples/portfolio_concentrated.json",
     "pyproject.toml",
     "skills/agent/portfolio-liquidity-runway-lab/SKILL.md",
     "tests/test_cli.py",
@@ -30,5 +36,5 @@
   ],
   "name": "portfolio-liquidity-runway-lab",
   "runtime_dependencies": [],
-  "version": "0.2.0"
+  "version": "0.3.0"
 }

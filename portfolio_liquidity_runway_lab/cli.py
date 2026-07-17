@@ -11,6 +11,8 @@ from typing import Any, Dict, Optional
 from . import __version__
 from .core import (
     BOUNDARY_TEXT,
+    build_assumption_audit,
+    build_batch_compare,
     build_packet,
     build_scenario_gallery,
     build_visual_receipt,
@@ -91,6 +93,15 @@ def _split_scenarios(value: Optional[str]) -> Optional[list[str]]:
     return scenarios
 
 
+def _split_optional_scenarios(value: Optional[str]) -> Optional[list[str]]:
+    if not value:
+        return None
+    scenarios = [item.strip() for item in value.split(",") if item.strip()]
+    if not scenarios:
+        raise ValueError("--scenarios must name at least one scenario")
+    return scenarios
+
+
 def cmd_scenario_gallery(args: argparse.Namespace) -> int:
     paths = build_scenario_gallery(
         _example_or_path(args.portfolio, "portfolio"),
@@ -98,6 +109,37 @@ def cmd_scenario_gallery(args: argparse.Namespace) -> int:
         _example_or_path(args.assumptions, "assumptions"),
         Path(args.out),
         _split_scenarios(args.scenarios),
+    )
+    _print_json(
+        {
+            "status": "ok",
+            "boundary": BOUNDARY_TEXT,
+            "json": str(paths.json_path),
+            "markdown": str(paths.markdown_path),
+            "html": str(paths.html_path),
+        }
+    )
+    return 0
+
+
+def cmd_assumption_audit(args: argparse.Namespace) -> int:
+    paths = build_assumption_audit(
+        _example_or_path(args.portfolio, "portfolio"),
+        _example_or_path(args.ledger, "ledger"),
+        _example_or_path(args.assumptions, "assumptions"),
+        Path(args.out),
+    )
+    _print_json({"status": "ok", "boundary": BOUNDARY_TEXT, "json": str(paths.json_path), "markdown": str(paths.markdown_path)})
+    return 0
+
+
+def cmd_batch_compare(args: argparse.Namespace) -> int:
+    paths = build_batch_compare(
+        Path(args.portfolios_dir),
+        _example_or_path(args.ledger, "ledger"),
+        _example_or_path(args.assumptions, "assumptions"),
+        Path(args.out),
+        _split_optional_scenarios(args.scenarios),
     )
     _print_json(
         {
@@ -129,7 +171,7 @@ def cmd_quickstart_check(args: argparse.Namespace) -> int:
     if out.exists() and not out.is_dir():
         raise ValueError("--out must be a directory")
     out.mkdir(parents=True, exist_ok=True)
-    for name in ("portfolio.json", "ledger.json", "assumptions.json", "history.json"):
+    for name in ("portfolio.json", "portfolio_concentrated.json", "ledger.json", "assumptions.json", "history.json"):
         shutil.copyfile(bundled_example_path(name), out / name)
     paths = build_packet(out / "portfolio.json", out / "ledger.json", out / "assumptions.json", out / "packet")
     _print_json({"status": "ok", "examples": str(out), "packet": str(paths.out_dir), "boundary": BOUNDARY_TEXT})
@@ -154,6 +196,25 @@ def cmd_selfcheck(args: argparse.Namespace) -> int:
         )
         gallery = load_json(gallery_paths.json_path)
         packet = load_json(paths.json_path)
+        audit_paths = build_assumption_audit(
+            bundled_example_path("portfolio_concentrated"),
+            bundled_example_path("ledger"),
+            bundled_example_path("assumptions"),
+            tmp_path / "assumption-audit",
+        )
+        batch_dir = tmp_path / "batch-inputs"
+        batch_dir.mkdir()
+        shutil.copyfile(bundled_example_path("portfolio"), batch_dir / "portfolio.json")
+        shutil.copyfile(bundled_example_path("portfolio_concentrated"), batch_dir / "portfolio_concentrated.json")
+        batch_paths = build_batch_compare(
+            batch_dir,
+            bundled_example_path("ledger"),
+            bundled_example_path("assumptions"),
+            tmp_path / "batch-compare",
+            ["base", "stress"],
+        )
+        audit = load_json(audit_paths.json_path)
+        batch = load_json(batch_paths.json_path)
         checks = {
             "json_artifact": paths.json_path.exists(),
             "markdown_artifact": paths.markdown_path.exists(),
@@ -164,6 +225,20 @@ def cmd_selfcheck(args: argparse.Namespace) -> int:
                 and gallery_paths.html_path.exists()
                 and "<script" not in gallery_paths.html_path.read_text(encoding="utf-8").lower()
                 and gallery.get("scenario_names") == ["base", "stress", "income_shock", "reserve_rebuild"]
+            ),
+            "assumption_audit": (
+                audit_paths.json_path.exists()
+                and audit_paths.markdown_path.exists()
+                and audit.get("status") == "review"
+                and any(item.get("code") == "suspicious_yield" for item in audit.get("findings", []))
+            ),
+            "batch_compare": (
+                batch_paths.json_path.exists()
+                and batch_paths.markdown_path.exists()
+                and batch_paths.html_path.exists()
+                and "<script" not in batch_paths.html_path.read_text(encoding="utf-8").lower()
+                and batch.get("scenario_names") == ["base", "stress"]
+                and len(batch.get("summary", [])) == 4
             ),
             "visual_receipt": (
                 build_visual_receipt(
@@ -248,6 +323,21 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--scenarios", help="Comma-separated scenario names. Defaults to base, stress, income_shock, reserve_rebuild when present.")
     p.add_argument("--out", default="dist/scenario-gallery", help="Output directory.")
     p.set_defaults(func=cmd_scenario_gallery)
+
+    p = sub.add_parser("assumption-audit", help="Audit portfolio, ledger, and assumption JSON for completeness and suspicious assumptions.")
+    p.add_argument("--portfolio", help="Portfolio JSON path. Defaults to bundled synthetic example.")
+    p.add_argument("--ledger", help="Ledger JSON path. Defaults to bundled synthetic example.")
+    p.add_argument("--assumptions", help="Assumptions JSON path. Defaults to bundled synthetic example.")
+    p.add_argument("--out", default="dist/assumption-audit", help="Output directory.")
+    p.set_defaults(func=cmd_assumption_audit)
+
+    p = sub.add_parser("batch-compare", help="Compare selected scenarios across a directory of portfolio JSON files.")
+    p.add_argument("--portfolios-dir", required=True, help="Directory containing portfolio JSON files.")
+    p.add_argument("--ledger", help="Ledger JSON path. Defaults to bundled synthetic example.")
+    p.add_argument("--assumptions", help="Assumptions JSON path. Defaults to bundled synthetic example.")
+    p.add_argument("--scenarios", help="Comma-separated scenario names. Defaults to bundled scenario order when present.")
+    p.add_argument("--out", default="dist/batch-compare", help="Output directory.")
+    p.set_defaults(func=cmd_batch_compare)
 
     p = sub.add_parser("visual-receipt", help="Write a compact deterministic Markdown receipt for packet review.")
     add_common_inputs(p)

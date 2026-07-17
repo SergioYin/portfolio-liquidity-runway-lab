@@ -1,0 +1,20 @@
+{
+  "currency": "USD",
+  "name": "Synthetic concentrated liquidity portfolio",
+  "assets": [
+    {
+      "name": "Operating checking",
+      "liquidity_tier": "same_day",
+      "value": 9500,
+      "annual_yield_rate": 0.001,
+      "annual_fee_rate": 0.0
+    },
+    {
+      "name": "Promotional private credit placeholder",
+      "liquidity_tier": "locked",
+      "value": 118000,
+      "annual_yield_rate": 0.24,
+      "annual_fee_rate": 0.065
+    }
+  ]
+}

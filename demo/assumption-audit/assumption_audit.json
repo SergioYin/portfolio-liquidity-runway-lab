@@ -1,0 +1,35 @@
+{
+  "boundary": "Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.",
+  "finding_counts": {
+    "error": 0,
+    "warning": 4
+  },
+  "findings": [
+    {
+      "code": "missing_liquidity_tier",
+      "location": "portfolio.assets.one_month",
+      "message": "No asset uses liquidity tier one_month.",
+      "severity": "warning"
+    },
+    {
+      "code": "missing_liquidity_tier",
+      "location": "portfolio.assets.one_week",
+      "message": "No asset uses liquidity tier one_week.",
+      "severity": "warning"
+    },
+    {
+      "code": "suspicious_fee",
+      "location": "portfolio.assets[1].annual_fee_rate",
+      "message": "Annual fee rate is outside the 0% to 5% audit band.",
+      "severity": "warning"
+    },
+    {
+      "code": "suspicious_yield",
+      "location": "portfolio.assets[1].annual_yield_rate",
+      "message": "Annual yield rate is outside the -1% to 20% audit band.",
+      "severity": "warning"
+    }
+  ],
+  "portfolio_name": "Synthetic concentrated liquidity portfolio",
+  "status": "review"
+}

@@ -14,26 +14,38 @@ From an empty working directory after installation:
 portfolio-liquidity-runway-lab quickstart-check --out liquidity-demo
 portfolio-liquidity-runway-lab build-packet --out liquidity-demo/packet --scenario stress
 portfolio-liquidity-runway-lab scenario-gallery --out liquidity-demo/scenario-gallery
+portfolio-liquidity-runway-lab assumption-audit --portfolio liquidity-demo/portfolio_concentrated.json --out liquidity-demo/assumption-audit
+mkdir -p liquidity-demo/portfolios
+cp liquidity-demo/portfolio.json liquidity-demo/portfolios/portfolio.json
+cp liquidity-demo/portfolio_concentrated.json liquidity-demo/portfolios/portfolio_concentrated.json
+portfolio-liquidity-runway-lab batch-compare --portfolios-dir liquidity-demo/portfolios --scenarios base,stress --out liquidity-demo/batch-compare
 portfolio-liquidity-runway-lab visual-receipt --out liquidity-demo/visual_receipt.md --scenario stress
 ```
 
 Example outputs:
 
-- `liquidity-demo/portfolio.json`, `ledger.json`, `assumptions.json`, and `history.json`
+- `liquidity-demo/portfolio.json`, `portfolio_concentrated.json`, `ledger.json`, `assumptions.json`, and `history.json`
 - `liquidity-demo/packet/liquidity_packet.json`
 - `liquidity-demo/packet/liquidity_packet.md`
 - `liquidity-demo/packet/liquidity_packet.html`
 - `liquidity-demo/scenario-gallery/scenario_gallery.json`
 - `liquidity-demo/scenario-gallery/scenario_gallery.md`
 - `liquidity-demo/scenario-gallery/scenario_gallery.html`
+- `liquidity-demo/assumption-audit/assumption_audit.json`
+- `liquidity-demo/assumption-audit/assumption_audit.md`
+- `liquidity-demo/batch-compare/batch_compare.json`
+- `liquidity-demo/batch-compare/batch_compare.md`
+- `liquidity-demo/batch-compare/batch_compare.html`
 - `liquidity-demo/visual_receipt.md`
 
-The packet contains liquidity buckets, stress-haircut values, monthly runway rows, forced-sale warnings, and review prompts. The scenario gallery compares bundled `base`, `stress`, `income_shock`, and `reserve_rebuild` scenarios across deterministic JSON, Markdown, and no-JavaScript HTML artifacts. The visual receipt is a compact Markdown showcase that links the packet artifacts, boundary text, liquidity bucket bars, and regeneration commands. Open `liquidity-demo/packet/liquidity_packet.html`, inspect `liquidity-demo/scenario-gallery/scenario_gallery.html`, inspect `demo/visual_receipt.md`, or run supporting checks:
+The packet contains liquidity buckets, stress-haircut values, monthly runway rows, forced-sale warnings, and review prompts. The scenario gallery compares bundled `base`, `stress`, `income_shock`, and `reserve_rebuild` scenarios across deterministic JSON, Markdown, and no-JavaScript HTML artifacts. `assumption-audit` validates portfolio, ledger, and assumptions JSON for liquidity tier completeness, nonnumeric values, suspicious yields or fees, missing scenarios, reserve thresholds, and scheduled event issues. `batch-compare` compares runway, reserves, and warnings across a directory of portfolio JSON files that share one ledger and assumptions file. The visual receipt is a compact Markdown showcase that links the packet artifacts, boundary text, liquidity bucket bars, and regeneration commands. Open `liquidity-demo/packet/liquidity_packet.html`, inspect `liquidity-demo/scenario-gallery/scenario_gallery.html`, inspect `liquidity-demo/batch-compare/batch_compare.html`, inspect `demo/visual_receipt.md`, or run supporting checks:
 
 ```bash
 portfolio-liquidity-runway-lab compare-history
 portfolio-liquidity-runway-lab review-ledger
 portfolio-liquidity-runway-lab scenario-gallery
+portfolio-liquidity-runway-lab assumption-audit
+portfolio-liquidity-runway-lab batch-compare --portfolios-dir liquidity-demo/portfolios
 portfolio-liquidity-runway-lab selfcheck
 portfolio-liquidity-runway-lab public-scan
 portfolio-liquidity-runway-lab maturity-report
@@ -53,6 +65,8 @@ python -m portfolio_liquidity_runway_lab selfcheck
 - `review-ledger`: produce ledger flags and review prompts.
 - `static-dashboard`: build the static HTML dashboard artifact.
 - `scenario-gallery`: build deterministic JSON, Markdown, and no-JavaScript HTML gallery artifacts for at least three named scenarios.
+- `assumption-audit`: validate portfolio, ledger, and assumptions JSON and emit deterministic JSON and Markdown findings.
+- `batch-compare`: run selected scenarios across a directory of portfolio JSON files and emit deterministic JSON, Markdown, and no-JavaScript HTML.
 - `visual-receipt`: write a compact deterministic Markdown receipt for packet review.
 - `quickstart-check`: copy packaged synthetic examples and build a packet.
 - `selfcheck`: run a smoke test against packaged examples.

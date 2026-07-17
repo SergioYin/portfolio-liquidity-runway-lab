@@ -36,6 +36,7 @@ class CliTests(unittest.TestCase):
             payload = json.loads(result.stdout)
             self.assertEqual(payload["status"], "ok")
             self.assertTrue((Path(tmp) / "demo" / "portfolio.json").exists())
+            self.assertTrue((Path(tmp) / "demo" / "portfolio_concentrated.json").exists())
             self.assertTrue((Path(tmp) / "demo" / "packet" / "liquidity_packet.html").exists())
 
     def test_compare_history_uses_bundled_example(self):
@@ -88,6 +89,75 @@ class CliTests(unittest.TestCase):
             self.assertEqual(first["json"], gallery_json.read_text(encoding="utf-8"))
             self.assertEqual(first["markdown"], gallery_md.read_text(encoding="utf-8"))
             self.assertEqual(first["html"], gallery_html.read_text(encoding="utf-8"))
+
+    def test_assumption_audit_command_writes_expected_deterministic_artifacts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "audit"
+            result = self.run_cli(
+                "assumption-audit",
+                "--portfolio",
+                str(Path(__file__).resolve().parents[1] / "portfolio_liquidity_runway_lab" / "examples" / "portfolio_concentrated.json"),
+                "--out",
+                str(out),
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "ok")
+            audit_json = out / "assumption_audit.json"
+            audit_md = out / "assumption_audit.md"
+            first_json = audit_json.read_text(encoding="utf-8")
+            first_md = audit_md.read_text(encoding="utf-8")
+            data = json.loads(first_json)
+            codes = {finding["code"] for finding in data["findings"]}
+            self.assertIn("suspicious_yield", codes)
+            self.assertIn("missing_liquidity_tier", codes)
+            self.assertIn("# Assumption Audit:", first_md)
+
+            second = self.run_cli(
+                "assumption-audit",
+                "--portfolio",
+                str(Path(__file__).resolve().parents[1] / "portfolio_liquidity_runway_lab" / "examples" / "portfolio_concentrated.json"),
+                "--out",
+                str(out),
+            )
+            self.assertEqual(second.returncode, 0, second.stderr)
+            self.assertEqual(first_json, audit_json.read_text(encoding="utf-8"))
+            self.assertEqual(first_md, audit_md.read_text(encoding="utf-8"))
+
+    def test_batch_compare_command_writes_no_script_deterministic_html(self):
+        repo_root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as tmp:
+            portfolio_dir = Path(tmp) / "portfolios"
+            portfolio_dir.mkdir()
+            for name in ("portfolio.json", "portfolio_concentrated.json"):
+                (portfolio_dir / name).write_text(
+                    (repo_root / "portfolio_liquidity_runway_lab" / "examples" / name).read_text(encoding="utf-8"),
+                    encoding="utf-8",
+                )
+            out = Path(tmp) / "batch"
+            result = self.run_cli("batch-compare", "--portfolios-dir", str(portfolio_dir), "--scenarios", "base,stress", "--out", str(out))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "ok")
+            batch_json = out / "batch_compare.json"
+            batch_md = out / "batch_compare.md"
+            batch_html = out / "batch_compare.html"
+            first = {
+                "json": batch_json.read_text(encoding="utf-8"),
+                "markdown": batch_md.read_text(encoding="utf-8"),
+                "html": batch_html.read_text(encoding="utf-8"),
+            }
+            data = json.loads(first["json"])
+            self.assertEqual(data["scenario_names"], ["base", "stress"])
+            self.assertEqual(len(data["summary"]), 4)
+            self.assertNotIn("<script", first["html"].lower())
+            self.assertIn("Batch Portfolio Compare", first["markdown"])
+
+            second = self.run_cli("batch-compare", "--portfolios-dir", str(portfolio_dir), "--scenarios", "base,stress", "--out", str(out))
+            self.assertEqual(second.returncode, 0, second.stderr)
+            self.assertEqual(first["json"], batch_json.read_text(encoding="utf-8"))
+            self.assertEqual(first["markdown"], batch_md.read_text(encoding="utf-8"))
+            self.assertEqual(first["html"], batch_html.read_text(encoding="utf-8"))
 
     def test_public_scan_passes_repo_without_ai_metadata(self):
         repo_root = Path(__file__).resolve().parents[1]

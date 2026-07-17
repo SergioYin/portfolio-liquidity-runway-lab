@@ -12,6 +12,11 @@ python -m portfolio_liquidity_runway_lab selfcheck
 python -m portfolio_liquidity_runway_lab public-scan
 python -m portfolio_liquidity_runway_lab maturity-report
 python -m portfolio_liquidity_runway_lab scenario-gallery --out demo/scenario-gallery
+python -m portfolio_liquidity_runway_lab assumption-audit --portfolio portfolio_liquidity_runway_lab/examples/portfolio_concentrated.json --out demo/assumption-audit
+tmpdir="$(mktemp -d)"
+cp portfolio_liquidity_runway_lab/examples/portfolio.json "$tmpdir/portfolio.json"
+cp portfolio_liquidity_runway_lab/examples/portfolio_concentrated.json "$tmpdir/portfolio_concentrated.json"
+python -m portfolio_liquidity_runway_lab batch-compare --portfolios-dir "$tmpdir" --scenarios base,stress --out demo/batch-compare
 python -m portfolio_liquidity_runway_lab visual-receipt --out demo/visual_receipt.md --scenario stress
 python -m portfolio_liquidity_runway_lab release-manifest --out docs/release_manifest.json
 ```
@@ -24,6 +29,11 @@ cd "$tmpdir"
 portfolio-liquidity-runway-lab quickstart-check --out liquidity-demo
 portfolio-liquidity-runway-lab build-packet --out liquidity-demo/packet --scenario stress
 portfolio-liquidity-runway-lab scenario-gallery --out liquidity-demo/scenario-gallery
+portfolio-liquidity-runway-lab assumption-audit --portfolio liquidity-demo/portfolio_concentrated.json --out liquidity-demo/assumption-audit
+mkdir -p liquidity-demo/portfolios
+cp liquidity-demo/portfolio.json liquidity-demo/portfolios/portfolio.json
+cp liquidity-demo/portfolio_concentrated.json liquidity-demo/portfolios/portfolio_concentrated.json
+portfolio-liquidity-runway-lab batch-compare --portfolios-dir liquidity-demo/portfolios --scenarios base,stress --out liquidity-demo/batch-compare
 portfolio-liquidity-runway-lab visual-receipt --out liquidity-demo/visual_receipt.md --scenario stress
 ```
 
@@ -37,6 +47,8 @@ Current maturity: alpha public utility.
 | Runtime dependency risk | Ready | Package has no runtime dependencies and uses the Python standard library. |
 | Determinism | Ready | Packets and release manifest are deterministic for the same file tree and inputs. |
 | Scenario gallery | Ready | `scenario-gallery` writes deterministic JSON, Markdown, and no-JavaScript HTML for bundled `base`, `stress`, `income_shock`, and `reserve_rebuild` scenarios. |
+| Assumption audit | Ready | `assumption-audit` writes deterministic JSON and Markdown findings for liquidity tier completeness, nonnumeric values, suspicious yields or fees, missing scenarios, reserve thresholds, and scheduled event issues. |
+| Batch compare | Ready | `batch-compare` writes deterministic JSON, Markdown, and no-JavaScript HTML comparing runway, reserves, and warnings across portfolio JSON files. |
 | Visual receipt | Ready | `visual-receipt` writes compact deterministic Markdown linking packet artifacts, boundary text, bucket bars, and regeneration commands. |
 | Cold start | Ready | `quickstart-check` copies packaged examples and builds a packet from an empty directory. |
 | Test coverage | Basic | Unit tests cover analysis, static artifacts, CLI smoke paths, public metadata, README expectations, and manifest expectations. |
@@ -51,6 +63,8 @@ Current maturity: alpha public utility.
 - Confirm `README.md` starts with purpose, target user, quickstart, example outputs, and boundaries.
 - Regenerate `demo/visual_receipt.md` when changing bundled examples or receipt formatting.
 - Regenerate `demo/scenario-gallery/` when changing bundled scenarios or gallery formatting.
+- Regenerate `demo/assumption-audit/` when changing audit rules or bundled concentrated fixtures.
+- Regenerate `demo/batch-compare/` when changing batch compare rendering or summary fields.
 - Regenerate `docs/release_manifest.json` after adding or removing release files.
 - Do not add `.github/workflows` for this release.
 - Do not include large generated demo output directories in a source distribution.

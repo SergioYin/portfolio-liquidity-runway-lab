@@ -29,6 +29,11 @@ cd /tmp/plrl-demo
 portfolio-liquidity-runway-lab quickstart-check --out liquidity-demo
 portfolio-liquidity-runway-lab build-packet --out liquidity-demo/packet --scenario stress
 portfolio-liquidity-runway-lab scenario-gallery --out liquidity-demo/scenario-gallery
+portfolio-liquidity-runway-lab assumption-audit --portfolio liquidity-demo/portfolio_concentrated.json --out liquidity-demo/assumption-audit
+mkdir -p liquidity-demo/portfolios
+cp liquidity-demo/portfolio.json liquidity-demo/portfolios/portfolio.json
+cp liquidity-demo/portfolio_concentrated.json liquidity-demo/portfolios/portfolio_concentrated.json
+portfolio-liquidity-runway-lab batch-compare --portfolios-dir liquidity-demo/portfolios --scenarios base,stress --out liquidity-demo/batch-compare
 portfolio-liquidity-runway-lab visual-receipt --out liquidity-demo/visual_receipt.md --scenario stress
 ```
 
@@ -36,6 +41,7 @@ Expected files:
 
 ```text
 liquidity-demo/portfolio.json
+liquidity-demo/portfolio_concentrated.json
 liquidity-demo/ledger.json
 liquidity-demo/assumptions.json
 liquidity-demo/history.json
@@ -45,6 +51,11 @@ liquidity-demo/packet/liquidity_packet.html
 liquidity-demo/scenario-gallery/scenario_gallery.json
 liquidity-demo/scenario-gallery/scenario_gallery.md
 liquidity-demo/scenario-gallery/scenario_gallery.html
+liquidity-demo/assumption-audit/assumption_audit.json
+liquidity-demo/assumption-audit/assumption_audit.md
+liquidity-demo/batch-compare/batch_compare.json
+liquidity-demo/batch-compare/batch_compare.md
+liquidity-demo/batch-compare/batch_compare.html
 liquidity-demo/visual_receipt.md
 ```
 
@@ -55,10 +66,12 @@ portfolio-liquidity-runway-lab compare-history --history liquidity-demo/history.
 portfolio-liquidity-runway-lab review-ledger --ledger liquidity-demo/ledger.json
 portfolio-liquidity-runway-lab static-dashboard --out liquidity-demo/dashboard --scenario stress
 portfolio-liquidity-runway-lab scenario-gallery --out liquidity-demo/scenario-gallery
+portfolio-liquidity-runway-lab assumption-audit --portfolio liquidity-demo/portfolio_concentrated.json --out liquidity-demo/assumption-audit
+portfolio-liquidity-runway-lab batch-compare --portfolios-dir liquidity-demo/portfolios --scenarios base,stress --out liquidity-demo/batch-compare
 portfolio-liquidity-runway-lab visual-receipt --out liquidity-demo/visual_receipt.md --scenario stress
 ```
 
-The packet, gallery, and visual receipt artifacts should be deterministic for the same inputs. HTML artifacts are static and contain no JavaScript.
+The packet, gallery, audit, batch compare, and visual receipt artifacts should be deterministic for the same inputs. HTML artifacts are static and contain no JavaScript.
 
 ## Public Readiness Checks
 
@@ -70,6 +83,11 @@ python -m portfolio_liquidity_runway_lab selfcheck
 python -m portfolio_liquidity_runway_lab public-scan
 python -m portfolio_liquidity_runway_lab maturity-report
 python -m portfolio_liquidity_runway_lab scenario-gallery --out demo/scenario-gallery
+python -m portfolio_liquidity_runway_lab assumption-audit --portfolio portfolio_liquidity_runway_lab/examples/portfolio_concentrated.json --out demo/assumption-audit
+tmpdir="$(mktemp -d)"
+cp portfolio_liquidity_runway_lab/examples/portfolio.json "$tmpdir/portfolio.json"
+cp portfolio_liquidity_runway_lab/examples/portfolio_concentrated.json "$tmpdir/portfolio_concentrated.json"
+python -m portfolio_liquidity_runway_lab batch-compare --portfolios-dir "$tmpdir" --scenarios base,stress --out demo/batch-compare
 python -m portfolio_liquidity_runway_lab release-manifest --out docs/release_manifest.json
 ```
 

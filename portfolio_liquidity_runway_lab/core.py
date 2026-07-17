@@ -50,6 +50,21 @@ class ScenarioGalleryPaths:
     html_path: Path
 
 
+@dataclass(frozen=True)
+class AuditPaths:
+    out_dir: Path
+    json_path: Path
+    markdown_path: Path
+
+
+@dataclass(frozen=True)
+class BatchComparePaths:
+    out_dir: Path
+    json_path: Path
+    markdown_path: Path
+    html_path: Path
+
+
 IGNORED_RELEASE_PARTS = {
     ".git",
     ".mypy_cache",
@@ -101,6 +116,15 @@ def _as_number(value: Any, field: str) -> float:
         return float(value)
     except (TypeError, ValueError) as exc:
         raise ValueError(f"{field} must be numeric") from exc
+
+
+def _maybe_number(value: Any) -> Optional[float]:
+    if isinstance(value, bool):
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def _iter_items(portfolio: Mapping[str, Any]) -> Iterable[Mapping[str, Any]]:
@@ -674,6 +698,352 @@ def build_visual_receipt(
     return out_path
 
 
+def _finding(severity: str, code: str, location: str, message: str) -> Dict[str, str]:
+    return {"severity": severity, "code": code, "location": location, "message": message}
+
+
+def assumption_audit(
+    portfolio: Mapping[str, Any],
+    ledger: Mapping[str, Any],
+    assumptions: Mapping[str, Any],
+) -> Dict[str, Any]:
+    findings: List[Dict[str, str]] = []
+
+    assets = portfolio.get("assets", [])
+    seen_tiers = set()
+    if not isinstance(assets, list):
+        findings.append(_finding("error", "portfolio_assets_not_list", "portfolio.assets", "portfolio.assets must be a list."))
+        assets = []
+    for index, asset in enumerate(assets):
+        location = f"portfolio.assets[{index}]"
+        if not isinstance(asset, dict):
+            findings.append(_finding("error", "asset_not_object", location, "Asset entry must be an object."))
+            continue
+        tier = asset.get("liquidity_tier")
+        if tier not in LIQUIDITY_ORDER:
+            findings.append(
+                _finding("error", "invalid_liquidity_tier", f"{location}.liquidity_tier", "Liquidity tier must be one of same_day, one_week, one_month, locked.")
+            )
+        else:
+            seen_tiers.add(str(tier))
+        for field in ("value", "annual_yield_rate", "annual_fee_rate"):
+            number = _maybe_number(asset.get(field))
+            if number is None:
+                findings.append(_finding("error", "nonnumeric_value", f"{location}.{field}", f"{field} must be numeric."))
+                continue
+            if field == "value" and number < 0:
+                findings.append(_finding("warning", "negative_asset_value", f"{location}.{field}", "Asset value is negative."))
+            if field == "annual_yield_rate" and (number < -0.01 or number > 0.20):
+                findings.append(_finding("warning", "suspicious_yield", f"{location}.{field}", "Annual yield rate is outside the -1% to 20% audit band."))
+            if field == "annual_fee_rate" and (number < 0 or number > 0.05):
+                findings.append(_finding("warning", "suspicious_fee", f"{location}.{field}", "Annual fee rate is outside the 0% to 5% audit band."))
+    for tier in LIQUIDITY_ORDER:
+        if tier not in seen_tiers:
+            findings.append(_finding("warning", "missing_liquidity_tier", f"portfolio.assets.{tier}", f"No asset uses liquidity tier {tier}."))
+
+    monthly_expenses = _maybe_number(ledger.get("monthly_expenses"))
+    monthly_income = _maybe_number(ledger.get("monthly_income"))
+    if monthly_expenses is None:
+        findings.append(_finding("error", "nonnumeric_value", "ledger.monthly_expenses", "monthly_expenses must be numeric."))
+    elif monthly_expenses <= 0:
+        findings.append(_finding("warning", "reserve_threshold_issue", "ledger.monthly_expenses", "Monthly expenses should be positive for reserve checks."))
+    if monthly_income is None:
+        findings.append(_finding("error", "nonnumeric_value", "ledger.monthly_income", "monthly_income must be numeric."))
+
+    months_count = _maybe_number(assumptions.get("months"))
+    if months_count is None:
+        findings.append(_finding("error", "nonnumeric_value", "assumptions.months", "months must be numeric."))
+        normalized_months = 0
+    else:
+        normalized_months = int(months_count)
+        if normalized_months < 1:
+            findings.append(_finding("error", "invalid_months", "assumptions.months", "months must be at least 1."))
+        if months_count != normalized_months:
+            findings.append(_finding("warning", "noninteger_months", "assumptions.months", "months should be an integer."))
+
+    target_reserve = _maybe_number(assumptions.get("target_reserve_months"))
+    if target_reserve is None:
+        findings.append(_finding("error", "nonnumeric_value", "assumptions.target_reserve_months", "target_reserve_months must be numeric."))
+    else:
+        if target_reserve <= 0:
+            findings.append(_finding("warning", "reserve_threshold_issue", "assumptions.target_reserve_months", "Reserve threshold should be positive."))
+        if target_reserve < 3 or target_reserve > 24:
+            findings.append(_finding("warning", "reserve_threshold_issue", "assumptions.target_reserve_months", "Reserve threshold is outside the 3 to 24 month audit band."))
+
+    scenarios = assumptions.get("scenarios", {})
+    if not isinstance(scenarios, dict) or not scenarios:
+        findings.append(_finding("error", "missing_scenarios", "assumptions.scenarios", "assumptions.scenarios must contain named scenarios."))
+        scenarios = {}
+    default_scenario = str(assumptions.get("default_scenario", "base"))
+    if default_scenario not in scenarios:
+        findings.append(_finding("error", "missing_default_scenario", "assumptions.default_scenario", "default_scenario is not present in assumptions.scenarios."))
+    for scenario_name in ("base", "stress", "income_shock"):
+        if scenario_name not in scenarios:
+            findings.append(_finding("warning", "missing_scenario", f"assumptions.scenarios.{scenario_name}", f"Scenario {scenario_name} is missing."))
+    for scenario_name in sorted(str(name) for name in scenarios):
+        scenario = scenarios.get(scenario_name)
+        location = f"assumptions.scenarios.{scenario_name}"
+        if not isinstance(scenario, dict):
+            findings.append(_finding("error", "scenario_not_object", location, "Scenario must be an object."))
+            continue
+        for field in ("expense_multiplier", "income_multiplier"):
+            number = _maybe_number(scenario.get(field))
+            if number is None:
+                findings.append(_finding("error", "nonnumeric_value", f"{location}.{field}", f"{field} must be numeric."))
+            elif number <= 0 or number > 3:
+                findings.append(_finding("warning", "suspicious_multiplier", f"{location}.{field}", "Scenario multiplier is outside the 0 to 3 audit band."))
+        haircuts = scenario.get("liquidity_haircuts", {})
+        if not isinstance(haircuts, dict):
+            findings.append(_finding("error", "haircuts_not_object", f"{location}.liquidity_haircuts", "liquidity_haircuts must be an object."))
+            continue
+        for tier in LIQUIDITY_ORDER:
+            if tier not in haircuts:
+                findings.append(_finding("error", "missing_haircut", f"{location}.liquidity_haircuts.{tier}", f"Missing haircut for {tier}."))
+                continue
+            haircut = _maybe_number(haircuts.get(tier))
+            if haircut is None:
+                findings.append(_finding("error", "nonnumeric_value", f"{location}.liquidity_haircuts.{tier}", "Haircut must be numeric."))
+            elif haircut < 0 or haircut > 1:
+                findings.append(_finding("warning", "suspicious_haircut", f"{location}.liquidity_haircuts.{tier}", "Haircut is outside the 0 to 1 audit band."))
+
+    events = ledger.get("scheduled_events", [])
+    if not isinstance(events, list):
+        findings.append(_finding("error", "scheduled_events_not_list", "ledger.scheduled_events", "scheduled_events must be a list."))
+        events = []
+    event_keys = set()
+    for index, event in enumerate(events):
+        location = f"ledger.scheduled_events[{index}]"
+        if not isinstance(event, dict):
+            findings.append(_finding("error", "scheduled_event_not_object", location, "Scheduled event must be an object."))
+            continue
+        month = _maybe_number(event.get("month"))
+        amount = _maybe_number(event.get("amount"))
+        kind = str(event.get("type", "")).strip().lower()
+        label = str(event.get("label", "")).strip()
+        if month is None:
+            findings.append(_finding("error", "nonnumeric_value", f"{location}.month", "Scheduled event month must be numeric."))
+        else:
+            month_int = int(month)
+            if month != month_int:
+                findings.append(_finding("warning", "noninteger_event_month", f"{location}.month", "Scheduled event month should be an integer."))
+            if normalized_months > 0 and (month_int < 1 or month_int > normalized_months):
+                findings.append(_finding("warning", "event_outside_window", f"{location}.month", "Scheduled event falls outside the assumptions.months window."))
+        if amount is None:
+            findings.append(_finding("error", "nonnumeric_value", f"{location}.amount", "Scheduled event amount must be numeric."))
+        else:
+            if amount <= 0:
+                findings.append(_finding("warning", "nonpositive_event_amount", f"{location}.amount", "Scheduled event amount should be positive."))
+            if monthly_expenses and monthly_expenses > 0 and kind == "outflow" and amount > monthly_expenses * 3:
+                findings.append(_finding("warning", "large_scheduled_outflow", f"{location}.amount", "Scheduled outflow exceeds three months of expenses."))
+        if kind not in {"inflow", "outflow"}:
+            findings.append(_finding("error", "invalid_event_type", f"{location}.type", "Scheduled event type must be inflow or outflow."))
+        if not label:
+            findings.append(_finding("warning", "missing_event_label", f"{location}.label", "Scheduled event label is missing."))
+        key = (month, kind, label)
+        if key in event_keys:
+            findings.append(_finding("warning", "duplicate_scheduled_event", location, "Scheduled event duplicates an earlier month/type/label combination."))
+        event_keys.add(key)
+
+    findings.sort(key=lambda item: (item["severity"], item["code"], item["location"], item["message"]))
+    counts = {severity: sum(1 for item in findings if item["severity"] == severity) for severity in ("error", "warning")}
+    return {
+        "boundary": BOUNDARY_TEXT,
+        "status": "pass" if not findings else "review",
+        "finding_counts": counts,
+        "portfolio_name": str(portfolio.get("name", "Synthetic portfolio")),
+        "findings": findings,
+    }
+
+
+def render_assumption_audit_markdown(audit: Mapping[str, Any]) -> str:
+    lines = [
+        f"# Assumption Audit: {audit['portfolio_name']}",
+        "",
+        f"> {audit['boundary']}",
+        "",
+        f"Status: `{audit['status']}`",
+        "",
+        "## Finding Counts",
+        "",
+        f"- Errors: {audit['finding_counts']['error']}",
+        f"- Warnings: {audit['finding_counts']['warning']}",
+        "",
+        "## Findings",
+        "",
+    ]
+    if audit["findings"]:
+        lines.extend(["| Severity | Code | Location | Message |", "| --- | --- | --- | --- |"])
+        for finding in audit["findings"]:
+            lines.append(
+                f"| {finding['severity']} | {finding['code']} | `{finding['location']}` | {finding['message']} |"
+            )
+    else:
+        lines.append("- No audit findings were triggered.")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def build_assumption_audit(portfolio_path: Path, ledger_path: Path, assumptions_path: Path, out_dir: Path) -> AuditPaths:
+    audit = assumption_audit(load_json(portfolio_path), load_json(ledger_path), load_json(assumptions_path))
+    out_dir.mkdir(parents=True, exist_ok=True)
+    json_path = out_dir / "assumption_audit.json"
+    markdown_path = out_dir / "assumption_audit.md"
+    dump_json(audit, json_path)
+    markdown_path.write_text(render_assumption_audit_markdown(audit), encoding="utf-8")
+    return AuditPaths(out_dir, json_path, markdown_path)
+
+
+def _default_batch_scenarios(assumptions: Mapping[str, Any], scenario_names: Optional[Iterable[str]]) -> List[str]:
+    if scenario_names:
+        selected = [str(name) for name in scenario_names]
+        if not selected:
+            raise ValueError("batch compare requires at least one scenario")
+        return selected
+    scenarios = assumptions.get("scenarios", {})
+    if not isinstance(scenarios, dict) or not scenarios:
+        raise ValueError("assumptions.scenarios must contain at least one scenario")
+    preferred = ["base", "stress", "income_shock", "reserve_rebuild"]
+    selected = [name for name in preferred if name in scenarios]
+    return selected or sorted(str(name) for name in scenarios)
+
+
+def build_batch_compare_data(
+    portfolios_dir: Path,
+    ledger: Mapping[str, Any],
+    assumptions: Mapping[str, Any],
+    scenario_names: Optional[Iterable[str]] = None,
+) -> Dict[str, Any]:
+    files = sorted(path for path in portfolios_dir.glob("*.json") if path.is_file())
+    if not files:
+        raise ValueError("portfolio directory must contain at least one .json file")
+    scenarios = _default_batch_scenarios(assumptions, scenario_names)
+    rows = []
+    warnings: Dict[str, List[str]] = {}
+    for path in files:
+        portfolio = load_json(path)
+        portfolio_key = path.stem
+        for scenario in scenarios:
+            packet = analyze(portfolio, ledger, assumptions, scenario)
+            totals = packet["totals"]
+            row = {
+                "portfolio_file": path.name,
+                "portfolio_name": packet["portfolio_name"],
+                "scenario": scenario,
+                "same_day_reserve_months": totals["same_day_reserve_months"],
+                "same_day_one_week_runway_months": totals["same_day_one_week_runway_months"],
+                "thirty_day_runway_months": totals["thirty_day_runway_months"],
+                "effective_monthly_burn": totals["effective_monthly_burn"],
+                "warning_count": len(packet["forced_sale_warnings"]),
+                "first_negative_month": next(
+                    (item["month"] for item in packet["monthly_runway"] if item["liquid_balance_after"] < 0),
+                    None,
+                ),
+            }
+            rows.append(row)
+            warnings[f"{portfolio_key}:{scenario}"] = list(packet["forced_sale_warnings"])
+    return {
+        "boundary": BOUNDARY_TEXT,
+        "portfolio_files": [path.name for path in files],
+        "scenario_names": scenarios,
+        "summary": rows,
+        "warnings": warnings,
+    }
+
+
+def render_batch_compare_markdown(compare: Mapping[str, Any]) -> str:
+    lines = [
+        "# Batch Portfolio Compare",
+        "",
+        f"> {compare['boundary']}",
+        "",
+        "## Summary",
+        "",
+        "| Portfolio | Scenario | Same-day reserve months | Same-day + one-week runway | 30-day runway | Effective monthly burn | Warnings | First negative month |",
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for row in compare["summary"]:
+        first_negative = "" if row["first_negative_month"] is None else str(row["first_negative_month"])
+        lines.append(
+            f"| {row['portfolio_file']} | {row['scenario']} | {row['same_day_reserve_months']:.2f} | "
+            f"{row['same_day_one_week_runway_months']} | {row['thirty_day_runway_months']} | "
+            f"{money(row['effective_monthly_burn'])} | {row['warning_count']} | {first_negative} |"
+        )
+    lines.extend(["", "## Warnings", ""])
+    for key in sorted(compare["warnings"]):
+        lines.append(f"### {key}")
+        warnings = compare["warnings"][key]
+        if warnings:
+            lines.extend(f"- {warning}" for warning in warnings)
+        else:
+            lines.append("- No forced-sale warnings were triggered by these assumptions.")
+        lines.append("")
+    return "\n".join(lines)
+
+
+def render_batch_compare_html(compare: Mapping[str, Any]) -> str:
+    rows = []
+    for row in compare["summary"]:
+        first_negative = "" if row["first_negative_month"] is None else str(row["first_negative_month"])
+        rows.append(
+            "<tr>"
+            f"<td>{html.escape(str(row['portfolio_file']))}</td>"
+            f"<td>{html.escape(str(row['scenario']))}</td>"
+            f"<td>{row['same_day_reserve_months']:.2f}</td>"
+            f"<td>{html.escape(str(row['same_day_one_week_runway_months']))}</td>"
+            f"<td>{html.escape(str(row['thirty_day_runway_months']))}</td>"
+            f"<td>{html.escape(money(row['effective_monthly_burn']))}</td>"
+            f"<td>{row['warning_count']}</td>"
+            f"<td>{html.escape(first_negative)}</td>"
+            "</tr>"
+        )
+    warning_sections = []
+    for key in sorted(compare["warnings"]):
+        warnings = compare["warnings"][key] or ["No forced-sale warnings were triggered by these assumptions."]
+        warning_sections.append(
+            f"<section><h2>{html.escape(key)}</h2><ul>"
+            + "".join(f"<li>{html.escape(warning)}</li>" for warning in warnings)
+            + "</ul></section>"
+        )
+    return """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Batch Portfolio Compare</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 2rem; color: #1d2329; background: #fbfbf8; }
+main { max-width: 1120px; margin: 0 auto; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0 2rem; }
+th, td { border: 1px solid #c7cbd1; padding: 0.45rem; text-align: left; }
+th { background: #e8ecef; }
+blockquote { border-left: 4px solid #6b7280; margin-left: 0; padding-left: 1rem; color: #3f4650; }
+section { border-top: 1px solid #c7cbd1; padding-top: 1rem; margin-top: 1rem; }
+</style>
+</head>
+<body><main>
+<h1>Batch Portfolio Compare</h1>
+""" + f"<blockquote>{html.escape(str(compare['boundary']))}</blockquote>\n" + """<table>
+<tr><th>Portfolio</th><th>Scenario</th><th>Same-day reserve months</th><th>Same-day + one-week runway</th><th>30-day runway</th><th>Effective monthly burn</th><th>Warnings</th><th>First negative month</th></tr>
+""" + "\n".join(rows) + "\n</table>\n" + "\n".join(warning_sections) + "\n</main></body>\n</html>\n"
+
+
+def build_batch_compare(
+    portfolios_dir: Path,
+    ledger_path: Path,
+    assumptions_path: Path,
+    out_dir: Path,
+    scenario_names: Optional[Iterable[str]] = None,
+) -> BatchComparePaths:
+    compare = build_batch_compare_data(portfolios_dir, load_json(ledger_path), load_json(assumptions_path), scenario_names)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    json_path = out_dir / "batch_compare.json"
+    markdown_path = out_dir / "batch_compare.md"
+    html_path = out_dir / "batch_compare.html"
+    dump_json(compare, json_path)
+    markdown_path.write_text(render_batch_compare_markdown(compare), encoding="utf-8")
+    html_path.write_text(render_batch_compare_html(compare), encoding="utf-8")
+    return BatchComparePaths(out_dir, json_path, markdown_path, html_path)
+
+
 def compare_history(history: Mapping[str, Any]) -> Dict[str, Any]:
     snapshots = history.get("snapshots", [])
     if not isinstance(snapshots, list) or len(snapshots) < 2:
@@ -753,7 +1123,7 @@ def release_manifest(root: Path) -> Dict[str, Any]:
             files.append(path.relative_to(root).as_posix())
     return {
         "name": "portfolio-liquidity-runway-lab",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "boundary": BOUNDARY_TEXT,
         "files": files,
         "console_script": "portfolio-liquidity-runway-lab",
@@ -776,6 +1146,8 @@ def maturity_report(root: Path) -> Dict[str, Any]:
         "release_readiness_review": (root / "docs/release_readiness_review.md").exists(),
         "release_manifest": (root / "docs/release_manifest.json").exists(),
         "demo_scenario_gallery": (root / "demo/scenario-gallery/scenario_gallery.md").exists(),
+        "demo_assumption_audit": (root / "demo/assumption-audit/assumption_audit.md").exists(),
+        "demo_batch_compare": (root / "demo/batch-compare/batch_compare.html").exists(),
         "demo_visual_receipt": (root / "demo/visual_receipt.md").exists(),
         "tests": (root / "tests").exists(),
         "agent_skill": (root / "skills/agent/portfolio-liquidity-runway-lab/SKILL.md").exists(),
