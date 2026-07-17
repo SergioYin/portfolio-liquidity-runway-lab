@@ -47,9 +47,10 @@ Use this skill when a user needs static local portfolio liquidity runway artifac
    `portfolio-liquidity-runway-lab golden-replay --root . --out docs/golden-replay`
 22. Run the release validator before packaging:
    `portfolio-liquidity-runway-lab release-check --out docs`
-23. For stress review, pass `--scenario stress` or another scenario defined in the assumptions JSON. For gallery, batch, and casebook review, pass `--scenarios base,stress,income_shock` or rely on bundled defaults.
-24. Use `review-ledger`, `compare-history`, `static-dashboard`, `maturity-report`, `release-manifest`, and `public-scan` for supporting checks.
+23. Run `public-scan` before publishing generated docs or demos; it checks local path leakage, provider-token patterns, secret-like environment labels, and unsafe generated HTML.
+24. For stress review, pass `--scenario stress` or another scenario defined in the assumptions JSON. For gallery, batch, and casebook review, pass `--scenarios base,stress,income_shock` or rely on bundled defaults.
+25. Use `review-ledger`, `compare-history`, `static-dashboard`, `maturity-report`, and `release-manifest` for supporting checks.
 
 ## Output Expectations
 
-Artifacts are deterministic JSON, CSV, Markdown, no-JavaScript HTML, scenario galleries, assumption audits, CSV import reports, CSV export manifests, input lint findings, checksum manifests, evidence bundles, template packs, batch comparisons, release-owner casebooks, schema guides, fixture diagnostics, static documentation bundles, command catalogs, golden replay summaries, release decks, artifact catalogs, release checks, and optional visual receipt Markdown. Review warnings are prompts to inspect assumptions, liquidity tiers, scheduled events, fees, yields, and forced-sale risks; they are not transaction instructions.
+Artifacts are deterministic JSON, spreadsheet-hardened CSV, Markdown, no-JavaScript HTML, scenario galleries, assumption audits, CSV import reports, CSV export manifests, input lint findings, checksum manifests, evidence bundles, template packs, batch comparisons, release-owner casebooks, schema guides, fixture diagnostics, static documentation bundles, command catalogs, golden replay summaries, release decks, artifact catalogs, release checks, and optional visual receipt Markdown. Review warnings are prompts to inspect assumptions, liquidity tiers, scheduled events, fees, yields, and forced-sale risks; they are not transaction instructions. Do not publish user-generated packets or evidence bundles unless personal balances, income, expenses, event labels, assumptions, and local paths have been reviewed and intentionally sanitized.

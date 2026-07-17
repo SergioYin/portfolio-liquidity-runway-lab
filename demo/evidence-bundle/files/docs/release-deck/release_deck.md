@@ -1,4 +1,4 @@
-# Portfolio Liquidity Runway Lab v0.7.0 Release Deck
+# Portfolio Liquidity Runway Lab v0.9.0 Release Deck
 
 > Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.
 
@@ -7,6 +7,7 @@
 - Builds deterministic local liquidity runway packets from JSON and CSV inputs.
 - Imports portfolio and ledger CSV rows into validated JSON schemas, then exports packet analysis back to reviewable CSV.
 - Packages scenario, audit, batch comparison, casebook, schema, command, and replay evidence.
+- Adds deterministic checksums, offline evidence bundles, and starter template packs for reproducible review.
 - Keeps outputs static and reviewable with no runtime dependencies and no JavaScript in generated HTML demos.
 
 ## Commands
@@ -28,6 +29,9 @@
 | `csv-import` | Convert local portfolio and ledger CSV rows into validated JSON schemas. |
 | `csv-export` | Export packet assets, runway rows, warnings, and bucket summaries as deterministic CSV. |
 | `input-lint` | Strict lint for JSON and CSV inputs with remediation and schema references. |
+| `bundle-checksums` | Write deterministic SHA256SUMS and JSON/Markdown manifests for release files. |
+| `evidence-bundle` | Copy selected review evidence into a deterministic offline bundle. |
+| `template-pack` | Export clean CSV and JSON starter templates for offline user portfolios. |
 | `fixture-doctor` | Run all workflows against isolated copied fixtures. |
 | `docs-export` | Export compact static documentation bundle. |
 | `command-matrix` | Export the full deterministic command catalog. |
@@ -41,10 +45,10 @@
 
 ## Evidence
 
-- Release check: `fail`
-- Maturity score: `32/32`
-- Cataloged artifacts: `187`
-- No-script HTML files: `26`
+- Release check: `pass`
+- Maturity score: `38/38`
+- Cataloged artifacts: `152`
+- No-script HTML files: `12`
 
 ## Risks
 
@@ -54,6 +58,6 @@
 
 ## Next Roadmap
 
-- Expand fixture doctor coverage for malformed batch directories and scenario edge cases.
-- Add signed release bundle checksums for downstream archival workflows.
+- Expand fixture doctor coverage for malformed archive bundles and scenario edge cases.
+- Add optional detached signature support for checksum manifests.
 - Broaden CSV templates for multi-currency review workflows without adding live integrations.

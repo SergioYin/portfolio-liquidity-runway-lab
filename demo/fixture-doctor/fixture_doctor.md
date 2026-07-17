@@ -32,14 +32,17 @@ Work dir: `demo/fixture-doctor/work`
 | `csv-import` | `csv-import --portfolio-csv demo/fixture-doctor/work/examples/portfolio.csv --ledger-csv demo/fixture-doctor/work/examples/ledger.csv --out demo/fixture-doctor/work/csv-import` |
 | `csv-export` | `csv-export --packet demo/fixture-doctor/work/packet/liquidity_packet.json --out demo/fixture-doctor/work/csv-export` |
 | `input-lint` | `input-lint --portfolio demo/fixture-doctor/work/examples/portfolio.json --ledger demo/fixture-doctor/work/examples/ledger.json --assumptions demo/fixture-doctor/work/examples/assumptions.json --portfolio-csv demo/fixture-doctor/work/examples/portfolio.csv --ledger-csv demo/fixture-doctor/work/examples/ledger.csv` |
-| `docs-export` | `docs-export --root demo/fixture-doctor/work --out demo/fixture-doctor/work/static-docs` |
+| `bundle-checksums` | `bundle-checksums --root . --out demo/fixture-doctor/work/bundle-checksums` |
+| `evidence-bundle` | `evidence-bundle --root . --out demo/fixture-doctor/work/evidence-bundle` |
+| `template-pack` | `template-pack --out demo/fixture-doctor/work/template-pack` |
+| `docs-export` | `docs-export --root . --out demo/fixture-doctor/work/static-docs` |
 | `command-matrix` | `command-matrix --out demo/fixture-doctor/work/command-matrix` |
-| `release-deck` | `release-deck --root demo/fixture-doctor/work --out demo/fixture-doctor/work/release-deck` |
-| `artifact-catalog` | `artifact-catalog --root demo/fixture-doctor/work --paths packet,dashboard,scenario-gallery,assumption-audit,batch-compare,casebook,schema-export,csv-import,csv-export,static-docs --out demo/fixture-doctor/work/catalog` |
-| `release-check` | `release-check --root demo/fixture-doctor/work --out demo/fixture-doctor/work/release-check` |
-| `public-scan` | `public-scan --root demo/fixture-doctor/work --out demo/fixture-doctor/work/public_scan.json` |
-| `release-manifest` | `release-manifest --root demo/fixture-doctor/work --out demo/fixture-doctor/work/release_manifest.json` |
-| `maturity-report` | `maturity-report --root demo/fixture-doctor/work --out demo/fixture-doctor/work/maturity_report.json` |
+| `release-deck` | `release-deck --root . --out demo/fixture-doctor/work/release-deck` |
+| `artifact-catalog` | `artifact-catalog --root . --paths packet,dashboard,scenario-gallery,assumption-audit,batch-compare,casebook,schema-export,csv-import,csv-export,static-docs --out demo/fixture-doctor/work/catalog` |
+| `release-check` | `release-check --root . --out demo/fixture-doctor/work/release-check` |
+| `public-scan` | `public-scan --root . --out demo/fixture-doctor/work/public_scan.json` |
+| `release-manifest` | `release-manifest --root . --out demo/fixture-doctor/work/release_manifest.json` |
+| `maturity-report` | `maturity-report --root . --out demo/fixture-doctor/work/maturity_report.json` |
 
 ## Results
 
@@ -58,6 +61,9 @@ Work dir: `demo/fixture-doctor/work`
 | `csv-import` | `pass` | `demo/fixture-doctor/work/csv-import/portfolio.json`, `demo/fixture-doctor/work/csv-import/ledger.json`, `demo/fixture-doctor/work/csv-import/import_report.json`, `demo/fixture-doctor/work/csv-import/import_report.md` |  |
 | `csv-export` | `pass` | `demo/fixture-doctor/work/csv-export/assets.csv`, `demo/fixture-doctor/work/csv-export/runway.csv`, `demo/fixture-doctor/work/csv-export/warnings.csv`, `demo/fixture-doctor/work/csv-export/bucket_summaries.csv`, `demo/fixture-doctor/work/csv-export/export_manifest.json`, `demo/fixture-doctor/work/csv-export/export_manifest.md` |  |
 | `input-lint` | `pass` | `stdout JSON` |  |
+| `bundle-checksums` | `pass` | `demo/fixture-doctor/work/bundle-checksums/SHA256SUMS.txt`, `demo/fixture-doctor/work/bundle-checksums/bundle_manifest.json`, `demo/fixture-doctor/work/bundle-checksums/bundle_manifest.md` |  |
+| `evidence-bundle` | `pass` | `demo/fixture-doctor/work/evidence-bundle/index.md`, `demo/fixture-doctor/work/evidence-bundle/index.html`, `demo/fixture-doctor/work/evidence-bundle/SHA256SUMS.txt`, `demo/fixture-doctor/work/evidence-bundle/evidence_manifest.json` |  |
+| `template-pack` | `pass` | `demo/fixture-doctor/work/template-pack/README.md`, `demo/fixture-doctor/work/template-pack/template_manifest.json` |  |
 | `docs-export` | `pass` | `demo/fixture-doctor/work/static-docs/index.html`, `demo/fixture-doctor/work/static-docs/index.md` |  |
 | `command-matrix` | `pass` | `demo/fixture-doctor/work/command-matrix/command_matrix.json`, `demo/fixture-doctor/work/command-matrix/command_matrix.md`, `demo/fixture-doctor/work/command-matrix/command_matrix.html` |  |
 | `release-deck` | `pass` | `demo/fixture-doctor/work/release-deck/release_deck.md`, `demo/fixture-doctor/work/release-deck/release_deck.html` |  |

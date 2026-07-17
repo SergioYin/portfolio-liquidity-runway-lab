@@ -92,14 +92,14 @@
     },
     {
       "committed_exists": true,
-      "committed_sha256": "401a2996126e05632c27e46ec8648ea7049d6617427f52e261a14fab53cab27d",
+      "committed_sha256": "f80ca2c5bf9c9707702edd9be3839ab740846723fc3dcde6f5e8ad09f153a550",
       "generated_exists": true,
       "generated_path": "replay/demo/casebook/casebook.json",
-      "generated_sha256": "401a2996126e05632c27e46ec8648ea7049d6617427f52e261a14fab53cab27d",
+      "generated_sha256": "50ed6d9bc8597d65752072af623755452773ed0479104da7a53f78c1920ff783",
       "path": "demo/casebook/casebook.json",
-      "size_bytes_committed": 8768,
-      "size_bytes_generated": 8768,
-      "status": "pass"
+      "size_bytes_committed": 8552,
+      "size_bytes_generated": 8547,
+      "status": "fail"
     },
     {
       "committed_exists": true,
@@ -125,10 +125,10 @@
     },
     {
       "committed_exists": true,
-      "committed_sha256": "a971d33c6471abef4d6fff73cfd5ac0b9a7bdd305b56194e4cf340722540d8e1",
+      "committed_sha256": "11e49bee635c284f4190d1c74a177412036e1917058c15939e190f7b2078ca26",
       "generated_exists": true,
       "generated_path": "replay/demo/schema-export/schema_guide.json",
-      "generated_sha256": "a971d33c6471abef4d6fff73cfd5ac0b9a7bdd305b56194e4cf340722540d8e1",
+      "generated_sha256": "11e49bee635c284f4190d1c74a177412036e1917058c15939e190f7b2078ca26",
       "path": "demo/schema-export/schema_guide.json",
       "size_bytes_committed": 30875,
       "size_bytes_generated": 30875,
@@ -136,10 +136,10 @@
     },
     {
       "committed_exists": true,
-      "committed_sha256": "97004a18b85ca30f908f9eedabc9121874ad548d950b9b82b7dca7d4605cc786",
+      "committed_sha256": "bbdcac737fc6601214f083e05aba6f918380615d9850c98a615d4a0716fecc71",
       "generated_exists": true,
       "generated_path": "replay/demo/schema-export/schema_guide.md",
-      "generated_sha256": "97004a18b85ca30f908f9eedabc9121874ad548d950b9b82b7dca7d4605cc786",
+      "generated_sha256": "bbdcac737fc6601214f083e05aba6f918380615d9850c98a615d4a0716fecc71",
       "path": "demo/schema-export/schema_guide.md",
       "size_bytes_committed": 11291,
       "size_bytes_generated": 11291,
@@ -158,10 +158,10 @@
     },
     {
       "committed_exists": true,
-      "committed_sha256": "49780044d1085da581f6826cb62e046722862437ffe137216393d31bb66a4e18",
+      "committed_sha256": "1c98abf1096f47c8638b9921a6f5a4aa435d6d609f7ddd34cfa5a15857b61832",
       "generated_exists": true,
       "generated_path": "replay/demo/command-matrix/command_matrix.json",
-      "generated_sha256": "49780044d1085da581f6826cb62e046722862437ffe137216393d31bb66a4e18",
+      "generated_sha256": "1c98abf1096f47c8638b9921a6f5a4aa435d6d609f7ddd34cfa5a15857b61832",
       "path": "demo/command-matrix/command_matrix.json",
       "size_bytes_committed": 15882,
       "size_bytes_generated": 15882,
@@ -169,10 +169,10 @@
     },
     {
       "committed_exists": true,
-      "committed_sha256": "a36cabcc0c66b56a498b3faf2729913a7de4a71d377559a178951f6ed336207e",
+      "committed_sha256": "de94fb1246b20d8a6fea1e0f5ba5525475822f2d5288bc236f45504f671e71f0",
       "generated_exists": true,
       "generated_path": "replay/demo/command-matrix/command_matrix.md",
-      "generated_sha256": "a36cabcc0c66b56a498b3faf2729913a7de4a71d377559a178951f6ed336207e",
+      "generated_sha256": "de94fb1246b20d8a6fea1e0f5ba5525475822f2d5288bc236f45504f671e71f0",
       "path": "demo/command-matrix/command_matrix.md",
       "size_bytes_committed": 10171,
       "size_bytes_generated": 10171,
@@ -180,20 +180,20 @@
     },
     {
       "committed_exists": true,
-      "committed_sha256": "b0ddddfce336a8ecc201c3f86748c972f77b0e117b0ed9e4eeababc0c083fb80",
+      "committed_sha256": "1c09d333bc76f754ca457b9b925db57e27088170146e33d88ebdec92caea6f8a",
       "generated_exists": true,
       "generated_path": "replay/demo/command-matrix/command_matrix.html",
-      "generated_sha256": "b0ddddfce336a8ecc201c3f86748c972f77b0e117b0ed9e4eeababc0c083fb80",
+      "generated_sha256": "1c09d333bc76f754ca457b9b925db57e27088170146e33d88ebdec92caea6f8a",
       "path": "demo/command-matrix/command_matrix.html",
       "size_bytes_committed": 12972,
       "size_bytes_generated": 12972,
       "status": "pass"
     }
   ],
-  "fail_count": 0,
-  "pass_count": 17,
+  "fail_count": 1,
+  "pass_count": 16,
   "replay_dir": "temporary",
   "root": ".",
-  "status": "pass",
-  "version": "0.8.0"
+  "status": "fail",
+  "version": "0.9.0"
 }

@@ -5,15 +5,15 @@
       "argv": [
         "build-packet",
         "--portfolio",
-        "dist/fixture-doctor-work/examples/portfolio.json",
+        "examples/portfolio.json",
         "--ledger",
-        "dist/fixture-doctor-work/examples/ledger.json",
+        "examples/ledger.json",
         "--assumptions",
-        "dist/fixture-doctor-work/examples/assumptions.json",
+        "examples/assumptions.json",
         "--scenario",
         "stress",
         "--out",
-        "dist/fixture-doctor-work/packet"
+        "packet"
       ],
       "command": "build-packet"
     },
@@ -21,13 +21,13 @@
       "argv": [
         "static-dashboard",
         "--portfolio",
-        "dist/fixture-doctor-work/examples/portfolio.json",
+        "examples/portfolio.json",
         "--ledger",
-        "dist/fixture-doctor-work/examples/ledger.json",
+        "examples/ledger.json",
         "--assumptions",
-        "dist/fixture-doctor-work/examples/assumptions.json",
+        "examples/assumptions.json",
         "--out",
-        "dist/fixture-doctor-work/dashboard"
+        "dashboard"
       ],
       "command": "static-dashboard"
     },
@@ -35,13 +35,13 @@
       "argv": [
         "scenario-gallery",
         "--portfolio",
-        "dist/fixture-doctor-work/examples/portfolio.json",
+        "examples/portfolio.json",
         "--ledger",
-        "dist/fixture-doctor-work/examples/ledger.json",
+        "examples/ledger.json",
         "--assumptions",
-        "dist/fixture-doctor-work/examples/assumptions.json",
+        "examples/assumptions.json",
         "--out",
-        "dist/fixture-doctor-work/scenario-gallery"
+        "scenario-gallery"
       ],
       "command": "scenario-gallery"
     },
@@ -49,13 +49,13 @@
       "argv": [
         "assumption-audit",
         "--portfolio",
-        "dist/fixture-doctor-work/examples/portfolio_concentrated.json",
+        "examples/portfolio_concentrated.json",
         "--ledger",
-        "dist/fixture-doctor-work/examples/ledger.json",
+        "examples/ledger.json",
         "--assumptions",
-        "dist/fixture-doctor-work/examples/assumptions.json",
+        "examples/assumptions.json",
         "--out",
-        "dist/fixture-doctor-work/assumption-audit"
+        "assumption-audit"
       ],
       "command": "assumption-audit"
     },
@@ -63,15 +63,15 @@
       "argv": [
         "batch-compare",
         "--portfolios-dir",
-        "dist/fixture-doctor-work/portfolios",
+        "portfolios",
         "--ledger",
-        "dist/fixture-doctor-work/examples/ledger.json",
+        "examples/ledger.json",
         "--assumptions",
-        "dist/fixture-doctor-work/examples/assumptions.json",
+        "examples/assumptions.json",
         "--scenarios",
         "base,stress",
         "--out",
-        "dist/fixture-doctor-work/batch-compare"
+        "batch-compare"
       ],
       "command": "batch-compare"
     },
@@ -79,19 +79,19 @@
       "argv": [
         "casebook",
         "--portfolio",
-        "dist/fixture-doctor-work/examples/portfolio.json",
+        "examples/portfolio.json",
         "--ledger",
-        "dist/fixture-doctor-work/examples/ledger.json",
+        "examples/ledger.json",
         "--assumptions",
-        "dist/fixture-doctor-work/examples/assumptions.json",
+        "examples/assumptions.json",
         "--portfolios-dir",
-        "dist/fixture-doctor-work/portfolios",
+        "portfolios",
         "--scenario",
         "stress",
         "--scenarios",
         "base,stress,income_shock",
         "--out",
-        "dist/fixture-doctor-work/casebook"
+        "casebook"
       ],
       "command": "casebook"
     },
@@ -99,15 +99,15 @@
       "argv": [
         "visual-receipt",
         "--portfolio",
-        "dist/fixture-doctor-work/examples/portfolio.json",
+        "examples/portfolio.json",
         "--ledger",
-        "dist/fixture-doctor-work/examples/ledger.json",
+        "examples/ledger.json",
         "--assumptions",
-        "dist/fixture-doctor-work/examples/assumptions.json",
+        "examples/assumptions.json",
         "--scenario",
         "stress",
         "--out",
-        "dist/fixture-doctor-work/visual_receipt.md"
+        "visual_receipt.md"
       ],
       "command": "visual-receipt"
     },
@@ -115,9 +115,9 @@
       "argv": [
         "compare-history",
         "--history",
-        "dist/fixture-doctor-work/examples/history.json",
+        "examples/history.json",
         "--out",
-        "dist/fixture-doctor-work/history_compare.json"
+        "history_compare.json"
       ],
       "command": "compare-history"
     },
@@ -125,9 +125,9 @@
       "argv": [
         "review-ledger",
         "--ledger",
-        "dist/fixture-doctor-work/examples/ledger.json",
+        "examples/ledger.json",
         "--out",
-        "dist/fixture-doctor-work/ledger_review.json"
+        "ledger_review.json"
       ],
       "command": "review-ledger"
     },
@@ -135,7 +135,7 @@
       "argv": [
         "schema-export",
         "--out",
-        "dist/fixture-doctor-work/schema-export"
+        "schema-export"
       ],
       "command": "schema-export"
     },
@@ -143,11 +143,11 @@
       "argv": [
         "csv-import",
         "--portfolio-csv",
-        "dist/fixture-doctor-work/examples/portfolio.csv",
+        "examples/portfolio.csv",
         "--ledger-csv",
-        "dist/fixture-doctor-work/examples/ledger.csv",
+        "examples/ledger.csv",
         "--out",
-        "dist/fixture-doctor-work/csv-import"
+        "csv-import"
       ],
       "command": "csv-import"
     },
@@ -155,9 +155,9 @@
       "argv": [
         "csv-export",
         "--packet",
-        "dist/fixture-doctor-work/packet/liquidity_packet.json",
+        "packet/liquidity_packet.json",
         "--out",
-        "dist/fixture-doctor-work/csv-export"
+        "csv-export"
       ],
       "command": "csv-export"
     },
@@ -165,15 +165,15 @@
       "argv": [
         "input-lint",
         "--portfolio",
-        "dist/fixture-doctor-work/examples/portfolio.json",
+        "examples/portfolio.json",
         "--ledger",
-        "dist/fixture-doctor-work/examples/ledger.json",
+        "examples/ledger.json",
         "--assumptions",
-        "dist/fixture-doctor-work/examples/assumptions.json",
+        "examples/assumptions.json",
         "--portfolio-csv",
-        "dist/fixture-doctor-work/examples/portfolio.csv",
+        "examples/portfolio.csv",
         "--ledger-csv",
-        "dist/fixture-doctor-work/examples/ledger.csv"
+        "examples/ledger.csv"
       ],
       "command": "input-lint"
     },
@@ -181,9 +181,9 @@
       "argv": [
         "bundle-checksums",
         "--root",
-        "dist/fixture-doctor-work",
+        ".",
         "--out",
-        "dist/fixture-doctor-work/bundle-checksums"
+        "bundle-checksums"
       ],
       "command": "bundle-checksums"
     },
@@ -191,9 +191,9 @@
       "argv": [
         "evidence-bundle",
         "--root",
-        "dist/fixture-doctor-work",
+        ".",
         "--out",
-        "dist/fixture-doctor-work/evidence-bundle"
+        "evidence-bundle"
       ],
       "command": "evidence-bundle"
     },
@@ -201,7 +201,7 @@
       "argv": [
         "template-pack",
         "--out",
-        "dist/fixture-doctor-work/template-pack"
+        "template-pack"
       ],
       "command": "template-pack"
     },
@@ -209,9 +209,9 @@
       "argv": [
         "docs-export",
         "--root",
-        "dist/fixture-doctor-work",
+        ".",
         "--out",
-        "dist/fixture-doctor-work/static-docs"
+        "static-docs"
       ],
       "command": "docs-export"
     },
@@ -219,7 +219,7 @@
       "argv": [
         "command-matrix",
         "--out",
-        "dist/fixture-doctor-work/command-matrix"
+        "command-matrix"
       ],
       "command": "command-matrix"
     },
@@ -227,9 +227,9 @@
       "argv": [
         "release-deck",
         "--root",
-        "dist/fixture-doctor-work",
+        ".",
         "--out",
-        "dist/fixture-doctor-work/release-deck"
+        "release-deck"
       ],
       "command": "release-deck"
     },
@@ -237,11 +237,11 @@
       "argv": [
         "artifact-catalog",
         "--root",
-        "dist/fixture-doctor-work",
+        ".",
         "--paths",
         "packet,dashboard,scenario-gallery,assumption-audit,batch-compare,casebook,schema-export,csv-import,csv-export,static-docs",
         "--out",
-        "dist/fixture-doctor-work/catalog"
+        "catalog"
       ],
       "command": "artifact-catalog"
     },
@@ -249,9 +249,9 @@
       "argv": [
         "release-check",
         "--root",
-        "dist/fixture-doctor-work",
+        ".",
         "--out",
-        "dist/fixture-doctor-work/release-check"
+        "release-check"
       ],
       "command": "release-check"
     },
@@ -259,9 +259,9 @@
       "argv": [
         "public-scan",
         "--root",
-        "dist/fixture-doctor-work",
+        ".",
         "--out",
-        "dist/fixture-doctor-work/public_scan.json"
+        "public_scan.json"
       ],
       "command": "public-scan"
     },
@@ -269,9 +269,9 @@
       "argv": [
         "release-manifest",
         "--root",
-        "dist/fixture-doctor-work",
+        ".",
         "--out",
-        "dist/fixture-doctor-work/release_manifest.json"
+        "release_manifest.json"
       ],
       "command": "release-manifest"
     },
@@ -279,43 +279,43 @@
       "argv": [
         "maturity-report",
         "--root",
-        "dist/fixture-doctor-work",
+        ".",
         "--out",
-        "dist/fixture-doctor-work/maturity_report.json"
+        "maturity_report.json"
       ],
       "command": "maturity-report"
     }
   ],
   "examples": {
-    "assumptions.json": "dist/fixture-doctor-work/examples/assumptions.json",
-    "history.json": "dist/fixture-doctor-work/examples/history.json",
-    "ledger.csv": "dist/fixture-doctor-work/examples/ledger.csv",
-    "ledger.json": "dist/fixture-doctor-work/examples/ledger.json",
-    "portfolio.csv": "dist/fixture-doctor-work/examples/portfolio.csv",
-    "portfolio.json": "dist/fixture-doctor-work/examples/portfolio.json",
-    "portfolio_concentrated.json": "dist/fixture-doctor-work/examples/portfolio_concentrated.json"
+    "assumptions.json": "examples/assumptions.json",
+    "history.json": "examples/history.json",
+    "ledger.csv": "examples/ledger.csv",
+    "ledger.json": "examples/ledger.json",
+    "portfolio.csv": "examples/portfolio.csv",
+    "portfolio.json": "examples/portfolio.json",
+    "portfolio_concentrated.json": "examples/portfolio_concentrated.json"
   },
   "results": [
     {
       "argv": [
         "build-packet",
         "--portfolio",
-        "dist/fixture-doctor-work/examples/portfolio.json",
+        "examples/portfolio.json",
         "--ledger",
-        "dist/fixture-doctor-work/examples/ledger.json",
+        "examples/ledger.json",
         "--assumptions",
-        "dist/fixture-doctor-work/examples/assumptions.json",
+        "examples/assumptions.json",
         "--scenario",
         "stress",
         "--out",
-        "dist/fixture-doctor-work/packet"
+        "packet"
       ],
       "command": "build-packet",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/packet/liquidity_packet.json",
-        "dist/fixture-doctor-work/packet/liquidity_packet.md",
-        "dist/fixture-doctor-work/packet/liquidity_packet.html"
+        "packet/liquidity_packet.json",
+        "packet/liquidity_packet.md",
+        "packet/liquidity_packet.html"
       ],
       "status": "pass"
     },
@@ -323,20 +323,20 @@
       "argv": [
         "static-dashboard",
         "--portfolio",
-        "dist/fixture-doctor-work/examples/portfolio.json",
+        "examples/portfolio.json",
         "--ledger",
-        "dist/fixture-doctor-work/examples/ledger.json",
+        "examples/ledger.json",
         "--assumptions",
-        "dist/fixture-doctor-work/examples/assumptions.json",
+        "examples/assumptions.json",
         "--out",
-        "dist/fixture-doctor-work/dashboard"
+        "dashboard"
       ],
       "command": "static-dashboard",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/dashboard/liquidity_packet.json",
-        "dist/fixture-doctor-work/dashboard/liquidity_packet.md",
-        "dist/fixture-doctor-work/dashboard/liquidity_packet.html"
+        "dashboard/liquidity_packet.json",
+        "dashboard/liquidity_packet.md",
+        "dashboard/liquidity_packet.html"
       ],
       "status": "pass"
     },
@@ -344,20 +344,20 @@
       "argv": [
         "scenario-gallery",
         "--portfolio",
-        "dist/fixture-doctor-work/examples/portfolio.json",
+        "examples/portfolio.json",
         "--ledger",
-        "dist/fixture-doctor-work/examples/ledger.json",
+        "examples/ledger.json",
         "--assumptions",
-        "dist/fixture-doctor-work/examples/assumptions.json",
+        "examples/assumptions.json",
         "--out",
-        "dist/fixture-doctor-work/scenario-gallery"
+        "scenario-gallery"
       ],
       "command": "scenario-gallery",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/scenario-gallery/scenario_gallery.json",
-        "dist/fixture-doctor-work/scenario-gallery/scenario_gallery.md",
-        "dist/fixture-doctor-work/scenario-gallery/scenario_gallery.html"
+        "scenario-gallery/scenario_gallery.json",
+        "scenario-gallery/scenario_gallery.md",
+        "scenario-gallery/scenario_gallery.html"
       ],
       "status": "pass"
     },
@@ -365,19 +365,19 @@
       "argv": [
         "assumption-audit",
         "--portfolio",
-        "dist/fixture-doctor-work/examples/portfolio_concentrated.json",
+        "examples/portfolio_concentrated.json",
         "--ledger",
-        "dist/fixture-doctor-work/examples/ledger.json",
+        "examples/ledger.json",
         "--assumptions",
-        "dist/fixture-doctor-work/examples/assumptions.json",
+        "examples/assumptions.json",
         "--out",
-        "dist/fixture-doctor-work/assumption-audit"
+        "assumption-audit"
       ],
       "command": "assumption-audit",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/assumption-audit/assumption_audit.json",
-        "dist/fixture-doctor-work/assumption-audit/assumption_audit.md"
+        "assumption-audit/assumption_audit.json",
+        "assumption-audit/assumption_audit.md"
       ],
       "status": "pass"
     },
@@ -385,22 +385,22 @@
       "argv": [
         "batch-compare",
         "--portfolios-dir",
-        "dist/fixture-doctor-work/portfolios",
+        "portfolios",
         "--ledger",
-        "dist/fixture-doctor-work/examples/ledger.json",
+        "examples/ledger.json",
         "--assumptions",
-        "dist/fixture-doctor-work/examples/assumptions.json",
+        "examples/assumptions.json",
         "--scenarios",
         "base,stress",
         "--out",
-        "dist/fixture-doctor-work/batch-compare"
+        "batch-compare"
       ],
       "command": "batch-compare",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/batch-compare/batch_compare.json",
-        "dist/fixture-doctor-work/batch-compare/batch_compare.md",
-        "dist/fixture-doctor-work/batch-compare/batch_compare.html"
+        "batch-compare/batch_compare.json",
+        "batch-compare/batch_compare.md",
+        "batch-compare/batch_compare.html"
       ],
       "status": "pass"
     },
@@ -408,26 +408,26 @@
       "argv": [
         "casebook",
         "--portfolio",
-        "dist/fixture-doctor-work/examples/portfolio.json",
+        "examples/portfolio.json",
         "--ledger",
-        "dist/fixture-doctor-work/examples/ledger.json",
+        "examples/ledger.json",
         "--assumptions",
-        "dist/fixture-doctor-work/examples/assumptions.json",
+        "examples/assumptions.json",
         "--portfolios-dir",
-        "dist/fixture-doctor-work/portfolios",
+        "portfolios",
         "--scenario",
         "stress",
         "--scenarios",
         "base,stress,income_shock",
         "--out",
-        "dist/fixture-doctor-work/casebook"
+        "casebook"
       ],
       "command": "casebook",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/casebook/casebook.json",
-        "dist/fixture-doctor-work/casebook/casebook.md",
-        "dist/fixture-doctor-work/casebook/casebook.html"
+        "casebook/casebook.json",
+        "casebook/casebook.md",
+        "casebook/casebook.html"
       ],
       "status": "pass"
     },
@@ -435,20 +435,20 @@
       "argv": [
         "visual-receipt",
         "--portfolio",
-        "dist/fixture-doctor-work/examples/portfolio.json",
+        "examples/portfolio.json",
         "--ledger",
-        "dist/fixture-doctor-work/examples/ledger.json",
+        "examples/ledger.json",
         "--assumptions",
-        "dist/fixture-doctor-work/examples/assumptions.json",
+        "examples/assumptions.json",
         "--scenario",
         "stress",
         "--out",
-        "dist/fixture-doctor-work/visual_receipt.md"
+        "visual_receipt.md"
       ],
       "command": "visual-receipt",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/visual_receipt.md"
+        "visual_receipt.md"
       ],
       "status": "pass"
     },
@@ -456,14 +456,14 @@
       "argv": [
         "compare-history",
         "--history",
-        "dist/fixture-doctor-work/examples/history.json",
+        "examples/history.json",
         "--out",
-        "dist/fixture-doctor-work/history_compare.json"
+        "history_compare.json"
       ],
       "command": "compare-history",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/history_compare.json"
+        "history_compare.json"
       ],
       "status": "pass"
     },
@@ -471,14 +471,14 @@
       "argv": [
         "review-ledger",
         "--ledger",
-        "dist/fixture-doctor-work/examples/ledger.json",
+        "examples/ledger.json",
         "--out",
-        "dist/fixture-doctor-work/ledger_review.json"
+        "ledger_review.json"
       ],
       "command": "review-ledger",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/ledger_review.json"
+        "ledger_review.json"
       ],
       "status": "pass"
     },
@@ -486,13 +486,13 @@
       "argv": [
         "schema-export",
         "--out",
-        "dist/fixture-doctor-work/schema-export"
+        "schema-export"
       ],
       "command": "schema-export",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/schema-export/schema_guide.json",
-        "dist/fixture-doctor-work/schema-export/schema_guide.md"
+        "schema-export/schema_guide.json",
+        "schema-export/schema_guide.md"
       ],
       "status": "pass"
     },
@@ -500,19 +500,19 @@
       "argv": [
         "csv-import",
         "--portfolio-csv",
-        "dist/fixture-doctor-work/examples/portfolio.csv",
+        "examples/portfolio.csv",
         "--ledger-csv",
-        "dist/fixture-doctor-work/examples/ledger.csv",
+        "examples/ledger.csv",
         "--out",
-        "dist/fixture-doctor-work/csv-import"
+        "csv-import"
       ],
       "command": "csv-import",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/csv-import/portfolio.json",
-        "dist/fixture-doctor-work/csv-import/ledger.json",
-        "dist/fixture-doctor-work/csv-import/import_report.json",
-        "dist/fixture-doctor-work/csv-import/import_report.md"
+        "csv-import/portfolio.json",
+        "csv-import/ledger.json",
+        "csv-import/import_report.json",
+        "csv-import/import_report.md"
       ],
       "status": "pass"
     },
@@ -520,19 +520,19 @@
       "argv": [
         "csv-export",
         "--packet",
-        "dist/fixture-doctor-work/packet/liquidity_packet.json",
+        "packet/liquidity_packet.json",
         "--out",
-        "dist/fixture-doctor-work/csv-export"
+        "csv-export"
       ],
       "command": "csv-export",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/csv-export/assets.csv",
-        "dist/fixture-doctor-work/csv-export/runway.csv",
-        "dist/fixture-doctor-work/csv-export/warnings.csv",
-        "dist/fixture-doctor-work/csv-export/bucket_summaries.csv",
-        "dist/fixture-doctor-work/csv-export/export_manifest.json",
-        "dist/fixture-doctor-work/csv-export/export_manifest.md"
+        "csv-export/assets.csv",
+        "csv-export/runway.csv",
+        "csv-export/warnings.csv",
+        "csv-export/bucket_summaries.csv",
+        "csv-export/export_manifest.json",
+        "csv-export/export_manifest.md"
       ],
       "status": "pass"
     },
@@ -540,15 +540,15 @@
       "argv": [
         "input-lint",
         "--portfolio",
-        "dist/fixture-doctor-work/examples/portfolio.json",
+        "examples/portfolio.json",
         "--ledger",
-        "dist/fixture-doctor-work/examples/ledger.json",
+        "examples/ledger.json",
         "--assumptions",
-        "dist/fixture-doctor-work/examples/assumptions.json",
+        "examples/assumptions.json",
         "--portfolio-csv",
-        "dist/fixture-doctor-work/examples/portfolio.csv",
+        "examples/portfolio.csv",
         "--ledger-csv",
-        "dist/fixture-doctor-work/examples/ledger.csv"
+        "examples/ledger.csv"
       ],
       "command": "input-lint",
       "message": "",
@@ -561,16 +561,16 @@
       "argv": [
         "bundle-checksums",
         "--root",
-        "dist/fixture-doctor-work",
+        ".",
         "--out",
-        "dist/fixture-doctor-work/bundle-checksums"
+        "bundle-checksums"
       ],
       "command": "bundle-checksums",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/bundle-checksums/SHA256SUMS.txt",
-        "dist/fixture-doctor-work/bundle-checksums/bundle_manifest.json",
-        "dist/fixture-doctor-work/bundle-checksums/bundle_manifest.md"
+        "bundle-checksums/SHA256SUMS.txt",
+        "bundle-checksums/bundle_manifest.json",
+        "bundle-checksums/bundle_manifest.md"
       ],
       "status": "pass"
     },
@@ -578,17 +578,17 @@
       "argv": [
         "evidence-bundle",
         "--root",
-        "dist/fixture-doctor-work",
+        ".",
         "--out",
-        "dist/fixture-doctor-work/evidence-bundle"
+        "evidence-bundle"
       ],
       "command": "evidence-bundle",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/evidence-bundle/index.md",
-        "dist/fixture-doctor-work/evidence-bundle/index.html",
-        "dist/fixture-doctor-work/evidence-bundle/SHA256SUMS.txt",
-        "dist/fixture-doctor-work/evidence-bundle/evidence_manifest.json"
+        "evidence-bundle/index.md",
+        "evidence-bundle/index.html",
+        "evidence-bundle/SHA256SUMS.txt",
+        "evidence-bundle/evidence_manifest.json"
       ],
       "status": "pass"
     },
@@ -596,13 +596,13 @@
       "argv": [
         "template-pack",
         "--out",
-        "dist/fixture-doctor-work/template-pack"
+        "template-pack"
       ],
       "command": "template-pack",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/template-pack/README.md",
-        "dist/fixture-doctor-work/template-pack/template_manifest.json"
+        "template-pack/README.md",
+        "template-pack/template_manifest.json"
       ],
       "status": "pass"
     },
@@ -610,15 +610,15 @@
       "argv": [
         "docs-export",
         "--root",
-        "dist/fixture-doctor-work",
+        ".",
         "--out",
-        "dist/fixture-doctor-work/static-docs"
+        "static-docs"
       ],
       "command": "docs-export",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/static-docs/index.html",
-        "dist/fixture-doctor-work/static-docs/index.md"
+        "static-docs/index.html",
+        "static-docs/index.md"
       ],
       "status": "pass"
     },
@@ -626,14 +626,14 @@
       "argv": [
         "command-matrix",
         "--out",
-        "dist/fixture-doctor-work/command-matrix"
+        "command-matrix"
       ],
       "command": "command-matrix",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/command-matrix/command_matrix.json",
-        "dist/fixture-doctor-work/command-matrix/command_matrix.md",
-        "dist/fixture-doctor-work/command-matrix/command_matrix.html"
+        "command-matrix/command_matrix.json",
+        "command-matrix/command_matrix.md",
+        "command-matrix/command_matrix.html"
       ],
       "status": "pass"
     },
@@ -641,15 +641,15 @@
       "argv": [
         "release-deck",
         "--root",
-        "dist/fixture-doctor-work",
+        ".",
         "--out",
-        "dist/fixture-doctor-work/release-deck"
+        "release-deck"
       ],
       "command": "release-deck",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/release-deck/release_deck.md",
-        "dist/fixture-doctor-work/release-deck/release_deck.html"
+        "release-deck/release_deck.md",
+        "release-deck/release_deck.html"
       ],
       "status": "pass"
     },
@@ -657,17 +657,17 @@
       "argv": [
         "artifact-catalog",
         "--root",
-        "dist/fixture-doctor-work",
+        ".",
         "--paths",
         "packet,dashboard,scenario-gallery,assumption-audit,batch-compare,casebook,schema-export,csv-import,csv-export,static-docs",
         "--out",
-        "dist/fixture-doctor-work/catalog"
+        "catalog"
       ],
       "command": "artifact-catalog",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/catalog/artifact_catalog.json",
-        "dist/fixture-doctor-work/catalog/artifact_catalog.md"
+        "catalog/artifact_catalog.json",
+        "catalog/artifact_catalog.md"
       ],
       "status": "pass"
     },
@@ -675,15 +675,15 @@
       "argv": [
         "release-check",
         "--root",
-        "dist/fixture-doctor-work",
+        ".",
         "--out",
-        "dist/fixture-doctor-work/release-check"
+        "release-check"
       ],
       "command": "release-check",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/release-check/release_check.json",
-        "dist/fixture-doctor-work/release-check/release_check.md"
+        "release-check/release_check.json",
+        "release-check/release_check.md"
       ],
       "status": "pass"
     },
@@ -691,14 +691,14 @@
       "argv": [
         "public-scan",
         "--root",
-        "dist/fixture-doctor-work",
+        ".",
         "--out",
-        "dist/fixture-doctor-work/public_scan.json"
+        "public_scan.json"
       ],
       "command": "public-scan",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/public_scan.json"
+        "public_scan.json"
       ],
       "status": "pass"
     },
@@ -706,14 +706,14 @@
       "argv": [
         "release-manifest",
         "--root",
-        "dist/fixture-doctor-work",
+        ".",
         "--out",
-        "dist/fixture-doctor-work/release_manifest.json"
+        "release_manifest.json"
       ],
       "command": "release-manifest",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/release_manifest.json"
+        "release_manifest.json"
       ],
       "status": "pass"
     },
@@ -721,18 +721,18 @@
       "argv": [
         "maturity-report",
         "--root",
-        "dist/fixture-doctor-work",
+        ".",
         "--out",
-        "dist/fixture-doctor-work/maturity_report.json"
+        "maturity_report.json"
       ],
       "command": "maturity-report",
       "message": "",
       "outputs": [
-        "dist/fixture-doctor-work/maturity_report.json"
+        "maturity_report.json"
       ],
       "status": "pass"
     }
   ],
   "status": "pass",
-  "work_dir": "dist/fixture-doctor-work"
+  "work_dir": "temporary"
 }

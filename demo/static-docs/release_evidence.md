@@ -8,3 +8,6 @@
 | `docs/artifact_catalog.json` | true |
 | `docs/schema_guide.json` | true |
 | `docs/fixture_doctor.json` | true |
+| `docs/bundle-checksums/bundle_manifest.json` | true |
+| `docs/evidence-bundle/evidence_manifest.json` | true |
+| `docs/template-pack/template_manifest.json` | true |

@@ -1,3 +1,4 @@
+import csv
 import json
 import tempfile
 import unittest
@@ -26,9 +27,11 @@ from portfolio_liquidity_runway_lab.core import (
     load_json,
     input_lint,
     maturity_report,
+    public_scan,
     release_manifest,
     release_check,
     schema_guide,
+    write_csv,
 )
 
 
@@ -445,6 +448,8 @@ class CoreTests(unittest.TestCase):
             first_html = paths.html_path.read_text(encoding="utf-8")
             self.assertIn("Product Value", first_md)
             self.assertIn("golden-replay", first_md)
+            self.assertIn("v0.9.0 Release Deck", first_md)
+            self.assertIn(f"Release check: `{release_check(root)['status']}`", first_md)
             self.assertIn("<!doctype html>", first_html)
             self.assertNotIn("<script", first_html.lower())
             build_release_deck(root, out)
@@ -473,6 +478,90 @@ class CoreTests(unittest.TestCase):
             payload = json.loads(paths.json_path.read_text(encoding="utf-8"))
             self.assertEqual(payload["status"], "fail")
             self.assertIn("Release Check", paths.markdown_path.read_text(encoding="utf-8"))
+
+    def test_release_check_flags_html_safety_beyond_script_tags(self):
+        unsafe_cases = {
+            "event.html": '<img src="x" onerror="alert(1)">',
+            "javascript.html": '<a href="javascript:alert(1)">bad</a>',
+            "iframe.html": "<iframe srcdoc='bad'></iframe>",
+            "object.html": "<object data='bad'></object>",
+            "embed.html": "<embed src='bad'>",
+            "form.html": "<form action='/submit'></form>",
+            "refresh.html": '<meta http-equiv="refresh" content="0;url=/next">',
+            "external.html": '<img src="https://example.invalid/pixel.png">',
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "README.md").write_text("readme\n", encoding="utf-8")
+            (root / "demo").mkdir()
+            for name, body in unsafe_cases.items():
+                (root / "demo" / name).write_text(f"<!doctype html>\n{body}\n", encoding="utf-8")
+            result = release_check(root, ["README.md"])
+            self.assertEqual(result["status"], "fail")
+            codes = {item["code"] for item in result["html_safety_findings"]}
+            self.assertTrue({"event_handler", "javascript_url", "iframe_tag", "object_tag", "embed_tag", "form_tag", "meta_refresh", "external_network_url"} <= codes)
+
+    def test_public_scan_detects_path_leakage_tokens_env_labels_and_unsafe_html(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "README.md").write_text("readme\n", encoding="utf-8")
+            leaked_path = "/" "ho" "me/release-owner/private/input.json"
+            tmp_path = "/" "tm" "p/private/input.json"
+            win_path = "C:" "\\Users\\release-owner\\private\\input.json"
+            token = "sk-" + ("a" * 24)
+            (root / "docs").mkdir()
+            (root / "docs" / "leaks.md").write_text(
+                "\n".join(
+                    [
+                        leaked_path,
+                        tmp_path,
+                        win_path,
+                        "OPENAI_API_" "KEY=" + token,
+                        "Authorization: Bearer " + ("b" * 16),
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            (root / "docs" / "unsafe.html").write_text('<!doctype html>\n<a href="javascript:alert(1)">bad</a>\n', encoding="utf-8")
+            result = public_scan(root)
+            self.assertEqual(result["status"], "review")
+            findings = "\n".join(result["findings"])
+            self.assertIn("linux_home_path", findings)
+            self.assertIn("tmp_path", findings)
+            self.assertIn("windows_user_path", findings)
+            self.assertIn("openai_token", findings)
+            self.assertIn("environment secret assignment", findings)
+            self.assertIn("bearer authorization header", findings)
+            self.assertIn("Unsafe HTML [javascript_url]", findings)
+
+    def test_casebook_relativizes_or_redacts_input_paths(self):
+        repo_root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "casebook"
+            paths = build_casebook(
+                repo_root / "portfolio_liquidity_runway_lab" / "examples" / "portfolio.json",
+                repo_root / "portfolio_liquidity_runway_lab" / "examples" / "ledger.json",
+                repo_root / "portfolio_liquidity_runway_lab" / "examples" / "assumptions.json",
+                repo_root / "demo" / "batch-inputs",
+                out,
+                "stress",
+                ["base", "stress", "income_shock"],
+            )
+            data = json.loads(paths.json_path.read_text(encoding="utf-8"))
+            self.assertEqual(data["inputs"]["portfolio"], "portfolio_liquidity_runway_lab/examples/portfolio.json")
+            combined = json.dumps(data, sort_keys=True)
+            self.assertNotIn("/" "ho" "me/", combined)
+            self.assertNotIn("/" "tm" "p/", combined)
+
+    def test_write_csv_hardens_formula_like_string_prefixes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "danger.csv"
+            prefixes = ["=", "+", "-", "@", "\t", "\r"]
+            write_csv([{"label": prefix + "formula", "amount": -12} for prefix in prefixes], path)
+            with path.open("r", encoding="utf-8", newline="") as handle:
+                rows = list(csv.DictReader(handle))
+            self.assertEqual([row["label"] for row in rows], ["'" + prefix + "formula" for prefix in prefixes])
+            self.assertEqual({row["amount"] for row in rows}, {"-12"})
 
     def test_readme_and_maturity_report_cover_public_release_expectations(self):
         repo_root = Path(__file__).resolve().parents[1]
@@ -524,7 +613,7 @@ class CoreTests(unittest.TestCase):
         self.assertIn("demo/assumption-audit/assumption_audit.md", manifest["files"])
         self.assertIn("demo/batch-compare/batch_compare.html", manifest["files"])
         self.assertIn("README.md", manifest["files"])
-        self.assertEqual(manifest["version"], "0.8.0")
+        self.assertEqual(manifest["version"], "0.9.0")
 
 
 if __name__ == "__main__":

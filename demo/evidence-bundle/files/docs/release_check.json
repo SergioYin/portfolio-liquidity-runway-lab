@@ -3,6 +3,7 @@
   "checks": {
     "expected_files": true,
     "html_no_script_tags": true,
+    "html_static_safe": true,
     "public_scan": true
   },
   "html_files": [
@@ -10,13 +11,16 @@
     "demo/casebook/casebook.html",
     "demo/command-matrix/command_matrix.html",
     "demo/csv-export-packet/liquidity_packet.html",
+    "demo/evidence-bundle/index.html",
     "demo/release-deck/release_deck.html",
     "demo/scenario-gallery/scenario_gallery.html",
     "demo/static-docs/index.html",
     "docs/command-matrix/command_matrix.html",
+    "docs/evidence-bundle/index.html",
     "docs/release-deck/release_deck.html",
     "docs/static-docs/index.html"
   ],
+  "html_safety_findings": [],
   "html_with_script_tags": [],
   "missing_files": [],
   "public_scan_findings": [],

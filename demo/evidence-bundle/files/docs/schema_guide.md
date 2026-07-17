@@ -2,7 +2,7 @@
 
 > Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.
 
-Version: `0.7.0`
+Version: `0.9.0`
 
 ## Input Files
 
@@ -122,6 +122,11 @@ Required fields: `record_type`, `monthly_income`, `monthly_expenses`, `month`, `
 | `import_report.json` | `csv-import` | `boundary`, `status`, `inputs`, `outputs`, `row_counts`, `schema_refs`, `findings` |
 | `export_manifest.json` | `csv-export` | `boundary`, `status`, `packet`, `portfolio_name`, `scenario`, `files` |
 | `input-lint stdout JSON` | `input-lint` | `boundary`, `status`, `results`, `finding_counts` |
+| `SHA256SUMS.txt` | `bundle-checksums` | `sha256 path lines` |
+| `bundle_manifest.json` | `bundle-checksums` | `boundary`, `version`, `root`, `file_count`, `files` |
+| `evidence-bundle/index.html` | `evidence-bundle` | `no JavaScript static evidence index` |
+| `evidence_manifest.json` | `evidence-bundle` | `boundary`, `version`, `root`, `artifact_count`, `artifacts` |
+| `template_manifest.json` | `template-pack` | `boundary`, `version`, `file_count`, `files` |
 
 ## Command Matrix
 
@@ -142,6 +147,9 @@ Required fields: `record_type`, `monthly_income`, `monthly_expenses`, `month`, `
 | `csv-import` | portfolio.csv, ledger.csv | portfolio.json, ledger.json, import_report.json, import_report.md | false |
 | `csv-export` | liquidity_packet.json | assets.csv, runway.csv, warnings.csv, bucket_summaries.csv, export_manifest.json, export_manifest.md | false |
 | `input-lint` | portfolio/ledger/assumptions JSON, portfolio/ledger CSV | stdout JSON, optional JSON file | false |
+| `bundle-checksums` | repo root, docs, demos, optional dist wheel/sdist | SHA256SUMS.txt, bundle_manifest.json, bundle_manifest.md | false |
+| `evidence-bundle` | repo docs and demo evidence | index.md, index.html, SHA256SUMS.txt, evidence_manifest.json, boundary_risks.md, command_replay.md | true |
+| `template-pack` | built-in starter templates | README.md, template_manifest.json, portfolio.csv, ledger.csv, portfolio.json, ledger.json, assumptions.json | false |
 | `fixture-doctor` | bundled or supplied examples | fixture_doctor.json, fixture_doctor.md | true |
 | `docs-export` | README and generated release evidence | static-docs/index.html, static-docs/index.md, static-docs/*.md | true |
 | `command-matrix` | built-in command metadata | command_matrix.json, command_matrix.md, command_matrix.html | true |

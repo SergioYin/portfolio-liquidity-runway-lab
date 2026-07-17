@@ -12,7 +12,7 @@ portfolio-liquidity-runway-lab csv-import --out demo/csv-import
 
 ## Export
 
-`csv-export` reads an existing `liquidity_packet.json` and writes deterministic CSV files for packet assets, monthly runway rows, forced-sale warnings, and liquidity bucket summaries. It also writes `export_manifest.json` and `export_manifest.md` with row counts and SHA256 hashes.
+`csv-export` reads an existing `liquidity_packet.json` and writes deterministic CSV files for packet assets, monthly runway rows, forced-sale warnings, and liquidity bucket summaries. String cells beginning with spreadsheet formula prefixes are written with a leading apostrophe for safer spreadsheet opening. It also writes `export_manifest.json` and `export_manifest.md` with row counts and SHA256 hashes.
 
 ```bash
 portfolio-liquidity-runway-lab build-packet --out demo/csv-export-packet --scenario stress

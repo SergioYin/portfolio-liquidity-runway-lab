@@ -106,7 +106,9 @@ Current maturity: alpha public utility.
 - Regenerate `demo/evidence-bundle/` and `docs/evidence-bundle/` after changing review docs, demo evidence, replay notes, or boundary text.
 - Regenerate `demo/template-pack/` and `docs/template-pack/` after changing starter input schemas or CSV expectations.
 - Regenerate `docs/release_check.*` after changing release expectations or generated HTML artifacts.
+- Regenerate `docs/release-deck/` and `demo/release-deck/` after `release-check` so the deck reports the current release-check status.
 - Regenerate `docs/release_manifest.json` after adding or removing release files.
+- Run `public-scan --root .` before publishing and resolve local path leakage, provider-token patterns, secret-like environment labels, and unsafe generated HTML findings.
 - Do not add `.github/workflows` for this release.
 - Do not include large generated demo output directories in a source distribution.
-- Wheel-install smoke documentation: build with `python -m build`, create a clean virtual environment, install the generated wheel with `python -m pip install dist/portfolio_liquidity_runway_lab-0.8.0-py3-none-any.whl`, then run `portfolio-liquidity-runway-lab selfcheck`, `portfolio-liquidity-runway-lab template-pack --out /tmp/plrl-templates`, and `portfolio-liquidity-runway-lab quickstart-check --out /tmp/plrl-quickstart`.
+- Wheel-install smoke documentation: build with `python -m build`, create a clean virtual environment, install the generated wheel with `python -m pip install dist/portfolio_liquidity_runway_lab-0.9.0-py3-none-any.whl`, then run `portfolio-liquidity-runway-lab selfcheck`, `portfolio-liquidity-runway-lab template-pack --out release-smoke/templates`, and `portfolio-liquidity-runway-lab quickstart-check --out release-smoke/quickstart`.

@@ -24,8 +24,8 @@ portfolio-liquidity-runway-lab --version
 Run the quickstart from an empty directory:
 
 ```bash
-mkdir -p /tmp/plrl-demo
-cd /tmp/plrl-demo
+mkdir -p plrl-demo
+cd plrl-demo
 portfolio-liquidity-runway-lab quickstart-check --out liquidity-demo
 portfolio-liquidity-runway-lab build-packet --out liquidity-demo/packet --scenario stress
 portfolio-liquidity-runway-lab scenario-gallery --out liquidity-demo/scenario-gallery

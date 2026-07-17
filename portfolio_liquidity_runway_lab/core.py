@@ -4,6 +4,7 @@ import csv
 import hashlib
 import html
 import json
+import re
 import shutil
 import tempfile
 from dataclasses import dataclass
@@ -35,6 +36,40 @@ FORBIDDEN_PUBLIC_TERMS = tuple(
         ("refresh", "token"),
     )
 )
+PUBLIC_PATH_LEAK_PATTERNS = (
+    ("linux_home_path", re.compile(r"(?<![\w.-])/" + r"home/[A-Za-z0-9._/-]+")),
+    ("mac_home_path", re.compile(r"(?<![\w.-])/" + r"Users/[A-Za-z0-9._/-]+")),
+    ("windows_user_path", re.compile(r"(?i)\b[A-Z]:\\" + r"Users\\[A-Za-z0-9._ -]+(?:\\[^\s\"'`<>|]+)*")),
+    ("tmp_path", re.compile(r"(?<![\w.-])/" + r"tmp/[A-Za-z0-9._/-]+")),
+)
+PROVIDER_TOKEN_PATTERNS = (
+    ("aws_access_key_id", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),
+    ("github_classic_token", re.compile(r"\bghp_[A-Za-z0-9_]{20,}\b")),
+    ("github_fine_grained_token", re.compile(r"\bgithub_pat_[A-Za-z0-9_]{20,}\b")),
+    ("openai_token", re.compile(r"\bsk-[A-Za-z0-9_-]{20,}\b")),
+    ("slack_token", re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{10,}\b")),
+    ("private_key_block", re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----")),
+)
+ENV_SECRET_LABEL_PATTERN = re.compile(
+    r"(?im)^\s*(?:export\s+)?(?:"
+    r"OPENAI_API_KEY|AWS_SECRET_ACCESS_KEY|GITHUB_TOKEN|"
+    r"API[_-]?KEY|SECRET[_-]?KEY|PRIVATE[_-]?KEY|PASSWORD|"
+    r"BROKER[_-]?TOKEN|ACCESS[_-]?TOKEN|REFRESH[_-]?TOKEN|accessToken"
+    r")\s*[:=]\s*[^\s#<>{}\[\]\"']{8,}"
+)
+AUTH_HEADER_PATTERN = re.compile(r"(?im)^\s*Authorization\s*:\s*Bearer\s+[A-Za-z0-9._~+/=-]{10,}")
+HTML_SAFETY_PATTERNS = (
+    ("script_tag", re.compile(r"<\s*script\b", re.IGNORECASE)),
+    ("event_handler", re.compile(r"\son[a-z]+\s*=", re.IGNORECASE)),
+    ("javascript_url", re.compile(r"javascript\s*:", re.IGNORECASE)),
+    ("iframe_tag", re.compile(r"<\s*iframe\b", re.IGNORECASE)),
+    ("object_tag", re.compile(r"<\s*object\b", re.IGNORECASE)),
+    ("embed_tag", re.compile(r"<\s*embed\b", re.IGNORECASE)),
+    ("form_tag", re.compile(r"<\s*form\b", re.IGNORECASE)),
+    ("meta_refresh", re.compile(r"<\s*meta\b[^>]*http-equiv\s*=\s*['\"]?\s*refresh", re.IGNORECASE)),
+    ("external_network_url", re.compile(r"\b(?:href|src|action)\s*=\s*['\"]\s*https?://", re.IGNORECASE)),
+)
+CSV_FORMULA_PREFIXES = ("=", "+", "-", "@", "\t", "\r")
 
 
 @dataclass(frozen=True)
@@ -178,7 +213,7 @@ class TemplatePackPaths:
     manifest_json_path: Path
 
 
-PROJECT_VERSION = "0.8.0"
+PROJECT_VERSION = "0.9.0"
 
 IGNORED_RELEASE_PARTS = {
     ".git",
@@ -1399,7 +1434,7 @@ def build_visual_receipt(
     packet = analyze(load_json(portfolio_path), load_json(ledger_path), load_json(assumptions_path), scenario)
     scenario_part = f" --scenario {packet['scenario']}" if packet.get("scenario") else ""
     packet_command = f"portfolio-liquidity-runway-lab build-packet --out {packet_out}{scenario_part}"
-    receipt_command = f"portfolio-liquidity-runway-lab visual-receipt --out {out_path.as_posix()}{scenario_part}"
+    receipt_command = f"portfolio-liquidity-runway-lab visual-receipt --out {_public_path(out_path, out_path.parent)}{scenario_part}"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(render_visual_receipt(packet, packet_command, receipt_command), encoding="utf-8")
     return out_path
@@ -1771,6 +1806,33 @@ def _contains_script_tag(path: Path) -> bool:
         return False
 
 
+def _html_safety_findings(path: Path) -> List[str]:
+    try:
+        text = path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        return [f"html_non_utf8: {path.as_posix()}"]
+    return [code for code, pattern in HTML_SAFETY_PATTERNS if pattern.search(text)]
+
+
+def _html_has_unsafe_content(path: Path) -> bool:
+    return bool(_html_safety_findings(path))
+
+
+def _public_path(path: Path, root: Optional[Path] = None) -> str:
+    candidate = Path(path)
+    if not candidate.is_absolute():
+        return candidate.as_posix()
+    bases = [root, Path.cwd()]
+    for base in bases:
+        if base is None:
+            continue
+        try:
+            return candidate.resolve().relative_to(base.resolve()).as_posix()
+        except ValueError:
+            continue
+    return candidate.name
+
+
 def _html_shell(title: str, body: str) -> str:
     return """<!doctype html>
 <html lang="en">
@@ -1811,10 +1873,10 @@ def build_casebook_data(
         "boundary": BOUNDARY_TEXT,
         "title": f"Release Owner Casebook: {packet['portfolio_name']}",
         "inputs": {
-            "portfolio": portfolio_path.as_posix(),
-            "ledger": ledger_path.as_posix(),
-            "assumptions": assumptions_path.as_posix(),
-            "portfolios_dir": portfolios_dir.as_posix(),
+            "portfolio": _public_path(portfolio_path),
+            "ledger": _public_path(ledger_path),
+            "assumptions": _public_path(assumptions_path),
+            "portfolios_dir": _public_path(portfolios_dir),
         },
         "regeneration_commands": [
             "portfolio-liquidity-runway-lab casebook --out demo/casebook",
@@ -2241,12 +2303,12 @@ def _copy_example_set(target: Path, source: Optional[Path] = None) -> Dict[str, 
         src = source / name if source else bundled_example_path(name)
         dst = target / name
         shutil.copyfile(src, dst)
-        copied[name] = dst.as_posix()
+        copied[name] = _public_path(dst, target.parent)
     for name in ("portfolio.csv", "ledger.csv"):
         src = source / name if source and (source / name).exists() else bundled_csv_example_path(name)
         dst = target / name
         shutil.copyfile(src, dst)
-        copied[name] = dst.as_posix()
+        copied[name] = _public_path(dst, target.parent)
     return copied
 
 
@@ -2259,30 +2321,30 @@ def fixture_doctor(work_dir: Path, examples_dir: Optional[Path] = None) -> Dict[
     shutil.copyfile(examples / "portfolio_concentrated.json", portfolios_dir / "portfolio_concentrated.json")
 
     plan = [
-        {"command": "build-packet", "argv": ["build-packet", "--portfolio", copied["portfolio.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--scenario", "stress", "--out", (work_dir / "packet").as_posix()]},
-        {"command": "static-dashboard", "argv": ["static-dashboard", "--portfolio", copied["portfolio.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--out", (work_dir / "dashboard").as_posix()]},
-        {"command": "scenario-gallery", "argv": ["scenario-gallery", "--portfolio", copied["portfolio.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--out", (work_dir / "scenario-gallery").as_posix()]},
-        {"command": "assumption-audit", "argv": ["assumption-audit", "--portfolio", copied["portfolio_concentrated.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--out", (work_dir / "assumption-audit").as_posix()]},
-        {"command": "batch-compare", "argv": ["batch-compare", "--portfolios-dir", portfolios_dir.as_posix(), "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--scenarios", "base,stress", "--out", (work_dir / "batch-compare").as_posix()]},
-        {"command": "casebook", "argv": ["casebook", "--portfolio", copied["portfolio.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--portfolios-dir", portfolios_dir.as_posix(), "--scenario", "stress", "--scenarios", "base,stress,income_shock", "--out", (work_dir / "casebook").as_posix()]},
-        {"command": "visual-receipt", "argv": ["visual-receipt", "--portfolio", copied["portfolio.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--scenario", "stress", "--out", (work_dir / "visual_receipt.md").as_posix()]},
-        {"command": "compare-history", "argv": ["compare-history", "--history", copied["history.json"], "--out", (work_dir / "history_compare.json").as_posix()]},
-        {"command": "review-ledger", "argv": ["review-ledger", "--ledger", copied["ledger.json"], "--out", (work_dir / "ledger_review.json").as_posix()]},
-        {"command": "schema-export", "argv": ["schema-export", "--out", (work_dir / "schema-export").as_posix()]},
-        {"command": "csv-import", "argv": ["csv-import", "--portfolio-csv", copied["portfolio.csv"], "--ledger-csv", copied["ledger.csv"], "--out", (work_dir / "csv-import").as_posix()]},
-        {"command": "csv-export", "argv": ["csv-export", "--packet", (work_dir / "packet" / "liquidity_packet.json").as_posix(), "--out", (work_dir / "csv-export").as_posix()]},
+        {"command": "build-packet", "argv": ["build-packet", "--portfolio", copied["portfolio.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--scenario", "stress", "--out", _public_path(work_dir / "packet", work_dir)]},
+        {"command": "static-dashboard", "argv": ["static-dashboard", "--portfolio", copied["portfolio.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--out", _public_path(work_dir / "dashboard", work_dir)]},
+        {"command": "scenario-gallery", "argv": ["scenario-gallery", "--portfolio", copied["portfolio.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--out", _public_path(work_dir / "scenario-gallery", work_dir)]},
+        {"command": "assumption-audit", "argv": ["assumption-audit", "--portfolio", copied["portfolio_concentrated.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--out", _public_path(work_dir / "assumption-audit", work_dir)]},
+        {"command": "batch-compare", "argv": ["batch-compare", "--portfolios-dir", _public_path(portfolios_dir, work_dir), "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--scenarios", "base,stress", "--out", _public_path(work_dir / "batch-compare", work_dir)]},
+        {"command": "casebook", "argv": ["casebook", "--portfolio", copied["portfolio.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--portfolios-dir", _public_path(portfolios_dir, work_dir), "--scenario", "stress", "--scenarios", "base,stress,income_shock", "--out", _public_path(work_dir / "casebook", work_dir)]},
+        {"command": "visual-receipt", "argv": ["visual-receipt", "--portfolio", copied["portfolio.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--scenario", "stress", "--out", _public_path(work_dir / "visual_receipt.md", work_dir)]},
+        {"command": "compare-history", "argv": ["compare-history", "--history", copied["history.json"], "--out", _public_path(work_dir / "history_compare.json", work_dir)]},
+        {"command": "review-ledger", "argv": ["review-ledger", "--ledger", copied["ledger.json"], "--out", _public_path(work_dir / "ledger_review.json", work_dir)]},
+        {"command": "schema-export", "argv": ["schema-export", "--out", _public_path(work_dir / "schema-export", work_dir)]},
+        {"command": "csv-import", "argv": ["csv-import", "--portfolio-csv", copied["portfolio.csv"], "--ledger-csv", copied["ledger.csv"], "--out", _public_path(work_dir / "csv-import", work_dir)]},
+        {"command": "csv-export", "argv": ["csv-export", "--packet", _public_path(work_dir / "packet" / "liquidity_packet.json", work_dir), "--out", _public_path(work_dir / "csv-export", work_dir)]},
         {"command": "input-lint", "argv": ["input-lint", "--portfolio", copied["portfolio.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--portfolio-csv", copied["portfolio.csv"], "--ledger-csv", copied["ledger.csv"]]},
-        {"command": "bundle-checksums", "argv": ["bundle-checksums", "--root", work_dir.as_posix(), "--out", (work_dir / "bundle-checksums").as_posix()]},
-        {"command": "evidence-bundle", "argv": ["evidence-bundle", "--root", work_dir.as_posix(), "--out", (work_dir / "evidence-bundle").as_posix()]},
-        {"command": "template-pack", "argv": ["template-pack", "--out", (work_dir / "template-pack").as_posix()]},
-        {"command": "docs-export", "argv": ["docs-export", "--root", work_dir.as_posix(), "--out", (work_dir / "static-docs").as_posix()]},
-        {"command": "command-matrix", "argv": ["command-matrix", "--out", (work_dir / "command-matrix").as_posix()]},
-        {"command": "release-deck", "argv": ["release-deck", "--root", work_dir.as_posix(), "--out", (work_dir / "release-deck").as_posix()]},
-        {"command": "artifact-catalog", "argv": ["artifact-catalog", "--root", work_dir.as_posix(), "--paths", "packet,dashboard,scenario-gallery,assumption-audit,batch-compare,casebook,schema-export,csv-import,csv-export,static-docs", "--out", (work_dir / "catalog").as_posix()]},
-        {"command": "release-check", "argv": ["release-check", "--root", work_dir.as_posix(), "--out", (work_dir / "release-check").as_posix()]},
-        {"command": "public-scan", "argv": ["public-scan", "--root", work_dir.as_posix(), "--out", (work_dir / "public_scan.json").as_posix()]},
-        {"command": "release-manifest", "argv": ["release-manifest", "--root", work_dir.as_posix(), "--out", (work_dir / "release_manifest.json").as_posix()]},
-        {"command": "maturity-report", "argv": ["maturity-report", "--root", work_dir.as_posix(), "--out", (work_dir / "maturity_report.json").as_posix()]},
+        {"command": "bundle-checksums", "argv": ["bundle-checksums", "--root", ".", "--out", _public_path(work_dir / "bundle-checksums", work_dir)]},
+        {"command": "evidence-bundle", "argv": ["evidence-bundle", "--root", ".", "--out", _public_path(work_dir / "evidence-bundle", work_dir)]},
+        {"command": "template-pack", "argv": ["template-pack", "--out", _public_path(work_dir / "template-pack", work_dir)]},
+        {"command": "docs-export", "argv": ["docs-export", "--root", ".", "--out", _public_path(work_dir / "static-docs", work_dir)]},
+        {"command": "command-matrix", "argv": ["command-matrix", "--out", _public_path(work_dir / "command-matrix", work_dir)]},
+        {"command": "release-deck", "argv": ["release-deck", "--root", ".", "--out", _public_path(work_dir / "release-deck", work_dir)]},
+        {"command": "artifact-catalog", "argv": ["artifact-catalog", "--root", ".", "--paths", "packet,dashboard,scenario-gallery,assumption-audit,batch-compare,casebook,schema-export,csv-import,csv-export,static-docs", "--out", _public_path(work_dir / "catalog", work_dir)]},
+        {"command": "release-check", "argv": ["release-check", "--root", ".", "--out", _public_path(work_dir / "release-check", work_dir)]},
+        {"command": "public-scan", "argv": ["public-scan", "--root", ".", "--out", _public_path(work_dir / "public_scan.json", work_dir)]},
+        {"command": "release-manifest", "argv": ["release-manifest", "--root", ".", "--out", _public_path(work_dir / "release_manifest.json", work_dir)]},
+        {"command": "maturity-report", "argv": ["maturity-report", "--root", ".", "--out", _public_path(work_dir / "maturity_report.json", work_dir)]},
     ]
 
     results = []
@@ -2290,61 +2352,61 @@ def fixture_doctor(work_dir: Path, examples_dir: Optional[Path] = None) -> Dict[
         command = item["command"]
         try:
             if command in {"build-packet", "static-dashboard"}:
-                paths = build_packet(examples / "portfolio.json", examples / "ledger.json", examples / "assumptions.json", Path(item["argv"][-1]), "stress" if command == "build-packet" else None)
-                output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix(), paths.html_path.as_posix()]
-                passed = paths.html_path.exists() and not _contains_script_tag(paths.html_path)
+                paths = build_packet(examples / "portfolio.json", examples / "ledger.json", examples / "assumptions.json", work_dir / ("packet" if command == "build-packet" else "dashboard"), "stress" if command == "build-packet" else None)
+                output_paths = [_public_path(paths.json_path, work_dir), _public_path(paths.markdown_path, work_dir), _public_path(paths.html_path, work_dir)]
+                passed = paths.html_path.exists() and not _html_has_unsafe_content(paths.html_path)
             elif command == "scenario-gallery":
-                paths = build_scenario_gallery(examples / "portfolio.json", examples / "ledger.json", examples / "assumptions.json", Path(item["argv"][-1]))
-                output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix(), paths.html_path.as_posix()]
-                passed = not _contains_script_tag(paths.html_path)
+                paths = build_scenario_gallery(examples / "portfolio.json", examples / "ledger.json", examples / "assumptions.json", work_dir / "scenario-gallery")
+                output_paths = [_public_path(paths.json_path, work_dir), _public_path(paths.markdown_path, work_dir), _public_path(paths.html_path, work_dir)]
+                passed = not _html_has_unsafe_content(paths.html_path)
             elif command == "assumption-audit":
-                paths = build_assumption_audit(examples / "portfolio_concentrated.json", examples / "ledger.json", examples / "assumptions.json", Path(item["argv"][-1]))
-                output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix()]
+                paths = build_assumption_audit(examples / "portfolio_concentrated.json", examples / "ledger.json", examples / "assumptions.json", work_dir / "assumption-audit")
+                output_paths = [_public_path(paths.json_path, work_dir), _public_path(paths.markdown_path, work_dir)]
                 passed = paths.json_path.exists() and paths.markdown_path.exists()
             elif command == "batch-compare":
-                paths = build_batch_compare(portfolios_dir, examples / "ledger.json", examples / "assumptions.json", Path(item["argv"][-1]), ["base", "stress"])
-                output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix(), paths.html_path.as_posix()]
-                passed = not _contains_script_tag(paths.html_path)
+                paths = build_batch_compare(portfolios_dir, examples / "ledger.json", examples / "assumptions.json", work_dir / "batch-compare", ["base", "stress"])
+                output_paths = [_public_path(paths.json_path, work_dir), _public_path(paths.markdown_path, work_dir), _public_path(paths.html_path, work_dir)]
+                passed = not _html_has_unsafe_content(paths.html_path)
             elif command == "casebook":
-                paths = build_casebook(examples / "portfolio.json", examples / "ledger.json", examples / "assumptions.json", portfolios_dir, Path(item["argv"][-1]), "stress", ["base", "stress", "income_shock"])
-                output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix(), paths.html_path.as_posix()]
-                passed = not _contains_script_tag(paths.html_path)
+                paths = build_casebook(examples / "portfolio.json", examples / "ledger.json", examples / "assumptions.json", portfolios_dir, work_dir / "casebook", "stress", ["base", "stress", "income_shock"])
+                output_paths = [_public_path(paths.json_path, work_dir), _public_path(paths.markdown_path, work_dir), _public_path(paths.html_path, work_dir)]
+                passed = not _html_has_unsafe_content(paths.html_path)
             elif command == "visual-receipt":
                 path = build_visual_receipt(examples / "portfolio.json", examples / "ledger.json", examples / "assumptions.json", work_dir / "visual_receipt.md", "stress")
-                output_paths = [path.as_posix()]
+                output_paths = [_public_path(path, work_dir)]
                 passed = path.exists()
             elif command == "compare-history":
                 out = work_dir / "history_compare.json"
                 dump_json(compare_history(load_json(examples / "history.json")), out)
-                output_paths = [out.as_posix()]
+                output_paths = [_public_path(out, work_dir)]
                 passed = out.exists()
             elif command == "review-ledger":
                 out = work_dir / "ledger_review.json"
                 dump_json(review_ledger(load_json(examples / "ledger.json")), out)
-                output_paths = [out.as_posix()]
+                output_paths = [_public_path(out, work_dir)]
                 passed = out.exists()
             elif command == "schema-export":
                 paths = build_schema_export(work_dir / "schema-export")
-                output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix()]
+                output_paths = [_public_path(paths.json_path, work_dir), _public_path(paths.markdown_path, work_dir)]
                 passed = paths.json_path.exists() and paths.markdown_path.exists()
             elif command == "csv-import":
                 paths = build_csv_import(examples / "portfolio.csv", examples / "ledger.csv", work_dir / "csv-import")
                 output_paths = [
-                    paths.portfolio_json_path.as_posix(),
-                    paths.ledger_json_path.as_posix(),
-                    paths.report_json_path.as_posix(),
-                    paths.report_markdown_path.as_posix(),
+                    _public_path(paths.portfolio_json_path, work_dir),
+                    _public_path(paths.ledger_json_path, work_dir),
+                    _public_path(paths.report_json_path, work_dir),
+                    _public_path(paths.report_markdown_path, work_dir),
                 ]
                 passed = load_json(paths.report_json_path)["status"] == "pass"
             elif command == "csv-export":
                 paths = build_csv_export(work_dir / "packet" / "liquidity_packet.json", work_dir / "csv-export")
                 output_paths = [
-                    paths.assets_csv_path.as_posix(),
-                    paths.runway_csv_path.as_posix(),
-                    paths.warnings_csv_path.as_posix(),
-                    paths.bucket_summaries_csv_path.as_posix(),
-                    paths.manifest_json_path.as_posix(),
-                    paths.manifest_markdown_path.as_posix(),
+                    _public_path(paths.assets_csv_path, work_dir),
+                    _public_path(paths.runway_csv_path, work_dir),
+                    _public_path(paths.warnings_csv_path, work_dir),
+                    _public_path(paths.bucket_summaries_csv_path, work_dir),
+                    _public_path(paths.manifest_json_path, work_dir),
+                    _public_path(paths.manifest_markdown_path, work_dir),
                 ]
                 passed = load_json(paths.manifest_json_path)["status"] == "pass"
             elif command == "input-lint":
@@ -2361,51 +2423,51 @@ def fixture_doctor(work_dir: Path, examples_dir: Optional[Path] = None) -> Dict[
                 passed = result["status"] == "pass"
             elif command == "bundle-checksums":
                 paths = build_bundle_checksums(work_dir, work_dir / "bundle-checksums", ["examples", "packet", "scenario-gallery", "assumption-audit", "batch-compare", "casebook", "schema-export", "csv-import", "csv-export"])
-                output_paths = [paths.sums_path.as_posix(), paths.manifest_json_path.as_posix(), paths.manifest_markdown_path.as_posix()]
+                output_paths = [_public_path(paths.sums_path, work_dir), _public_path(paths.manifest_json_path, work_dir), _public_path(paths.manifest_markdown_path, work_dir)]
                 passed = paths.sums_path.exists() and load_json(paths.manifest_json_path)["file_count"] > 0
             elif command == "evidence-bundle":
                 paths = build_evidence_bundle(work_dir, work_dir / "evidence-bundle")
-                output_paths = [paths.index_markdown_path.as_posix(), paths.index_html_path.as_posix(), paths.checksums_path.as_posix(), paths.manifest_json_path.as_posix()]
-                passed = paths.index_html_path.exists() and not _contains_script_tag(paths.index_html_path)
+                output_paths = [_public_path(paths.index_markdown_path, work_dir), _public_path(paths.index_html_path, work_dir), _public_path(paths.checksums_path, work_dir), _public_path(paths.manifest_json_path, work_dir)]
+                passed = paths.index_html_path.exists() and not _html_has_unsafe_content(paths.index_html_path)
             elif command == "template-pack":
                 paths = build_template_pack(work_dir / "template-pack")
-                output_paths = [paths.readme_path.as_posix(), paths.manifest_json_path.as_posix()]
+                output_paths = [_public_path(paths.readme_path, work_dir), _public_path(paths.manifest_json_path, work_dir)]
                 passed = (work_dir / "template-pack" / "portfolio.csv").exists() and load_json(paths.manifest_json_path)["file_count"] >= 6
             elif command == "docs-export":
                 paths = build_docs_export(work_dir, work_dir / "static-docs")
-                output_paths = [paths.index_html_path.as_posix(), paths.index_markdown_path.as_posix()]
-                passed = paths.index_html_path.exists() and not _contains_script_tag(paths.index_html_path)
+                output_paths = [_public_path(paths.index_html_path, work_dir), _public_path(paths.index_markdown_path, work_dir)]
+                passed = paths.index_html_path.exists() and not _html_has_unsafe_content(paths.index_html_path)
             elif command == "command-matrix":
                 paths = build_command_matrix(work_dir / "command-matrix")
-                output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix(), paths.html_path.as_posix()]
-                passed = paths.html_path.exists() and not _contains_script_tag(paths.html_path)
+                output_paths = [_public_path(paths.json_path, work_dir), _public_path(paths.markdown_path, work_dir), _public_path(paths.html_path, work_dir)]
+                passed = paths.html_path.exists() and not _html_has_unsafe_content(paths.html_path)
             elif command == "release-deck":
                 paths = build_release_deck(work_dir, work_dir / "release-deck")
-                output_paths = [paths.markdown_path.as_posix(), paths.html_path.as_posix()]
-                passed = paths.html_path.exists() and not _contains_script_tag(paths.html_path)
+                output_paths = [_public_path(paths.markdown_path, work_dir), _public_path(paths.html_path, work_dir)]
+                passed = paths.html_path.exists() and not _html_has_unsafe_content(paths.html_path)
             elif command == "artifact-catalog":
                 paths = build_artifact_catalog(work_dir, work_dir / "catalog", ["packet", "dashboard", "scenario-gallery", "assumption-audit", "batch-compare", "casebook", "schema-export", "csv-import", "csv-export", "static-docs"])
-                output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix()]
+                output_paths = [_public_path(paths.json_path, work_dir), _public_path(paths.markdown_path, work_dir)]
                 passed = load_json(paths.json_path)["artifact_count"] > 0
             elif command == "release-check":
                 paths = build_release_check(work_dir, work_dir / "release-check", ["examples/portfolio.json", "examples/ledger.json", "packet/liquidity_packet.html"])
-                output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix()]
+                output_paths = [_public_path(paths.json_path, work_dir), _public_path(paths.markdown_path, work_dir)]
                 passed = load_json(paths.json_path)["checks"]["html_no_script_tags"]
             elif command == "public-scan":
                 out = work_dir / "public_scan.json"
                 result = public_scan(work_dir)
                 dump_json(result, out)
-                output_paths = [out.as_posix()]
+                output_paths = [_public_path(out, work_dir)]
                 passed = result["status"] == "pass"
             elif command == "release-manifest":
                 out = work_dir / "release_manifest.json"
                 dump_json(release_manifest(work_dir), out)
-                output_paths = [out.as_posix()]
+                output_paths = [_public_path(out, work_dir)]
                 passed = out.exists()
             elif command == "maturity-report":
                 out = work_dir / "maturity_report.json"
                 dump_json(maturity_report(work_dir), out)
-                output_paths = [out.as_posix()]
+                output_paths = [_public_path(out, work_dir)]
                 passed = out.exists()
             else:
                 output_paths = []
@@ -2417,7 +2479,7 @@ def fixture_doctor(work_dir: Path, examples_dir: Optional[Path] = None) -> Dict[
     return {
         "boundary": BOUNDARY_TEXT,
         "status": status,
-        "work_dir": work_dir.as_posix(),
+        "work_dir": _public_path(work_dir),
         "examples": copied,
         "command_plan": plan,
         "results": results,
@@ -2451,9 +2513,20 @@ def render_fixture_doctor_markdown(report: Mapping[str, Any]) -> str:
 
 def build_fixture_doctor(out_dir: Path, work_dir: Optional[Path] = None, examples_dir: Optional[Path] = None) -> FixtureDoctorPaths:
     out_dir.mkdir(parents=True, exist_ok=True)
-    actual_work = work_dir or (out_dir / "work")
-    actual_work.mkdir(parents=True, exist_ok=True)
-    report = fixture_doctor(actual_work, examples_dir)
+    temp_work: Optional[tempfile.TemporaryDirectory[str]] = None
+    if work_dir is None:
+        temp_work = tempfile.TemporaryDirectory(prefix="plrl-fixture-doctor-")
+        actual_work = Path(temp_work.name)
+    else:
+        actual_work = work_dir
+        actual_work.mkdir(parents=True, exist_ok=True)
+    try:
+        report = fixture_doctor(actual_work, examples_dir)
+        if temp_work is not None:
+            report["work_dir"] = "temporary"
+    finally:
+        if temp_work is not None:
+            temp_work.cleanup()
     json_path = out_dir / "fixture_doctor.json"
     markdown_path = out_dir / "fixture_doctor.md"
     dump_json(report, json_path)
@@ -2696,7 +2769,7 @@ def bundle_checksums(root: Path, include_paths: Iterable[str], exclude_dir: Opti
     return {
         "boundary": BOUNDARY_TEXT,
         "version": PROJECT_VERSION,
-        "root": root.as_posix(),
+        "root": _public_path(root, root),
         "file_count": len(entries),
         "files": entries,
     }
@@ -2920,7 +2993,7 @@ def build_evidence_bundle(root: Path, out_dir: Path, source_files: Iterable[str]
     manifest = {
         "boundary": BOUNDARY_TEXT,
         "version": PROJECT_VERSION,
-        "root": root.as_posix(),
+        "root": _public_path(root, root),
         "artifact_count": len(artifacts),
         "artifacts": artifacts,
     }
@@ -3087,7 +3160,7 @@ def _generate_replay_artifacts(root: Path, generated_demo: Path) -> List[str]:
     for path in generated_demo.rglob("*"):
         if path.is_file() and path.suffix.lower() in {".json", ".md", ".html"}:
             text = path.read_text(encoding="utf-8")
-            path.write_text(text.replace(replay_prefix, "demo"), encoding="utf-8")
+            path.write_text(text.replace(replay_prefix, "demo").replace('"portfolios_dir": "batch-inputs"', '"portfolios_dir": "demo/batch-inputs"'), encoding="utf-8")
     return [
         "scenario-gallery/scenario_gallery.json",
         "scenario-gallery/scenario_gallery.md",
@@ -3139,8 +3212,8 @@ def golden_replay(root: Path, replay_dir: Path) -> Dict[str, Any]:
         "boundary": BOUNDARY_TEXT,
         "version": PROJECT_VERSION,
         "status": status,
-        "root": root.as_posix(),
-        "replay_dir": replay_dir.as_posix(),
+        "root": _public_path(root, root),
+        "replay_dir": _public_path(replay_dir, root),
         "artifact_count": len(comparisons),
         "pass_count": sum(1 for item in comparisons if item["status"] == "pass"),
         "fail_count": sum(1 for item in comparisons if item["status"] == "fail"),
@@ -3205,7 +3278,7 @@ def release_deck(root: Path) -> Dict[str, Any]:
     return {
         "boundary": BOUNDARY_TEXT,
         "version": PROJECT_VERSION,
-        "title": "Portfolio Liquidity Runway Lab v0.8.0 Release Deck",
+        "title": f"Portfolio Liquidity Runway Lab v{PROJECT_VERSION} Release Deck",
         "product_value": [
             "Builds deterministic local liquidity runway packets from JSON and CSV inputs.",
             "Imports portfolio and ledger CSV rows into validated JSON schemas, then exports packet analysis back to reviewable CSV.",
@@ -3338,7 +3411,7 @@ def artifact_catalog(root: Path, paths: Iterable[str] = ("demo", "docs")) -> Dic
                         "regeneration_command": _regeneration_command_for(rel),
                     }
                 )
-    return {"boundary": BOUNDARY_TEXT, "root": root.as_posix(), "artifact_count": len(entries), "artifacts": entries}
+    return {"boundary": BOUNDARY_TEXT, "root": _public_path(root, root), "artifact_count": len(entries), "artifacts": entries}
 
 
 def _regeneration_command_for(rel: str) -> str:
@@ -3424,12 +3497,17 @@ def release_check(root: Path, expected_files: Iterable[str] = EXPECTED_RELEASE_F
         for path in base.rglob("*.html")
         if path.is_file()
     )
-    html_with_script = [rel for rel in html_files if _contains_script_tag(root / rel)]
+    html_safety_findings = []
+    for rel in html_files:
+        for code in _html_safety_findings(root / rel):
+            html_safety_findings.append({"path": rel, "code": code})
+    html_with_script = [item["path"] for item in html_safety_findings if item["code"] == "script_tag"]
     scan = public_scan(root)
     checks = {
         "expected_files": not missing,
         "public_scan": scan["status"] == "pass",
         "html_no_script_tags": not html_with_script,
+        "html_static_safe": not html_safety_findings,
     }
     status = "pass" if all(checks.values()) else "fail"
     return {
@@ -3439,6 +3517,7 @@ def release_check(root: Path, expected_files: Iterable[str] = EXPECTED_RELEASE_F
         "missing_files": missing,
         "html_files": html_files,
         "html_with_script_tags": html_with_script,
+        "html_safety_findings": html_safety_findings,
         "public_scan_findings": scan["findings"],
     }
 
@@ -3460,6 +3539,8 @@ def render_release_check_markdown(result: Mapping[str, Any]) -> str:
         lines.append(f"| {key} | {str(result['checks'][key]).lower()} |")
     lines.extend(["", "## Missing Files", ""])
     lines.extend(f"- `{rel}`" for rel in result["missing_files"]) if result["missing_files"] else lines.append("- None")
+    lines.extend(["", "## HTML Safety Findings", ""])
+    lines.extend(f"- `{item['path']}`: {item['code']}" for item in result.get("html_safety_findings", [])) if result.get("html_safety_findings") else lines.append("- None")
     lines.extend(["", "## HTML Script Tag Findings", ""])
     lines.extend(f"- `{rel}`" for rel in result["html_with_script_tags"]) if result["html_with_script_tags"] else lines.append("- None")
     lines.extend(["", "## Public Scan Findings", ""])
@@ -3528,6 +3609,7 @@ def review_ledger(ledger: Mapping[str, Any]) -> Dict[str, Any]:
 
 def public_scan(root: Path) -> Dict[str, Any]:
     findings: List[str] = []
+    root_prefix = root.resolve().as_posix()
     for path in sorted(root.rglob("*")):
         rel_path = path.relative_to(root)
         if _is_ignored_release_path(rel_path):
@@ -3546,8 +3628,23 @@ def public_scan(root: Path) -> Dict[str, Any]:
             continue
         lowered = text.lower()
         for term in FORBIDDEN_PUBLIC_TERMS:
-            if term in lowered:
+            if re.search(rf"(?im)^\s*{re.escape(term)}\s*[:=]\s*\S{{8,}}", lowered):
                 findings.append(f"Potential secret marker {term!r} in {rel}")
+        for code, pattern in PUBLIC_PATH_LEAK_PATTERNS:
+            if pattern.search(text):
+                findings.append(f"Potential path leakage [{code}] in {rel}")
+        if root_prefix != "/" and root_prefix in text:
+            findings.append(f"Potential path leakage [scan_root_path] in {rel}")
+        for code, pattern in PROVIDER_TOKEN_PATTERNS:
+            if pattern.search(text):
+                findings.append(f"Potential provider token [{code}] in {rel}")
+        if ENV_SECRET_LABEL_PATTERN.search(text):
+            findings.append(f"Potential environment secret assignment in {rel}")
+        if AUTH_HEADER_PATTERN.search(text):
+            findings.append(f"Potential bearer authorization header in {rel}")
+        if path.suffix.lower() in {".html", ".htm"}:
+            for code in _html_safety_findings(path):
+                findings.append(f"Unsafe HTML [{code}] in {rel}")
     return {"boundary": BOUNDARY_TEXT, "status": "pass" if not findings else "review", "findings": findings}
 
 
@@ -3615,6 +3712,12 @@ def maturity_report(root: Path) -> Dict[str, Any]:
     return {"boundary": BOUNDARY_TEXT, "score": sum(1 for value in checks.values() if value), "checks": checks}
 
 
+def harden_csv_cell(value: Any) -> Any:
+    if isinstance(value, str) and value.startswith(CSV_FORMULA_PREFIXES):
+        return "'" + value
+    return value
+
+
 def write_csv(rows: List[Mapping[str, Any]], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fields = sorted({key for row in rows for key in row})
@@ -3622,4 +3725,4 @@ def write_csv(rows: List[Mapping[str, Any]], path: Path) -> None:
         writer = csv.DictWriter(handle, fieldnames=fields)
         writer.writeheader()
         for row in rows:
-            writer.writerow(row)
+            writer.writerow({key: harden_csv_cell(value) for key, value in row.items()})

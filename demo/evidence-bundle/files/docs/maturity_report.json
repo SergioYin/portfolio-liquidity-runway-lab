@@ -3,21 +3,26 @@
   "checks": {
     "agent_skill": true,
     "artifact_catalog": true,
+    "bundle_checksums": true,
     "cold_start_walkthrough": true,
     "command_matrix": true,
     "demo_assumption_audit": true,
     "demo_batch_compare": true,
+    "demo_bundle_checksums": true,
     "demo_casebook": true,
     "demo_command_matrix": true,
     "demo_csv_export": true,
     "demo_csv_import": true,
+    "demo_evidence_bundle": true,
     "demo_fixture_doctor": true,
     "demo_golden_replay": true,
     "demo_release_deck": true,
     "demo_scenario_gallery": true,
     "demo_schema_export": true,
     "demo_static_docs": true,
+    "demo_template_pack": true,
     "demo_visual_receipt": true,
+    "evidence_bundle": true,
     "fixture_doctor": true,
     "golden_replay": true,
     "license": true,
@@ -32,7 +37,8 @@
     "release_readiness_review": true,
     "schema_guide": true,
     "static_docs": true,
+    "template_pack": true,
     "tests": true
   },
-  "score": 32
+  "score": 38
 }

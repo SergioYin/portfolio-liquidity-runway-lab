@@ -458,11 +458,13 @@ class CliTests(unittest.TestCase):
             (root / "README.md").write_text("readme\n", encoding="utf-8")
             (root / "demo").mkdir()
             (root / "demo" / "bad.html").write_text("<script>alert(1)</script>\n", encoding="utf-8")
+            (root / "demo" / "bad_link.html").write_text('<a href="javascript:alert(1)">bad</a>\n', encoding="utf-8")
             result = self.run_cli("release-check", "--root", str(root))
             self.assertEqual(result.returncode, 1)
             payload = json.loads(result.stdout)
             self.assertEqual(payload["status"], "fail")
             self.assertIn("demo/bad.html", payload["html_with_script_tags"])
+            self.assertTrue(any(item["path"] == "demo/bad_link.html" and item["code"] == "javascript_url" for item in payload["html_safety_findings"]))
 
     def test_public_scan_passes_repo_without_ai_metadata(self):
         repo_root = Path(__file__).resolve().parents[1]

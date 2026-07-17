@@ -17,7 +17,7 @@ code { background: #eef0f2; padding: 0.1rem 0.25rem; }
 <body><main>
 <h1>Command Matrix</h1>
 <blockquote>Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.</blockquote>
-<p>Version: <code>0.8.0</code></p>
+<p>Version: <code>0.9.0</code></p>
 <table><tr><th>Command</th><th>Purpose</th><th>Inputs</th><th>Outputs</th><th>Demo command</th><th>Risk boundary</th><th>Static no-JS HTML</th></tr>
 <tr><td><code>build-packet</code></td><td>Build the core liquidity runway packet.</td><td>portfolio.json, ledger.json, assumptions.json</td><td>liquidity_packet.json, liquidity_packet.md, liquidity_packet.html</td><td><code>portfolio-liquidity-runway-lab build-packet --scenario stress --out dist/packet</code></td><td>Local deterministic analysis; no live data, broker connection, order placement, or advice.</td><td>true</td></tr>
 <tr><td><code>compare-history</code></td><td>Compare reserve and burn snapshots over time.</td><td>history.json</td><td>stdout JSON, optional JSON file</td><td><code>portfolio-liquidity-runway-lab compare-history --out dist/history_compare.json</code></td><td>Local deterministic analysis; no live data, broker connection, order placement, or advice.</td><td>false</td></tr>

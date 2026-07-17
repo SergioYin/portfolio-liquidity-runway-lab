@@ -3,6 +3,7 @@
   "checks": {
     "expected_files": true,
     "html_no_script_tags": true,
+    "html_static_safe": true,
     "public_scan": true
   },
   "html_files": [
@@ -19,6 +20,7 @@
     "docs/release-deck/release_deck.html",
     "docs/static-docs/index.html"
   ],
+  "html_safety_findings": [],
   "html_with_script_tags": [],
   "missing_files": [],
   "public_scan_findings": [],

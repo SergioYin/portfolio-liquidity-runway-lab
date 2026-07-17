@@ -10,9 +10,14 @@ Status: `pass`
 | --- | --- |
 | expected_files | true |
 | html_no_script_tags | true |
+| html_static_safe | true |
 | public_scan | true |
 
 ## Missing Files
+
+- None
+
+## HTML Safety Findings
 
 - None
 

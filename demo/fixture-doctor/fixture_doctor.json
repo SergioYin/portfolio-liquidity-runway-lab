@@ -179,9 +179,37 @@
     },
     {
       "argv": [
+        "bundle-checksums",
+        "--root",
+        ".",
+        "--out",
+        "demo/fixture-doctor/work/bundle-checksums"
+      ],
+      "command": "bundle-checksums"
+    },
+    {
+      "argv": [
+        "evidence-bundle",
+        "--root",
+        ".",
+        "--out",
+        "demo/fixture-doctor/work/evidence-bundle"
+      ],
+      "command": "evidence-bundle"
+    },
+    {
+      "argv": [
+        "template-pack",
+        "--out",
+        "demo/fixture-doctor/work/template-pack"
+      ],
+      "command": "template-pack"
+    },
+    {
+      "argv": [
         "docs-export",
         "--root",
-        "demo/fixture-doctor/work",
+        ".",
         "--out",
         "demo/fixture-doctor/work/static-docs"
       ],
@@ -199,7 +227,7 @@
       "argv": [
         "release-deck",
         "--root",
-        "demo/fixture-doctor/work",
+        ".",
         "--out",
         "demo/fixture-doctor/work/release-deck"
       ],
@@ -209,7 +237,7 @@
       "argv": [
         "artifact-catalog",
         "--root",
-        "demo/fixture-doctor/work",
+        ".",
         "--paths",
         "packet,dashboard,scenario-gallery,assumption-audit,batch-compare,casebook,schema-export,csv-import,csv-export,static-docs",
         "--out",
@@ -221,7 +249,7 @@
       "argv": [
         "release-check",
         "--root",
-        "demo/fixture-doctor/work",
+        ".",
         "--out",
         "demo/fixture-doctor/work/release-check"
       ],
@@ -231,7 +259,7 @@
       "argv": [
         "public-scan",
         "--root",
-        "demo/fixture-doctor/work",
+        ".",
         "--out",
         "demo/fixture-doctor/work/public_scan.json"
       ],
@@ -241,7 +269,7 @@
       "argv": [
         "release-manifest",
         "--root",
-        "demo/fixture-doctor/work",
+        ".",
         "--out",
         "demo/fixture-doctor/work/release_manifest.json"
       ],
@@ -251,7 +279,7 @@
       "argv": [
         "maturity-report",
         "--root",
-        "demo/fixture-doctor/work",
+        ".",
         "--out",
         "demo/fixture-doctor/work/maturity_report.json"
       ],
@@ -531,9 +559,58 @@
     },
     {
       "argv": [
+        "bundle-checksums",
+        "--root",
+        ".",
+        "--out",
+        "demo/fixture-doctor/work/bundle-checksums"
+      ],
+      "command": "bundle-checksums",
+      "message": "",
+      "outputs": [
+        "demo/fixture-doctor/work/bundle-checksums/SHA256SUMS.txt",
+        "demo/fixture-doctor/work/bundle-checksums/bundle_manifest.json",
+        "demo/fixture-doctor/work/bundle-checksums/bundle_manifest.md"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
+        "evidence-bundle",
+        "--root",
+        ".",
+        "--out",
+        "demo/fixture-doctor/work/evidence-bundle"
+      ],
+      "command": "evidence-bundle",
+      "message": "",
+      "outputs": [
+        "demo/fixture-doctor/work/evidence-bundle/index.md",
+        "demo/fixture-doctor/work/evidence-bundle/index.html",
+        "demo/fixture-doctor/work/evidence-bundle/SHA256SUMS.txt",
+        "demo/fixture-doctor/work/evidence-bundle/evidence_manifest.json"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
+        "template-pack",
+        "--out",
+        "demo/fixture-doctor/work/template-pack"
+      ],
+      "command": "template-pack",
+      "message": "",
+      "outputs": [
+        "demo/fixture-doctor/work/template-pack/README.md",
+        "demo/fixture-doctor/work/template-pack/template_manifest.json"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
         "docs-export",
         "--root",
-        "demo/fixture-doctor/work",
+        ".",
         "--out",
         "demo/fixture-doctor/work/static-docs"
       ],
@@ -564,7 +641,7 @@
       "argv": [
         "release-deck",
         "--root",
-        "demo/fixture-doctor/work",
+        ".",
         "--out",
         "demo/fixture-doctor/work/release-deck"
       ],
@@ -580,7 +657,7 @@
       "argv": [
         "artifact-catalog",
         "--root",
-        "demo/fixture-doctor/work",
+        ".",
         "--paths",
         "packet,dashboard,scenario-gallery,assumption-audit,batch-compare,casebook,schema-export,csv-import,csv-export,static-docs",
         "--out",
@@ -598,7 +675,7 @@
       "argv": [
         "release-check",
         "--root",
-        "demo/fixture-doctor/work",
+        ".",
         "--out",
         "demo/fixture-doctor/work/release-check"
       ],
@@ -614,7 +691,7 @@
       "argv": [
         "public-scan",
         "--root",
-        "demo/fixture-doctor/work",
+        ".",
         "--out",
         "demo/fixture-doctor/work/public_scan.json"
       ],
@@ -629,7 +706,7 @@
       "argv": [
         "release-manifest",
         "--root",
-        "demo/fixture-doctor/work",
+        ".",
         "--out",
         "demo/fixture-doctor/work/release_manifest.json"
       ],
@@ -644,7 +721,7 @@
       "argv": [
         "maturity-report",
         "--root",
-        "demo/fixture-doctor/work",
+        ".",
         "--out",
         "demo/fixture-doctor/work/maturity_report.json"
       ],
