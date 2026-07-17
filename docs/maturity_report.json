@@ -7,8 +7,12 @@
     "demo_assumption_audit": true,
     "demo_batch_compare": true,
     "demo_casebook": true,
+    "demo_fixture_doctor": true,
     "demo_scenario_gallery": true,
+    "demo_schema_export": true,
+    "demo_static_docs": true,
     "demo_visual_receipt": true,
+    "fixture_doctor": true,
     "license": true,
     "no_github_workflows": true,
     "pyproject": true,
@@ -18,7 +22,9 @@
     "release_check": true,
     "release_manifest": true,
     "release_readiness_review": true,
+    "schema_guide": true,
+    "static_docs": true,
     "tests": true
   },
-  "score": 18
+  "score": 24
 }

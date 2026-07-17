@@ -1,5 +1,5 @@
 {
-  "artifact_count": 19,
+  "artifact_count": 39,
   "artifacts": [
     {
       "path": "demo/assumption-audit/assumption_audit.json",
@@ -50,6 +50,18 @@
       "size_bytes": 2560
     },
     {
+      "path": "demo/fixture-doctor/fixture_doctor.json",
+      "regeneration_command": "portfolio-liquidity-runway-lab fixture-doctor --out demo/fixture-doctor",
+      "sha256": "d316ae95a0827810c9a69986812ce67134d69209ff9009cde4c78e08d4f3d521",
+      "size_bytes": 14467
+    },
+    {
+      "path": "demo/fixture-doctor/fixture_doctor.md",
+      "regeneration_command": "portfolio-liquidity-runway-lab fixture-doctor --out demo/fixture-doctor",
+      "sha256": "97c77fffbfba64b1b14299db816de4d8156bd4d0d118531907e63ae2fa48eda1",
+      "size_bytes": 6352
+    },
+    {
       "path": "demo/scenario-gallery/scenario_gallery.html",
       "regeneration_command": "portfolio-liquidity-runway-lab scenario-gallery --out demo/scenario-gallery",
       "sha256": "0c9a0879926b383ffbab9761435f75359fd24646d1b88642ffb737c144f08b49",
@@ -68,6 +80,54 @@
       "size_bytes": 2510
     },
     {
+      "path": "demo/schema-export/schema_guide.json",
+      "regeneration_command": "portfolio-liquidity-runway-lab schema-export --out demo/schema-export",
+      "sha256": "19f28677fb49e00069d2068de86108093252f2c27e436d9199f0742d411ab738",
+      "size_bytes": 15111
+    },
+    {
+      "path": "demo/schema-export/schema_guide.md",
+      "regeneration_command": "portfolio-liquidity-runway-lab schema-export --out demo/schema-export",
+      "sha256": "2bca03fb5379df8af71aebf0db222933ee454c417172d42b4c08322c607f87dc",
+      "size_bytes": 7745
+    },
+    {
+      "path": "demo/static-docs/boundaries.md",
+      "regeneration_command": "portfolio-liquidity-runway-lab docs-export --out demo/static-docs",
+      "sha256": "1a524f0e984a96f1ad082ef330f7e04ef8625de43555038b66061f967186d90d",
+      "size_bytes": 511
+    },
+    {
+      "path": "demo/static-docs/command_matrix.md",
+      "regeneration_command": "portfolio-liquidity-runway-lab docs-export --out demo/static-docs",
+      "sha256": "eafdb68c6e29932dbb7bac934b553db11f5f7a7433b3c9f93bc953f754fc5582",
+      "size_bytes": 2000
+    },
+    {
+      "path": "demo/static-docs/demos.md",
+      "regeneration_command": "portfolio-liquidity-runway-lab docs-export --out demo/static-docs",
+      "sha256": "473100fd9c8d99015f67389c8e56a20175a34208d3289506eb9f9543db6e5d2c",
+      "size_bytes": 928
+    },
+    {
+      "path": "demo/static-docs/index.html",
+      "regeneration_command": "portfolio-liquidity-runway-lab docs-export --out demo/static-docs",
+      "sha256": "b78cce935a087745e9ebbe59cbe03cd43737dc5568b9f44c1bf691d0bb30c779",
+      "size_bytes": 1927
+    },
+    {
+      "path": "demo/static-docs/index.md",
+      "regeneration_command": "portfolio-liquidity-runway-lab docs-export --out demo/static-docs",
+      "sha256": "3f0b04c7d639acd05e6f58e85fccb638eaa3538951655c80fd5c6b52eee577ae",
+      "size_bytes": 1137
+    },
+    {
+      "path": "demo/static-docs/release_evidence.md",
+      "regeneration_command": "portfolio-liquidity-runway-lab docs-export --out demo/static-docs",
+      "sha256": "0bf87080cdbd09973e2feb1d93540bd94d59f2bb04c4398590aaf7483a91b736",
+      "size_bytes": 287
+    },
+    {
       "path": "demo/visual_receipt.md",
       "regeneration_command": "portfolio-liquidity-runway-lab visual-receipt --out demo/visual_receipt.md --scenario stress",
       "sha256": "2d1d63d6dacda005448092c5cc8569a024b8b2e73eb1f0ac6d43c7a73646988c",
@@ -76,8 +136,8 @@
     {
       "path": "docs/cold_start_walkthrough.md",
       "regeneration_command": "manual edit",
-      "sha256": "fe273a9202a77e84517fce17bfc59c1280faa27fae16029a35b826e8c2b7fbc8",
-      "size_bytes": 5375
+      "sha256": "13e73b64c23c326af0feda776cd5f33a9888fa5d443e64974783d74b8dbc0c5a",
+      "size_bytes": 6716
     },
     {
       "path": "docs/engineering_note.md",
@@ -86,16 +146,28 @@
       "size_bytes": 1129
     },
     {
+      "path": "docs/fixture_doctor.json",
+      "regeneration_command": "portfolio-liquidity-runway-lab fixture-doctor --out demo/fixture-doctor",
+      "sha256": "d316ae95a0827810c9a69986812ce67134d69209ff9009cde4c78e08d4f3d521",
+      "size_bytes": 14467
+    },
+    {
+      "path": "docs/fixture_doctor.md",
+      "regeneration_command": "portfolio-liquidity-runway-lab fixture-doctor --out demo/fixture-doctor",
+      "sha256": "97c77fffbfba64b1b14299db816de4d8156bd4d0d118531907e63ae2fa48eda1",
+      "size_bytes": 6352
+    },
+    {
       "path": "docs/maturity_report.json",
       "regeneration_command": "portfolio-liquidity-runway-lab maturity-report --out docs/maturity_report.json",
-      "sha256": "e470be32d2c8d1b6bbda83373f159a0f06bb916cc8310f7bff7c16807af62e3a",
-      "size_bytes": 817
+      "sha256": "6d2b695616df54168a140087eb817c30b462ab972167ac8ea03648e60aa7fe8a",
+      "size_bytes": 991
     },
     {
       "path": "docs/release_check.json",
       "regeneration_command": "portfolio-liquidity-runway-lab release-check --out docs",
-      "sha256": "16235390de3d61cd7345c22fe672564f9472002be58a59d1163c21fcc0a4fed6",
-      "size_bytes": 621
+      "sha256": "d611b2e6ce01785343a512bf971b267f6da46787a9b986b2bfdea825d86c5fd1",
+      "size_bytes": 691
     },
     {
       "path": "docs/release_check.md",
@@ -106,14 +178,62 @@
     {
       "path": "docs/release_manifest.json",
       "regeneration_command": "portfolio-liquidity-runway-lab release-manifest --out docs/release_manifest.json",
-      "sha256": "9de182f90d8f7c92cc67481eaa20c91dafa34b1c4f9002896c0d4957b1a4bc4a",
-      "size_bytes": 1960
+      "sha256": "89b2cf3f8cc87bf7236da49441b0c06d4027bd8cd4a09967c38d70d5d2037e00",
+      "size_bytes": 2708
     },
     {
       "path": "docs/release_readiness_review.md",
       "regeneration_command": "manual edit",
-      "sha256": "05a51ce464a7b316b93e02e304aacdba130ae2616c95ed4dfa8479842fe71a45",
-      "size_bytes": 6305
+      "sha256": "c56c2c3562669288572819752a3288d00bbb73280093b6716248b1a847856e4b",
+      "size_bytes": 7950
+    },
+    {
+      "path": "docs/schema_guide.json",
+      "regeneration_command": "portfolio-liquidity-runway-lab schema-export --out demo/schema-export",
+      "sha256": "19f28677fb49e00069d2068de86108093252f2c27e436d9199f0742d411ab738",
+      "size_bytes": 15111
+    },
+    {
+      "path": "docs/schema_guide.md",
+      "regeneration_command": "portfolio-liquidity-runway-lab schema-export --out demo/schema-export",
+      "sha256": "2bca03fb5379df8af71aebf0db222933ee454c417172d42b4c08322c607f87dc",
+      "size_bytes": 7745
+    },
+    {
+      "path": "docs/static-docs/boundaries.md",
+      "regeneration_command": "portfolio-liquidity-runway-lab docs-export --out demo/static-docs",
+      "sha256": "1a524f0e984a96f1ad082ef330f7e04ef8625de43555038b66061f967186d90d",
+      "size_bytes": 511
+    },
+    {
+      "path": "docs/static-docs/command_matrix.md",
+      "regeneration_command": "portfolio-liquidity-runway-lab docs-export --out demo/static-docs",
+      "sha256": "eafdb68c6e29932dbb7bac934b553db11f5f7a7433b3c9f93bc953f754fc5582",
+      "size_bytes": 2000
+    },
+    {
+      "path": "docs/static-docs/demos.md",
+      "regeneration_command": "portfolio-liquidity-runway-lab docs-export --out demo/static-docs",
+      "sha256": "473100fd9c8d99015f67389c8e56a20175a34208d3289506eb9f9543db6e5d2c",
+      "size_bytes": 928
+    },
+    {
+      "path": "docs/static-docs/index.html",
+      "regeneration_command": "portfolio-liquidity-runway-lab docs-export --out demo/static-docs",
+      "sha256": "b78cce935a087745e9ebbe59cbe03cd43737dc5568b9f44c1bf691d0bb30c779",
+      "size_bytes": 1927
+    },
+    {
+      "path": "docs/static-docs/index.md",
+      "regeneration_command": "portfolio-liquidity-runway-lab docs-export --out demo/static-docs",
+      "sha256": "3f0b04c7d639acd05e6f58e85fccb638eaa3538951655c80fd5c6b52eee577ae",
+      "size_bytes": 1137
+    },
+    {
+      "path": "docs/static-docs/release_evidence.md",
+      "regeneration_command": "portfolio-liquidity-runway-lab docs-export --out demo/static-docs",
+      "sha256": "0bf87080cdbd09973e2feb1d93540bd94d59f2bb04c4398590aaf7483a91b736",
+      "size_bytes": 287
     }
   ],
   "boundary": "Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.",

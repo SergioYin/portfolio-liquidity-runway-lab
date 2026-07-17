@@ -19,6 +19,12 @@ cp portfolio_liquidity_runway_lab/examples/portfolio_concentrated.json "$tmpdir/
 python -m portfolio_liquidity_runway_lab batch-compare --portfolios-dir "$tmpdir" --scenarios base,stress --out demo/batch-compare
 python -m portfolio_liquidity_runway_lab casebook --portfolios-dir "$tmpdir" --scenario stress --scenarios base,stress,income_shock --out demo/casebook
 python -m portfolio_liquidity_runway_lab visual-receipt --out demo/visual_receipt.md --scenario stress
+python -m portfolio_liquidity_runway_lab schema-export --out demo/schema-export
+python -m portfolio_liquidity_runway_lab fixture-doctor --out demo/fixture-doctor --work-dir dist/fixture-doctor-work
+python -m portfolio_liquidity_runway_lab docs-export --root . --out demo/static-docs
+python -m portfolio_liquidity_runway_lab schema-export --out docs
+python -m portfolio_liquidity_runway_lab fixture-doctor --out docs --work-dir dist/fixture-doctor-work
+python -m portfolio_liquidity_runway_lab docs-export --root . --out docs/static-docs
 python -m portfolio_liquidity_runway_lab release-manifest --out docs/release_manifest.json
 python -m portfolio_liquidity_runway_lab maturity-report --out docs/maturity_report.json
 python -m portfolio_liquidity_runway_lab artifact-catalog --out docs
@@ -40,6 +46,9 @@ cp liquidity-demo/portfolio_concentrated.json liquidity-demo/portfolios/portfoli
 portfolio-liquidity-runway-lab batch-compare --portfolios-dir liquidity-demo/portfolios --scenarios base,stress --out liquidity-demo/batch-compare
 portfolio-liquidity-runway-lab casebook --portfolios-dir liquidity-demo/portfolios --scenario stress --scenarios base,stress,income_shock --out liquidity-demo/casebook
 portfolio-liquidity-runway-lab visual-receipt --out liquidity-demo/visual_receipt.md --scenario stress
+portfolio-liquidity-runway-lab schema-export --out liquidity-demo/schema-export
+portfolio-liquidity-runway-lab fixture-doctor --out liquidity-demo/fixture-doctor
+portfolio-liquidity-runway-lab docs-export --root . --out liquidity-demo/static-docs
 ```
 
 ## Maturity Rubric
@@ -55,6 +64,9 @@ Current maturity: alpha public utility.
 | Assumption audit | Ready | `assumption-audit` writes deterministic JSON and Markdown findings for liquidity tier completeness, nonnumeric values, suspicious yields or fees, missing scenarios, reserve thresholds, and scheduled event issues. |
 | Batch compare | Ready | `batch-compare` writes deterministic JSON, Markdown, and no-JavaScript HTML comparing runway, reserves, and warnings across portfolio JSON files. |
 | Casebook | Ready | `casebook` writes deterministic JSON, Markdown, and no-JavaScript HTML release-owner artifacts combining packet, scenario gallery, assumption audit, and batch compare summaries. |
+| Schema guide | Ready | `schema-export` writes deterministic JSON and Markdown guides for every supported input file and output artifact family. |
+| Fixture diagnosis | Ready | `fixture-doctor` copies examples to a work directory, validates the command plan, and writes pass/fail JSON and Markdown diagnosis. |
+| Static docs | Ready | `docs-export` writes compact no-JavaScript HTML and Markdown docs linking README summary, command matrix, boundaries, demos, and release evidence. |
 | Artifact catalog | Ready | `artifact-catalog` records demo/docs file sizes, SHA256 hashes, and regeneration commands in deterministic JSON and Markdown. |
 | Release check | Ready | `release-check` validates expected docs/demo/package files, public scan status, and generated HTML no-script requirements. |
 | Visual receipt | Ready | `visual-receipt` writes compact deterministic Markdown linking packet artifacts, boundary text, bucket bars, and regeneration commands. |
@@ -74,6 +86,9 @@ Current maturity: alpha public utility.
 - Regenerate `demo/assumption-audit/` when changing audit rules or bundled concentrated fixtures.
 - Regenerate `demo/batch-compare/` when changing batch compare rendering or summary fields.
 - Regenerate `demo/casebook/` when changing casebook summaries, bundled examples, or release-owner review fields.
+- Regenerate `demo/schema-export/` and `docs/schema_guide.*` when changing schemas, command metadata, or artifact fields.
+- Regenerate `demo/fixture-doctor/` and `docs/fixture_doctor.*` when changing command behavior or bundled examples.
+- Regenerate `demo/static-docs/` and `docs/static-docs/` when changing README, command matrix, boundary text, demos, or release evidence.
 - Regenerate `docs/artifact_catalog.*` after changing demo or docs artifacts.
 - Regenerate `docs/release_check.*` after changing release expectations or generated HTML artifacts.
 - Regenerate `docs/release_manifest.json` after adding or removing release files.

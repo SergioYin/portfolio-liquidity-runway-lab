@@ -16,8 +16,11 @@ from .core import (
     build_artifact_catalog,
     build_batch_compare,
     build_casebook,
+    build_docs_export,
+    build_fixture_doctor,
     build_packet,
     build_release_check,
+    build_schema_export,
     build_scenario_gallery,
     build_visual_receipt,
     bundled_example_path,
@@ -239,6 +242,45 @@ def cmd_visual_receipt(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_schema_export(args: argparse.Namespace) -> int:
+    paths = build_schema_export(Path(args.out))
+    _print_json({"status": "ok", "boundary": BOUNDARY_TEXT, "json": str(paths.json_path), "markdown": str(paths.markdown_path)})
+    return 0
+
+
+def cmd_fixture_doctor(args: argparse.Namespace) -> int:
+    paths = build_fixture_doctor(
+        Path(args.out),
+        Path(args.work_dir) if args.work_dir else None,
+        Path(args.examples_dir) if args.examples_dir else None,
+    )
+    result = load_json(paths.json_path)
+    _print_json(
+        {
+            "status": result["status"],
+            "boundary": BOUNDARY_TEXT,
+            "json": str(paths.json_path),
+            "markdown": str(paths.markdown_path),
+            "work_dir": str(paths.work_dir),
+            "results": result["results"],
+        }
+    )
+    return 0 if result["status"] == "pass" else 1
+
+
+def cmd_docs_export(args: argparse.Namespace) -> int:
+    paths = build_docs_export(Path(args.root), Path(args.out))
+    _print_json(
+        {
+            "status": "ok",
+            "boundary": BOUNDARY_TEXT,
+            "html": str(paths.index_html_path),
+            "markdown": str(paths.index_markdown_path),
+        }
+    )
+    return 0
+
+
 def cmd_quickstart_check(args: argparse.Namespace) -> int:
     out = Path(args.out)
     if out.exists() and not out.is_dir():
@@ -449,6 +491,21 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--out", default="demo/visual_receipt.md", help="Receipt Markdown output path.")
     p.add_argument("--packet-out", default="dist/packet", help="Packet output path to show in regeneration commands.")
     p.set_defaults(func=cmd_visual_receipt)
+
+    p = sub.add_parser("schema-export", help="Export deterministic JSON and Markdown schema guides for inputs and artifacts.")
+    p.add_argument("--out", default="dist/schema-export", help="Output directory.")
+    p.set_defaults(func=cmd_schema_export)
+
+    p = sub.add_parser("fixture-doctor", help="Copy examples to a work dir and validate all CLI capabilities against them.")
+    p.add_argument("--out", default="dist/fixture-doctor", help="Output directory for fixture_doctor.json and fixture_doctor.md.")
+    p.add_argument("--work-dir", help="Optional work directory. Defaults to --out/work.")
+    p.add_argument("--examples-dir", help="Optional source example directory for failure diagnostics. Defaults to bundled examples.")
+    p.set_defaults(func=cmd_fixture_doctor)
+
+    p = sub.add_parser("docs-export", help="Export compact static no-JavaScript documentation bundle.")
+    p.add_argument("--root", default=".", help="Repository or artifact root.")
+    p.add_argument("--out", default="dist/static-docs", help="Output directory.")
+    p.set_defaults(func=cmd_docs_export)
 
     p = sub.add_parser("quickstart-check", help="Copy bundled examples and build a packet from an empty directory.")
     p.add_argument("--out", default="quickstart-output", help="Output directory for example files and packet.")

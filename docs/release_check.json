@@ -8,7 +8,9 @@
   "html_files": [
     "demo/batch-compare/batch_compare.html",
     "demo/casebook/casebook.html",
-    "demo/scenario-gallery/scenario_gallery.html"
+    "demo/scenario-gallery/scenario_gallery.html",
+    "demo/static-docs/index.html",
+    "docs/static-docs/index.html"
   ],
   "html_with_script_tags": [],
   "missing_files": [],

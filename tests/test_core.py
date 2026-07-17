@@ -11,14 +11,18 @@ from portfolio_liquidity_runway_lab.core import (
     build_assumption_audit,
     build_batch_compare,
     build_casebook,
+    build_docs_export,
+    build_fixture_doctor,
     build_packet,
     build_release_check,
     build_scenario_gallery,
+    build_schema_export,
     bundled_example_path,
     load_json,
     maturity_report,
     release_manifest,
     release_check,
+    schema_guide,
 )
 
 
@@ -245,6 +249,73 @@ class CoreTests(unittest.TestCase):
             self.assertIn("Artifact Catalog", markdown)
             self.assertIn(alpha["sha256"], markdown)
 
+    def test_schema_export_covers_inputs_outputs_and_is_deterministic(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "schema"
+            paths = build_schema_export(out)
+            first_json = paths.json_path.read_text(encoding="utf-8")
+            first_markdown = paths.markdown_path.read_text(encoding="utf-8")
+            payload = json.loads(first_json)
+            input_files = {item["file"] for item in payload["input_files"]}
+            output_artifacts = {item["artifact"] for item in payload["output_artifacts"]}
+            portfolio_fields = {
+                field["path"]
+                for item in payload["input_files"]
+                if item["file"] == "portfolio.json"
+                for field in item["fields"]
+            }
+            self.assertIn("portfolio.json", input_files)
+            self.assertIn("assumptions.json", input_files)
+            self.assertIn("assets[].liquidity_tier", portfolio_fields)
+            self.assertIn("fixture_doctor.json", output_artifacts)
+            self.assertIn("static-docs/index.html", output_artifacts)
+            self.assertIn("schema-export", first_markdown)
+            build_schema_export(out)
+            self.assertEqual(first_json, paths.json_path.read_text(encoding="utf-8"))
+            self.assertEqual(first_markdown, paths.markdown_path.read_text(encoding="utf-8"))
+            self.assertEqual(schema_guide(), json.loads(paths.json_path.read_text(encoding="utf-8")))
+
+    def test_fixture_doctor_reports_success_and_failure(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "doctor"
+            paths = build_fixture_doctor(out)
+            report = json.loads(paths.json_path.read_text(encoding="utf-8"))
+            self.assertEqual(report["status"], "pass")
+            commands = {item["command"] for item in report["results"]}
+            self.assertIn("build-packet", commands)
+            self.assertIn("docs-export", commands)
+            self.assertIn("# Fixture Doctor", paths.markdown_path.read_text(encoding="utf-8"))
+
+        with tempfile.TemporaryDirectory() as tmp:
+            examples = Path(tmp) / "bad-examples"
+            examples.mkdir()
+            for name in ("portfolio.json", "portfolio_concentrated.json", "ledger.json", "assumptions.json", "history.json"):
+                (examples / name).write_text(bundled_example_path(name).read_text(encoding="utf-8"), encoding="utf-8")
+            (examples / "assumptions.json").write_text('{"months": 0, "scenarios": {}}\n', encoding="utf-8")
+            paths = build_fixture_doctor(Path(tmp) / "doctor", examples_dir=examples)
+            report = json.loads(paths.json_path.read_text(encoding="utf-8"))
+            self.assertEqual(report["status"], "fail")
+            self.assertTrue(any(item["status"] == "fail" for item in report["results"]))
+
+    def test_docs_export_writes_no_script_static_bundle(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "README.md").write_text("# Demo README\n\nQuickstart text.\n", encoding="utf-8")
+            (root / "demo").mkdir()
+            (root / "demo" / "sample.md").write_text("sample\n", encoding="utf-8")
+            out = root / "docs-bundle"
+            paths = build_docs_export(root, out)
+            first_html = paths.index_html_path.read_text(encoding="utf-8")
+            first_markdown = paths.index_markdown_path.read_text(encoding="utf-8")
+            self.assertIn("<!doctype html>", first_html)
+            self.assertNotIn("<script", first_html.lower())
+            self.assertIn("[Command matrix](command_matrix.md)", first_markdown)
+            self.assertTrue((out / "boundaries.md").exists())
+            self.assertTrue((out / "demos.md").exists())
+            build_docs_export(root, out)
+            self.assertEqual(first_html, paths.index_html_path.read_text(encoding="utf-8"))
+            self.assertEqual(first_markdown, paths.index_markdown_path.read_text(encoding="utf-8"))
+
     def test_release_check_passes_and_reports_failure_modes(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -277,6 +348,9 @@ class CoreTests(unittest.TestCase):
         self.assertIn("casebook", readme)
         self.assertIn("artifact-catalog", readme)
         self.assertIn("release-check", readme)
+        self.assertIn("schema-export", readme)
+        self.assertIn("fixture-doctor", readme)
+        self.assertIn("docs-export", readme)
         self.assertIn("scenario-gallery", readme)
         self.assertIn("assumption-audit", readme)
         self.assertIn("batch-compare", readme)
@@ -295,12 +369,15 @@ class CoreTests(unittest.TestCase):
         self.assertIn("docs/release_readiness_review.md", manifest["files"])
         self.assertIn("demo/visual_receipt.md", manifest["files"])
         self.assertIn("docs/artifact_catalog.json", manifest["files"])
+        self.assertIn("docs/schema_guide.json", manifest["files"])
+        self.assertIn("docs/fixture_doctor.json", manifest["files"])
+        self.assertIn("docs/static-docs/index.html", manifest["files"])
         self.assertIn("demo/casebook/casebook.md", manifest["files"])
         self.assertIn("demo/scenario-gallery/scenario_gallery.md", manifest["files"])
         self.assertIn("demo/assumption-audit/assumption_audit.md", manifest["files"])
         self.assertIn("demo/batch-compare/batch_compare.html", manifest["files"])
         self.assertIn("README.md", manifest["files"])
-        self.assertEqual(manifest["version"], "0.4.0")
+        self.assertEqual(manifest["version"], "0.5.0")
 
 
 if __name__ == "__main__":

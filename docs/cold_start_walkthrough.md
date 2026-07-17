@@ -36,6 +36,9 @@ cp liquidity-demo/portfolio_concentrated.json liquidity-demo/portfolios/portfoli
 portfolio-liquidity-runway-lab batch-compare --portfolios-dir liquidity-demo/portfolios --scenarios base,stress --out liquidity-demo/batch-compare
 portfolio-liquidity-runway-lab casebook --portfolios-dir liquidity-demo/portfolios --scenario stress --scenarios base,stress,income_shock --out liquidity-demo/casebook
 portfolio-liquidity-runway-lab visual-receipt --out liquidity-demo/visual_receipt.md --scenario stress
+portfolio-liquidity-runway-lab schema-export --out liquidity-demo/schema-export
+portfolio-liquidity-runway-lab fixture-doctor --out liquidity-demo/fixture-doctor
+portfolio-liquidity-runway-lab docs-export --root . --out liquidity-demo/static-docs
 ```
 
 Expected files:
@@ -61,6 +64,12 @@ liquidity-demo/casebook/casebook.json
 liquidity-demo/casebook/casebook.md
 liquidity-demo/casebook/casebook.html
 liquidity-demo/visual_receipt.md
+liquidity-demo/schema-export/schema_guide.json
+liquidity-demo/schema-export/schema_guide.md
+liquidity-demo/fixture-doctor/fixture_doctor.json
+liquidity-demo/fixture-doctor/fixture_doctor.md
+liquidity-demo/static-docs/index.html
+liquidity-demo/static-docs/index.md
 ```
 
 ## Review Supporting Outputs
@@ -74,10 +83,13 @@ portfolio-liquidity-runway-lab assumption-audit --portfolio liquidity-demo/portf
 portfolio-liquidity-runway-lab batch-compare --portfolios-dir liquidity-demo/portfolios --scenarios base,stress --out liquidity-demo/batch-compare
 portfolio-liquidity-runway-lab casebook --portfolios-dir liquidity-demo/portfolios --scenario stress --scenarios base,stress,income_shock --out liquidity-demo/casebook
 portfolio-liquidity-runway-lab visual-receipt --out liquidity-demo/visual_receipt.md --scenario stress
+portfolio-liquidity-runway-lab schema-export --out liquidity-demo/schema-export
+portfolio-liquidity-runway-lab fixture-doctor --out liquidity-demo/fixture-doctor
+portfolio-liquidity-runway-lab docs-export --root . --out liquidity-demo/static-docs
 portfolio-liquidity-runway-lab artifact-catalog --root liquidity-demo
 ```
 
-The packet, gallery, audit, batch compare, casebook, catalog, and visual receipt artifacts should be deterministic for the same inputs. HTML artifacts are static and contain no JavaScript.
+The packet, gallery, audit, batch compare, casebook, schema guide, fixture diagnosis, static docs, catalog, and visual receipt artifacts should be deterministic for the same inputs. HTML artifacts are static and contain no JavaScript.
 
 ## Public Readiness Checks
 
@@ -96,6 +108,12 @@ cp portfolio_liquidity_runway_lab/examples/portfolio_concentrated.json "$tmpdir/
 python -m portfolio_liquidity_runway_lab batch-compare --portfolios-dir "$tmpdir" --scenarios base,stress --out demo/batch-compare
 python -m portfolio_liquidity_runway_lab casebook --portfolios-dir "$tmpdir" --scenario stress --scenarios base,stress,income_shock --out demo/casebook
 python -m portfolio_liquidity_runway_lab visual-receipt --out demo/visual_receipt.md --scenario stress
+python -m portfolio_liquidity_runway_lab schema-export --out demo/schema-export
+python -m portfolio_liquidity_runway_lab fixture-doctor --out demo/fixture-doctor --work-dir dist/fixture-doctor-work
+python -m portfolio_liquidity_runway_lab docs-export --root . --out demo/static-docs
+python -m portfolio_liquidity_runway_lab schema-export --out docs
+python -m portfolio_liquidity_runway_lab fixture-doctor --out docs --work-dir dist/fixture-doctor-work
+python -m portfolio_liquidity_runway_lab docs-export --root . --out docs/static-docs
 python -m portfolio_liquidity_runway_lab release-manifest --out docs/release_manifest.json
 python -m portfolio_liquidity_runway_lab maturity-report --out docs/maturity_report.json
 python -m portfolio_liquidity_runway_lab artifact-catalog --out docs

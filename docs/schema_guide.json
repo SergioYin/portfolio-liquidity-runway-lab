@@ -1,0 +1,616 @@
+{
+  "boundary": "Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.",
+  "command_matrix": [
+    {
+      "command": "build-packet",
+      "inputs": [
+        "portfolio.json",
+        "ledger.json",
+        "assumptions.json"
+      ],
+      "no_script_html": true,
+      "outputs": [
+        "liquidity_packet.json",
+        "liquidity_packet.md",
+        "liquidity_packet.html"
+      ]
+    },
+    {
+      "command": "compare-history",
+      "inputs": [
+        "history.json"
+      ],
+      "no_script_html": false,
+      "outputs": [
+        "stdout JSON",
+        "optional JSON file"
+      ]
+    },
+    {
+      "command": "review-ledger",
+      "inputs": [
+        "ledger.json"
+      ],
+      "no_script_html": false,
+      "outputs": [
+        "stdout JSON",
+        "optional JSON file"
+      ]
+    },
+    {
+      "command": "static-dashboard",
+      "inputs": [
+        "portfolio.json",
+        "ledger.json",
+        "assumptions.json"
+      ],
+      "no_script_html": true,
+      "outputs": [
+        "liquidity_packet.html"
+      ]
+    },
+    {
+      "command": "scenario-gallery",
+      "inputs": [
+        "portfolio.json",
+        "ledger.json",
+        "assumptions.json"
+      ],
+      "no_script_html": true,
+      "outputs": [
+        "scenario_gallery.json",
+        "scenario_gallery.md",
+        "scenario_gallery.html"
+      ]
+    },
+    {
+      "command": "assumption-audit",
+      "inputs": [
+        "portfolio.json",
+        "ledger.json",
+        "assumptions.json"
+      ],
+      "no_script_html": false,
+      "outputs": [
+        "assumption_audit.json",
+        "assumption_audit.md"
+      ]
+    },
+    {
+      "command": "batch-compare",
+      "inputs": [
+        "portfolio directory",
+        "ledger.json",
+        "assumptions.json"
+      ],
+      "no_script_html": true,
+      "outputs": [
+        "batch_compare.json",
+        "batch_compare.md",
+        "batch_compare.html"
+      ]
+    },
+    {
+      "command": "casebook",
+      "inputs": [
+        "portfolio.json",
+        "portfolio directory",
+        "ledger.json",
+        "assumptions.json"
+      ],
+      "no_script_html": true,
+      "outputs": [
+        "casebook.json",
+        "casebook.md",
+        "casebook.html"
+      ]
+    },
+    {
+      "command": "artifact-catalog",
+      "inputs": [
+        "repo or output root"
+      ],
+      "no_script_html": false,
+      "outputs": [
+        "artifact_catalog.json",
+        "artifact_catalog.md"
+      ]
+    },
+    {
+      "command": "release-check",
+      "inputs": [
+        "repo root"
+      ],
+      "no_script_html": false,
+      "outputs": [
+        "release_check.json",
+        "release_check.md"
+      ]
+    },
+    {
+      "command": "visual-receipt",
+      "inputs": [
+        "portfolio.json",
+        "ledger.json",
+        "assumptions.json"
+      ],
+      "no_script_html": false,
+      "outputs": [
+        "visual_receipt.md"
+      ]
+    },
+    {
+      "command": "quickstart-check",
+      "inputs": [
+        "bundled examples"
+      ],
+      "no_script_html": true,
+      "outputs": [
+        "copied examples",
+        "packet artifacts"
+      ]
+    },
+    {
+      "command": "selfcheck",
+      "inputs": [
+        "bundled examples"
+      ],
+      "no_script_html": true,
+      "outputs": [
+        "stdout JSON"
+      ]
+    },
+    {
+      "command": "public-scan",
+      "inputs": [
+        "repo root"
+      ],
+      "no_script_html": false,
+      "outputs": [
+        "stdout JSON",
+        "optional JSON file"
+      ]
+    },
+    {
+      "command": "release-manifest",
+      "inputs": [
+        "repo root"
+      ],
+      "no_script_html": false,
+      "outputs": [
+        "stdout JSON",
+        "optional JSON file"
+      ]
+    },
+    {
+      "command": "maturity-report",
+      "inputs": [
+        "repo root"
+      ],
+      "no_script_html": false,
+      "outputs": [
+        "stdout JSON",
+        "optional JSON file"
+      ]
+    },
+    {
+      "command": "schema-export",
+      "inputs": [
+        "built-in schema metadata"
+      ],
+      "no_script_html": false,
+      "outputs": [
+        "schema_guide.json",
+        "schema_guide.md"
+      ]
+    },
+    {
+      "command": "fixture-doctor",
+      "inputs": [
+        "bundled or supplied examples"
+      ],
+      "no_script_html": true,
+      "outputs": [
+        "fixture_doctor.json",
+        "fixture_doctor.md"
+      ]
+    },
+    {
+      "command": "docs-export",
+      "inputs": [
+        "README and generated release evidence"
+      ],
+      "no_script_html": true,
+      "outputs": [
+        "static-docs/index.html",
+        "static-docs/index.md",
+        "static-docs/*.md"
+      ]
+    }
+  ],
+  "input_files": [
+    {
+      "description": "Portfolio asset inventory used by packet, gallery, audit, batch, casebook, and receipt commands.",
+      "fields": [
+        {
+          "description": "Human-readable portfolio name.",
+          "path": "name",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "Display currency label; calculations treat values as already normalized.",
+          "path": "currency",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "Asset rows used for liquidity buckets and yield or fee assumptions.",
+          "path": "assets",
+          "required": true,
+          "type": "array<object>"
+        },
+        {
+          "description": "Asset display name.",
+          "path": "assets[].name",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "Gross asset value.",
+          "path": "assets[].value",
+          "required": true,
+          "type": "number"
+        },
+        {
+          "allowed_values": [
+            "same_day",
+            "one_week",
+            "one_month",
+            "locked"
+          ],
+          "description": "Liquidity bucket for stress haircut and runway grouping.",
+          "path": "assets[].liquidity_tier",
+          "required": true,
+          "type": "enum"
+        },
+        {
+          "description": "Annual yield assumption as a decimal, for example 0.04.",
+          "path": "assets[].annual_yield_rate",
+          "required": true,
+          "type": "number"
+        },
+        {
+          "description": "Annual fee assumption as a decimal, for example 0.01.",
+          "path": "assets[].annual_fee_rate",
+          "required": true,
+          "type": "number"
+        }
+      ],
+      "file": "portfolio.json",
+      "required_fields": [
+        "name",
+        "currency",
+        "assets"
+      ]
+    },
+    {
+      "description": "Recurring income, recurring expenses, and scheduled cash events.",
+      "fields": [
+        {
+          "description": "Expected monthly income before scenario multiplier.",
+          "path": "monthly_income",
+          "required": true,
+          "type": "number"
+        },
+        {
+          "description": "Expected monthly expenses before scenario multiplier.",
+          "path": "monthly_expenses",
+          "required": true,
+          "type": "number"
+        },
+        {
+          "description": "One-time inflow or outflow events by month.",
+          "path": "scheduled_events",
+          "required": false,
+          "type": "array<object>"
+        },
+        {
+          "description": "1-based month in the runway window.",
+          "path": "scheduled_events[].month",
+          "required": true,
+          "type": "integer"
+        },
+        {
+          "allowed_values": [
+            "inflow",
+            "outflow"
+          ],
+          "description": "Cash event direction.",
+          "path": "scheduled_events[].type",
+          "required": true,
+          "type": "enum"
+        },
+        {
+          "description": "Event label for review.",
+          "path": "scheduled_events[].label",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "Positive event amount.",
+          "path": "scheduled_events[].amount",
+          "required": true,
+          "type": "number"
+        }
+      ],
+      "file": "ledger.json",
+      "required_fields": [
+        "monthly_income",
+        "monthly_expenses",
+        "scheduled_events"
+      ]
+    },
+    {
+      "description": "Runway window, reserve threshold, default scenario, and named scenario stress assumptions.",
+      "fields": [
+        {
+          "description": "Number of monthly runway rows to produce.",
+          "path": "months",
+          "required": true,
+          "type": "integer"
+        },
+        {
+          "description": "Same-day reserve threshold used for warnings.",
+          "path": "target_reserve_months",
+          "required": true,
+          "type": "number"
+        },
+        {
+          "description": "Scenario used when no scenario argument is supplied.",
+          "path": "default_scenario",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "Named scenario map.",
+          "path": "scenarios",
+          "required": true,
+          "type": "object"
+        },
+        {
+          "description": "Multiplier applied to monthly expenses.",
+          "path": "scenarios.<name>.expense_multiplier",
+          "required": true,
+          "type": "number"
+        },
+        {
+          "description": "Multiplier applied to monthly income.",
+          "path": "scenarios.<name>.income_multiplier",
+          "required": true,
+          "type": "number"
+        },
+        {
+          "description": "Haircut map keyed by liquidity tier.",
+          "path": "scenarios.<name>.liquidity_haircuts",
+          "required": true,
+          "type": "object"
+        },
+        {
+          "description": "Haircut from 0 to 1.",
+          "path": "scenarios.<name>.liquidity_haircuts.same_day",
+          "required": true,
+          "type": "number"
+        },
+        {
+          "description": "Haircut from 0 to 1.",
+          "path": "scenarios.<name>.liquidity_haircuts.one_week",
+          "required": true,
+          "type": "number"
+        },
+        {
+          "description": "Haircut from 0 to 1.",
+          "path": "scenarios.<name>.liquidity_haircuts.one_month",
+          "required": true,
+          "type": "number"
+        },
+        {
+          "description": "Haircut from 0 to 1.",
+          "path": "scenarios.<name>.liquidity_haircuts.locked",
+          "required": true,
+          "type": "number"
+        }
+      ],
+      "file": "assumptions.json",
+      "required_fields": [
+        "months",
+        "target_reserve_months",
+        "default_scenario",
+        "scenarios"
+      ]
+    },
+    {
+      "description": "Historical reserve and burn snapshots for compare-history.",
+      "fields": [
+        {
+          "description": "At least two snapshots.",
+          "path": "snapshots",
+          "required": true,
+          "type": "array<object>"
+        },
+        {
+          "description": "Snapshot label.",
+          "path": "snapshots[].label",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "description": "Reserve-month value for delta comparison.",
+          "path": "snapshots[].same_day_reserve_months",
+          "required": true,
+          "type": "number"
+        },
+        {
+          "description": "Monthly burn value for delta comparison.",
+          "path": "snapshots[].effective_monthly_burn",
+          "required": true,
+          "type": "number"
+        }
+      ],
+      "file": "history.json",
+      "required_fields": [
+        "snapshots"
+      ]
+    }
+  ],
+  "output_artifacts": [
+    {
+      "artifact": "liquidity_packet.json",
+      "command": "build-packet",
+      "top_level_fields": [
+        "boundary",
+        "scenario",
+        "portfolio_name",
+        "currency",
+        "totals",
+        "cash_buckets",
+        "assets",
+        "scheduled_events",
+        "monthly_runway",
+        "forced_sale_warnings",
+        "review_prompts"
+      ]
+    },
+    {
+      "artifact": "liquidity_packet.md",
+      "command": "build-packet",
+      "top_level_fields": [
+        "summary",
+        "cash buckets",
+        "scheduled events",
+        "monthly runway",
+        "warnings",
+        "review prompts"
+      ]
+    },
+    {
+      "artifact": "liquidity_packet.html",
+      "command": "build-packet/static-dashboard",
+      "top_level_fields": [
+        "no JavaScript static HTML rendering of packet Markdown"
+      ]
+    },
+    {
+      "artifact": "scenario_gallery.json",
+      "command": "scenario-gallery",
+      "top_level_fields": [
+        "boundary",
+        "portfolio_name",
+        "currency",
+        "scenario_names",
+        "summary",
+        "scenarios"
+      ]
+    },
+    {
+      "artifact": "assumption_audit.json",
+      "command": "assumption-audit",
+      "top_level_fields": [
+        "boundary",
+        "status",
+        "finding_counts",
+        "portfolio_name",
+        "findings"
+      ]
+    },
+    {
+      "artifact": "batch_compare.json",
+      "command": "batch-compare",
+      "top_level_fields": [
+        "boundary",
+        "portfolio_files",
+        "scenario_names",
+        "summary",
+        "warnings"
+      ]
+    },
+    {
+      "artifact": "casebook.json",
+      "command": "casebook",
+      "top_level_fields": [
+        "boundary",
+        "title",
+        "inputs",
+        "regeneration_commands",
+        "packet_summary",
+        "scenario_gallery_summary",
+        "assumption_audit_summary",
+        "batch_compare_summary"
+      ]
+    },
+    {
+      "artifact": "visual_receipt.md",
+      "command": "visual-receipt",
+      "top_level_fields": [
+        "packet linkage",
+        "regeneration",
+        "snapshot",
+        "liquidity view",
+        "review signals"
+      ]
+    },
+    {
+      "artifact": "artifact_catalog.json",
+      "command": "artifact-catalog",
+      "top_level_fields": [
+        "boundary",
+        "root",
+        "artifact_count",
+        "artifacts"
+      ]
+    },
+    {
+      "artifact": "release_check.json",
+      "command": "release-check",
+      "top_level_fields": [
+        "boundary",
+        "status",
+        "checks",
+        "missing_files",
+        "html_files",
+        "html_with_script_tags",
+        "public_scan_findings"
+      ]
+    },
+    {
+      "artifact": "schema_guide.json",
+      "command": "schema-export",
+      "top_level_fields": [
+        "boundary",
+        "version",
+        "input_files",
+        "output_artifacts"
+      ]
+    },
+    {
+      "artifact": "fixture_doctor.json",
+      "command": "fixture-doctor",
+      "top_level_fields": [
+        "boundary",
+        "status",
+        "work_dir",
+        "examples",
+        "command_plan",
+        "results"
+      ]
+    },
+    {
+      "artifact": "static-docs/index.html",
+      "command": "docs-export",
+      "top_level_fields": [
+        "no JavaScript static documentation index"
+      ]
+    }
+  ],
+  "version": "0.5.0"
+}

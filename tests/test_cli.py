@@ -228,6 +228,68 @@ class CliTests(unittest.TestCase):
             self.assertTrue(any(item["path"] == "demo/alpha.md" for item in catalog["artifacts"]))
             self.assertIn("b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060", (out / "artifact_catalog.md").read_text(encoding="utf-8"))
 
+    def test_schema_export_command_writes_deterministic_schema_guide(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "schema"
+            result = self.run_cli("schema-export", "--out", str(out))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "ok")
+            schema_json = out / "schema_guide.json"
+            schema_md = out / "schema_guide.md"
+            first_json = schema_json.read_text(encoding="utf-8")
+            first_md = schema_md.read_text(encoding="utf-8")
+            data = json.loads(first_json)
+            self.assertIn("portfolio.json", {item["file"] for item in data["input_files"]})
+            self.assertIn("schema_guide.json", {item["artifact"] for item in data["output_artifacts"]})
+            self.assertIn("assets[].liquidity_tier", first_md)
+            second = self.run_cli("schema-export", "--out", str(out))
+            self.assertEqual(second.returncode, 0, second.stderr)
+            self.assertEqual(first_json, schema_json.read_text(encoding="utf-8"))
+            self.assertEqual(first_md, schema_md.read_text(encoding="utf-8"))
+
+    def test_fixture_doctor_command_reports_success_and_failure(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "doctor"
+            result = self.run_cli("fixture-doctor", "--out", str(out))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "pass")
+            self.assertTrue((out / "fixture_doctor.json").exists())
+            self.assertTrue(any(item["command"] == "docs-export" for item in payload["results"]))
+
+        repo_root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as tmp:
+            examples = Path(tmp) / "examples"
+            examples.mkdir()
+            for name in ("portfolio.json", "portfolio_concentrated.json", "ledger.json", "assumptions.json", "history.json"):
+                (examples / name).write_text(
+                    (repo_root / "portfolio_liquidity_runway_lab" / "examples" / name).read_text(encoding="utf-8"),
+                    encoding="utf-8",
+                )
+            (examples / "assumptions.json").write_text('{"months": 0, "scenarios": {}}\n', encoding="utf-8")
+            result = self.run_cli("fixture-doctor", "--out", str(Path(tmp) / "doctor"), "--examples-dir", str(examples))
+            self.assertEqual(result.returncode, 1)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "fail")
+            self.assertTrue(any(item["status"] == "fail" for item in payload["results"]))
+
+    def test_docs_export_command_writes_no_script_static_bundle(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "README.md").write_text("# Local Docs\n\nQuickstart.\n", encoding="utf-8")
+            (root / "demo").mkdir()
+            (root / "demo" / "sample.md").write_text("sample\n", encoding="utf-8")
+            out = root / "static-docs"
+            result = self.run_cli("docs-export", "--root", str(root), "--out", str(out))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "ok")
+            html = (out / "index.html").read_text(encoding="utf-8")
+            self.assertIn("<!doctype html>", html)
+            self.assertNotIn("<script", html.lower())
+            self.assertIn("command_matrix.md", (out / "index.md").read_text(encoding="utf-8"))
+
     def test_release_check_command_reports_no_script_failure(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

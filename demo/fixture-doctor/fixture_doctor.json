@@ -1,0 +1,511 @@
+{
+  "boundary": "Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.",
+  "command_plan": [
+    {
+      "argv": [
+        "build-packet",
+        "--portfolio",
+        "dist/fixture-doctor-work/examples/portfolio.json",
+        "--ledger",
+        "dist/fixture-doctor-work/examples/ledger.json",
+        "--assumptions",
+        "dist/fixture-doctor-work/examples/assumptions.json",
+        "--scenario",
+        "stress",
+        "--out",
+        "dist/fixture-doctor-work/packet"
+      ],
+      "command": "build-packet"
+    },
+    {
+      "argv": [
+        "static-dashboard",
+        "--portfolio",
+        "dist/fixture-doctor-work/examples/portfolio.json",
+        "--ledger",
+        "dist/fixture-doctor-work/examples/ledger.json",
+        "--assumptions",
+        "dist/fixture-doctor-work/examples/assumptions.json",
+        "--out",
+        "dist/fixture-doctor-work/dashboard"
+      ],
+      "command": "static-dashboard"
+    },
+    {
+      "argv": [
+        "scenario-gallery",
+        "--portfolio",
+        "dist/fixture-doctor-work/examples/portfolio.json",
+        "--ledger",
+        "dist/fixture-doctor-work/examples/ledger.json",
+        "--assumptions",
+        "dist/fixture-doctor-work/examples/assumptions.json",
+        "--out",
+        "dist/fixture-doctor-work/scenario-gallery"
+      ],
+      "command": "scenario-gallery"
+    },
+    {
+      "argv": [
+        "assumption-audit",
+        "--portfolio",
+        "dist/fixture-doctor-work/examples/portfolio_concentrated.json",
+        "--ledger",
+        "dist/fixture-doctor-work/examples/ledger.json",
+        "--assumptions",
+        "dist/fixture-doctor-work/examples/assumptions.json",
+        "--out",
+        "dist/fixture-doctor-work/assumption-audit"
+      ],
+      "command": "assumption-audit"
+    },
+    {
+      "argv": [
+        "batch-compare",
+        "--portfolios-dir",
+        "dist/fixture-doctor-work/portfolios",
+        "--ledger",
+        "dist/fixture-doctor-work/examples/ledger.json",
+        "--assumptions",
+        "dist/fixture-doctor-work/examples/assumptions.json",
+        "--scenarios",
+        "base,stress",
+        "--out",
+        "dist/fixture-doctor-work/batch-compare"
+      ],
+      "command": "batch-compare"
+    },
+    {
+      "argv": [
+        "casebook",
+        "--portfolio",
+        "dist/fixture-doctor-work/examples/portfolio.json",
+        "--ledger",
+        "dist/fixture-doctor-work/examples/ledger.json",
+        "--assumptions",
+        "dist/fixture-doctor-work/examples/assumptions.json",
+        "--portfolios-dir",
+        "dist/fixture-doctor-work/portfolios",
+        "--scenario",
+        "stress",
+        "--scenarios",
+        "base,stress,income_shock",
+        "--out",
+        "dist/fixture-doctor-work/casebook"
+      ],
+      "command": "casebook"
+    },
+    {
+      "argv": [
+        "visual-receipt",
+        "--portfolio",
+        "dist/fixture-doctor-work/examples/portfolio.json",
+        "--ledger",
+        "dist/fixture-doctor-work/examples/ledger.json",
+        "--assumptions",
+        "dist/fixture-doctor-work/examples/assumptions.json",
+        "--scenario",
+        "stress",
+        "--out",
+        "dist/fixture-doctor-work/visual_receipt.md"
+      ],
+      "command": "visual-receipt"
+    },
+    {
+      "argv": [
+        "compare-history",
+        "--history",
+        "dist/fixture-doctor-work/examples/history.json",
+        "--out",
+        "dist/fixture-doctor-work/history_compare.json"
+      ],
+      "command": "compare-history"
+    },
+    {
+      "argv": [
+        "review-ledger",
+        "--ledger",
+        "dist/fixture-doctor-work/examples/ledger.json",
+        "--out",
+        "dist/fixture-doctor-work/ledger_review.json"
+      ],
+      "command": "review-ledger"
+    },
+    {
+      "argv": [
+        "schema-export",
+        "--out",
+        "dist/fixture-doctor-work/schema-export"
+      ],
+      "command": "schema-export"
+    },
+    {
+      "argv": [
+        "docs-export",
+        "--root",
+        "dist/fixture-doctor-work",
+        "--out",
+        "dist/fixture-doctor-work/static-docs"
+      ],
+      "command": "docs-export"
+    },
+    {
+      "argv": [
+        "artifact-catalog",
+        "--root",
+        "dist/fixture-doctor-work",
+        "--paths",
+        "packet,dashboard,scenario-gallery,assumption-audit,batch-compare,casebook,schema-export,static-docs",
+        "--out",
+        "dist/fixture-doctor-work/catalog"
+      ],
+      "command": "artifact-catalog"
+    },
+    {
+      "argv": [
+        "release-check",
+        "--root",
+        "dist/fixture-doctor-work",
+        "--out",
+        "dist/fixture-doctor-work/release-check"
+      ],
+      "command": "release-check"
+    },
+    {
+      "argv": [
+        "public-scan",
+        "--root",
+        "dist/fixture-doctor-work",
+        "--out",
+        "dist/fixture-doctor-work/public_scan.json"
+      ],
+      "command": "public-scan"
+    },
+    {
+      "argv": [
+        "release-manifest",
+        "--root",
+        "dist/fixture-doctor-work",
+        "--out",
+        "dist/fixture-doctor-work/release_manifest.json"
+      ],
+      "command": "release-manifest"
+    },
+    {
+      "argv": [
+        "maturity-report",
+        "--root",
+        "dist/fixture-doctor-work",
+        "--out",
+        "dist/fixture-doctor-work/maturity_report.json"
+      ],
+      "command": "maturity-report"
+    }
+  ],
+  "examples": {
+    "assumptions.json": "dist/fixture-doctor-work/examples/assumptions.json",
+    "history.json": "dist/fixture-doctor-work/examples/history.json",
+    "ledger.json": "dist/fixture-doctor-work/examples/ledger.json",
+    "portfolio.json": "dist/fixture-doctor-work/examples/portfolio.json",
+    "portfolio_concentrated.json": "dist/fixture-doctor-work/examples/portfolio_concentrated.json"
+  },
+  "results": [
+    {
+      "argv": [
+        "build-packet",
+        "--portfolio",
+        "dist/fixture-doctor-work/examples/portfolio.json",
+        "--ledger",
+        "dist/fixture-doctor-work/examples/ledger.json",
+        "--assumptions",
+        "dist/fixture-doctor-work/examples/assumptions.json",
+        "--scenario",
+        "stress",
+        "--out",
+        "dist/fixture-doctor-work/packet"
+      ],
+      "command": "build-packet",
+      "message": "",
+      "outputs": [
+        "dist/fixture-doctor-work/packet/liquidity_packet.json",
+        "dist/fixture-doctor-work/packet/liquidity_packet.md",
+        "dist/fixture-doctor-work/packet/liquidity_packet.html"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
+        "static-dashboard",
+        "--portfolio",
+        "dist/fixture-doctor-work/examples/portfolio.json",
+        "--ledger",
+        "dist/fixture-doctor-work/examples/ledger.json",
+        "--assumptions",
+        "dist/fixture-doctor-work/examples/assumptions.json",
+        "--out",
+        "dist/fixture-doctor-work/dashboard"
+      ],
+      "command": "static-dashboard",
+      "message": "",
+      "outputs": [
+        "dist/fixture-doctor-work/dashboard/liquidity_packet.json",
+        "dist/fixture-doctor-work/dashboard/liquidity_packet.md",
+        "dist/fixture-doctor-work/dashboard/liquidity_packet.html"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
+        "scenario-gallery",
+        "--portfolio",
+        "dist/fixture-doctor-work/examples/portfolio.json",
+        "--ledger",
+        "dist/fixture-doctor-work/examples/ledger.json",
+        "--assumptions",
+        "dist/fixture-doctor-work/examples/assumptions.json",
+        "--out",
+        "dist/fixture-doctor-work/scenario-gallery"
+      ],
+      "command": "scenario-gallery",
+      "message": "",
+      "outputs": [
+        "dist/fixture-doctor-work/scenario-gallery/scenario_gallery.json",
+        "dist/fixture-doctor-work/scenario-gallery/scenario_gallery.md",
+        "dist/fixture-doctor-work/scenario-gallery/scenario_gallery.html"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
+        "assumption-audit",
+        "--portfolio",
+        "dist/fixture-doctor-work/examples/portfolio_concentrated.json",
+        "--ledger",
+        "dist/fixture-doctor-work/examples/ledger.json",
+        "--assumptions",
+        "dist/fixture-doctor-work/examples/assumptions.json",
+        "--out",
+        "dist/fixture-doctor-work/assumption-audit"
+      ],
+      "command": "assumption-audit",
+      "message": "",
+      "outputs": [
+        "dist/fixture-doctor-work/assumption-audit/assumption_audit.json",
+        "dist/fixture-doctor-work/assumption-audit/assumption_audit.md"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
+        "batch-compare",
+        "--portfolios-dir",
+        "dist/fixture-doctor-work/portfolios",
+        "--ledger",
+        "dist/fixture-doctor-work/examples/ledger.json",
+        "--assumptions",
+        "dist/fixture-doctor-work/examples/assumptions.json",
+        "--scenarios",
+        "base,stress",
+        "--out",
+        "dist/fixture-doctor-work/batch-compare"
+      ],
+      "command": "batch-compare",
+      "message": "",
+      "outputs": [
+        "dist/fixture-doctor-work/batch-compare/batch_compare.json",
+        "dist/fixture-doctor-work/batch-compare/batch_compare.md",
+        "dist/fixture-doctor-work/batch-compare/batch_compare.html"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
+        "casebook",
+        "--portfolio",
+        "dist/fixture-doctor-work/examples/portfolio.json",
+        "--ledger",
+        "dist/fixture-doctor-work/examples/ledger.json",
+        "--assumptions",
+        "dist/fixture-doctor-work/examples/assumptions.json",
+        "--portfolios-dir",
+        "dist/fixture-doctor-work/portfolios",
+        "--scenario",
+        "stress",
+        "--scenarios",
+        "base,stress,income_shock",
+        "--out",
+        "dist/fixture-doctor-work/casebook"
+      ],
+      "command": "casebook",
+      "message": "",
+      "outputs": [
+        "dist/fixture-doctor-work/casebook/casebook.json",
+        "dist/fixture-doctor-work/casebook/casebook.md",
+        "dist/fixture-doctor-work/casebook/casebook.html"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
+        "visual-receipt",
+        "--portfolio",
+        "dist/fixture-doctor-work/examples/portfolio.json",
+        "--ledger",
+        "dist/fixture-doctor-work/examples/ledger.json",
+        "--assumptions",
+        "dist/fixture-doctor-work/examples/assumptions.json",
+        "--scenario",
+        "stress",
+        "--out",
+        "dist/fixture-doctor-work/visual_receipt.md"
+      ],
+      "command": "visual-receipt",
+      "message": "",
+      "outputs": [
+        "dist/fixture-doctor-work/visual_receipt.md"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
+        "compare-history",
+        "--history",
+        "dist/fixture-doctor-work/examples/history.json",
+        "--out",
+        "dist/fixture-doctor-work/history_compare.json"
+      ],
+      "command": "compare-history",
+      "message": "",
+      "outputs": [
+        "dist/fixture-doctor-work/history_compare.json"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
+        "review-ledger",
+        "--ledger",
+        "dist/fixture-doctor-work/examples/ledger.json",
+        "--out",
+        "dist/fixture-doctor-work/ledger_review.json"
+      ],
+      "command": "review-ledger",
+      "message": "",
+      "outputs": [
+        "dist/fixture-doctor-work/ledger_review.json"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
+        "schema-export",
+        "--out",
+        "dist/fixture-doctor-work/schema-export"
+      ],
+      "command": "schema-export",
+      "message": "",
+      "outputs": [
+        "dist/fixture-doctor-work/schema-export/schema_guide.json",
+        "dist/fixture-doctor-work/schema-export/schema_guide.md"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
+        "docs-export",
+        "--root",
+        "dist/fixture-doctor-work",
+        "--out",
+        "dist/fixture-doctor-work/static-docs"
+      ],
+      "command": "docs-export",
+      "message": "",
+      "outputs": [
+        "dist/fixture-doctor-work/static-docs/index.html",
+        "dist/fixture-doctor-work/static-docs/index.md"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
+        "artifact-catalog",
+        "--root",
+        "dist/fixture-doctor-work",
+        "--paths",
+        "packet,dashboard,scenario-gallery,assumption-audit,batch-compare,casebook,schema-export,static-docs",
+        "--out",
+        "dist/fixture-doctor-work/catalog"
+      ],
+      "command": "artifact-catalog",
+      "message": "",
+      "outputs": [
+        "dist/fixture-doctor-work/catalog/artifact_catalog.json",
+        "dist/fixture-doctor-work/catalog/artifact_catalog.md"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
+        "release-check",
+        "--root",
+        "dist/fixture-doctor-work",
+        "--out",
+        "dist/fixture-doctor-work/release-check"
+      ],
+      "command": "release-check",
+      "message": "",
+      "outputs": [
+        "dist/fixture-doctor-work/release-check/release_check.json",
+        "dist/fixture-doctor-work/release-check/release_check.md"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
+        "public-scan",
+        "--root",
+        "dist/fixture-doctor-work",
+        "--out",
+        "dist/fixture-doctor-work/public_scan.json"
+      ],
+      "command": "public-scan",
+      "message": "",
+      "outputs": [
+        "dist/fixture-doctor-work/public_scan.json"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
+        "release-manifest",
+        "--root",
+        "dist/fixture-doctor-work",
+        "--out",
+        "dist/fixture-doctor-work/release_manifest.json"
+      ],
+      "command": "release-manifest",
+      "message": "",
+      "outputs": [
+        "dist/fixture-doctor-work/release_manifest.json"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
+        "maturity-report",
+        "--root",
+        "dist/fixture-doctor-work",
+        "--out",
+        "dist/fixture-doctor-work/maturity_report.json"
+      ],
+      "command": "maturity-report",
+      "message": "",
+      "outputs": [
+        "dist/fixture-doctor-work/maturity_report.json"
+      ],
+      "status": "pass"
+    }
+  ],
+  "status": "pass",
+  "work_dir": "dist/fixture-doctor-work"
+}

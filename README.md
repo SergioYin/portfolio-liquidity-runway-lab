@@ -21,6 +21,9 @@ cp liquidity-demo/portfolio_concentrated.json liquidity-demo/portfolios/portfoli
 portfolio-liquidity-runway-lab batch-compare --portfolios-dir liquidity-demo/portfolios --scenarios base,stress --out liquidity-demo/batch-compare
 portfolio-liquidity-runway-lab casebook --portfolios-dir liquidity-demo/portfolios --scenario stress --scenarios base,stress,income_shock --out liquidity-demo/casebook
 portfolio-liquidity-runway-lab visual-receipt --out liquidity-demo/visual_receipt.md --scenario stress
+portfolio-liquidity-runway-lab schema-export --out liquidity-demo/schema-export
+portfolio-liquidity-runway-lab fixture-doctor --out liquidity-demo/fixture-doctor
+portfolio-liquidity-runway-lab docs-export --root . --out liquidity-demo/static-docs
 portfolio-liquidity-runway-lab artifact-catalog --root liquidity-demo
 portfolio-liquidity-runway-lab release-check --root .
 ```
@@ -43,8 +46,14 @@ Example outputs:
 - `liquidity-demo/casebook/casebook.md`
 - `liquidity-demo/casebook/casebook.html`
 - `liquidity-demo/visual_receipt.md`
+- `liquidity-demo/schema-export/schema_guide.json`
+- `liquidity-demo/schema-export/schema_guide.md`
+- `liquidity-demo/fixture-doctor/fixture_doctor.json`
+- `liquidity-demo/fixture-doctor/fixture_doctor.md`
+- `liquidity-demo/static-docs/index.html`
+- `liquidity-demo/static-docs/index.md`
 
-The packet contains liquidity buckets, stress-haircut values, monthly runway rows, forced-sale warnings, and review prompts. The scenario gallery compares bundled `base`, `stress`, `income_shock`, and `reserve_rebuild` scenarios across deterministic JSON, Markdown, and no-JavaScript HTML artifacts. `assumption-audit` validates portfolio, ledger, and assumptions JSON for liquidity tier completeness, nonnumeric values, suspicious yields or fees, missing scenarios, reserve thresholds, and scheduled event issues. `batch-compare` compares runway, reserves, and warnings across a directory of portfolio JSON files that share one ledger and assumptions file. `casebook` combines packet, scenario gallery, assumption audit, and batch compare summaries into deterministic JSON, Markdown, and no-JavaScript HTML release-owner artifacts. `artifact-catalog` walks demo/docs outputs and records file sizes, SHA256 hashes, and regeneration commands. `release-check` validates expected package/docs/demo files, public scan results, and generated HTML script tags. The visual receipt is a compact Markdown showcase that links the packet artifacts, boundary text, liquidity bucket bars, and regeneration commands. Open `liquidity-demo/packet/liquidity_packet.html`, inspect `liquidity-demo/scenario-gallery/scenario_gallery.html`, inspect `liquidity-demo/batch-compare/batch_compare.html`, inspect `liquidity-demo/casebook/casebook.html`, inspect `demo/visual_receipt.md`, or run supporting checks:
+The packet contains liquidity buckets, stress-haircut values, monthly runway rows, forced-sale warnings, and review prompts. The scenario gallery compares bundled `base`, `stress`, `income_shock`, and `reserve_rebuild` scenarios across deterministic JSON, Markdown, and no-JavaScript HTML artifacts. `assumption-audit` validates portfolio, ledger, and assumptions JSON for liquidity tier completeness, nonnumeric values, suspicious yields or fees, missing scenarios, reserve thresholds, and scheduled event issues. `batch-compare` compares runway, reserves, and warnings across a directory of portfolio JSON files that share one ledger and assumptions file. `casebook` combines packet, scenario gallery, assumption audit, and batch compare summaries into deterministic JSON, Markdown, and no-JavaScript HTML release-owner artifacts. `schema-export` writes deterministic JSON and Markdown guides for every supported input file and output artifact. `fixture-doctor` copies examples into an isolated work directory, runs the command plan, and writes pass/fail diagnosis artifacts. `docs-export` creates a compact no-JavaScript documentation bundle linking README summary, command matrix, boundaries, demos, and release evidence. `artifact-catalog` walks demo/docs outputs and records file sizes, SHA256 hashes, and regeneration commands. `release-check` validates expected package/docs/demo files, public scan results, and generated HTML script tags. The visual receipt is a compact Markdown showcase that links the packet artifacts, boundary text, liquidity bucket bars, and regeneration commands. Open `liquidity-demo/packet/liquidity_packet.html`, inspect `liquidity-demo/scenario-gallery/scenario_gallery.html`, inspect `liquidity-demo/batch-compare/batch_compare.html`, inspect `liquidity-demo/casebook/casebook.html`, inspect `liquidity-demo/static-docs/index.html`, inspect `demo/visual_receipt.md`, or run supporting checks:
 
 ```bash
 portfolio-liquidity-runway-lab compare-history
@@ -53,6 +62,9 @@ portfolio-liquidity-runway-lab scenario-gallery
 portfolio-liquidity-runway-lab assumption-audit
 portfolio-liquidity-runway-lab batch-compare --portfolios-dir liquidity-demo/portfolios
 portfolio-liquidity-runway-lab casebook --portfolios-dir liquidity-demo/portfolios
+portfolio-liquidity-runway-lab schema-export --out docs
+portfolio-liquidity-runway-lab fixture-doctor --out docs
+portfolio-liquidity-runway-lab docs-export --out docs/static-docs
 portfolio-liquidity-runway-lab artifact-catalog --out docs
 portfolio-liquidity-runway-lab release-check --out docs
 portfolio-liquidity-runway-lab selfcheck
@@ -80,6 +92,9 @@ python -m portfolio_liquidity_runway_lab selfcheck
 - `artifact-catalog`: walk demo/docs outputs and emit deterministic JSON and Markdown with file sizes, SHA256 hashes, and regeneration commands.
 - `release-check`: validate expected package/docs/demo files, public scan status, and generated HTML no-script requirements.
 - `visual-receipt`: write a compact deterministic Markdown receipt for packet review.
+- `schema-export`: export deterministic JSON and Markdown schema guides for supported inputs and artifacts.
+- `fixture-doctor`: copy examples to a work directory, run the command plan, and write pass/fail JSON and Markdown diagnosis.
+- `docs-export`: export a compact static no-JavaScript documentation bundle.
 - `quickstart-check`: copy packaged synthetic examples and build a packet.
 - `selfcheck`: run a smoke test against packaged examples.
 - `public-scan`: scan a repo tree for public-release concerns.

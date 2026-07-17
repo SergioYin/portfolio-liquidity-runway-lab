@@ -4,6 +4,7 @@ import csv
 import hashlib
 import html
 import json
+import shutil
 from dataclasses import dataclass
 from importlib import resources
 from pathlib import Path
@@ -88,6 +89,28 @@ class ReleaseCheckPaths:
     markdown_path: Path
 
 
+@dataclass(frozen=True)
+class SchemaExportPaths:
+    out_dir: Path
+    json_path: Path
+    markdown_path: Path
+
+
+@dataclass(frozen=True)
+class FixtureDoctorPaths:
+    out_dir: Path
+    json_path: Path
+    markdown_path: Path
+    work_dir: Path
+
+
+@dataclass(frozen=True)
+class DocsExportPaths:
+    out_dir: Path
+    index_html_path: Path
+    index_markdown_path: Path
+
+
 IGNORED_RELEASE_PARTS = {
     ".git",
     ".mypy_cache",
@@ -118,6 +141,16 @@ EXPECTED_RELEASE_FILES = (
     "docs/maturity_report.json",
     "docs/artifact_catalog.json",
     "docs/artifact_catalog.md",
+    "docs/schema_guide.json",
+    "docs/schema_guide.md",
+    "docs/fixture_doctor.json",
+    "docs/fixture_doctor.md",
+    "docs/static-docs/index.html",
+    "docs/static-docs/index.md",
+    "docs/static-docs/command_matrix.md",
+    "docs/static-docs/boundaries.md",
+    "docs/static-docs/demos.md",
+    "docs/static-docs/release_evidence.md",
     "demo/visual_receipt.md",
     "demo/casebook/casebook.json",
     "demo/casebook/casebook.md",
@@ -130,6 +163,16 @@ EXPECTED_RELEASE_FILES = (
     "demo/batch-compare/batch_compare.json",
     "demo/batch-compare/batch_compare.md",
     "demo/batch-compare/batch_compare.html",
+    "demo/schema-export/schema_guide.json",
+    "demo/schema-export/schema_guide.md",
+    "demo/fixture-doctor/fixture_doctor.json",
+    "demo/fixture-doctor/fixture_doctor.md",
+    "demo/static-docs/index.html",
+    "demo/static-docs/index.md",
+    "demo/static-docs/command_matrix.md",
+    "demo/static-docs/boundaries.md",
+    "demo/static-docs/demos.md",
+    "demo/static-docs/release_evidence.md",
     "skills/agent/portfolio-liquidity-runway-lab/SKILL.md",
     "tests/test_cli.py",
     "tests/test_core.py",
@@ -1362,6 +1405,465 @@ def build_casebook(
     return CasebookPaths(out_dir, json_path, markdown_path, html_path)
 
 
+def schema_guide() -> Dict[str, Any]:
+    input_files = [
+        {
+            "file": "portfolio.json",
+            "description": "Portfolio asset inventory used by packet, gallery, audit, batch, casebook, and receipt commands.",
+            "required_fields": ["name", "currency", "assets"],
+            "fields": [
+                {"path": "name", "type": "string", "required": False, "description": "Human-readable portfolio name."},
+                {"path": "currency", "type": "string", "required": False, "description": "Display currency label; calculations treat values as already normalized."},
+                {"path": "assets", "type": "array<object>", "required": True, "description": "Asset rows used for liquidity buckets and yield or fee assumptions."},
+                {"path": "assets[].name", "type": "string", "required": False, "description": "Asset display name."},
+                {"path": "assets[].value", "type": "number", "required": True, "description": "Gross asset value."},
+                {"path": "assets[].liquidity_tier", "type": "enum", "required": True, "allowed_values": list(LIQUIDITY_ORDER), "description": "Liquidity bucket for stress haircut and runway grouping."},
+                {"path": "assets[].annual_yield_rate", "type": "number", "required": True, "description": "Annual yield assumption as a decimal, for example 0.04."},
+                {"path": "assets[].annual_fee_rate", "type": "number", "required": True, "description": "Annual fee assumption as a decimal, for example 0.01."},
+            ],
+        },
+        {
+            "file": "ledger.json",
+            "description": "Recurring income, recurring expenses, and scheduled cash events.",
+            "required_fields": ["monthly_income", "monthly_expenses", "scheduled_events"],
+            "fields": [
+                {"path": "monthly_income", "type": "number", "required": True, "description": "Expected monthly income before scenario multiplier."},
+                {"path": "monthly_expenses", "type": "number", "required": True, "description": "Expected monthly expenses before scenario multiplier."},
+                {"path": "scheduled_events", "type": "array<object>", "required": False, "description": "One-time inflow or outflow events by month."},
+                {"path": "scheduled_events[].month", "type": "integer", "required": True, "description": "1-based month in the runway window."},
+                {"path": "scheduled_events[].type", "type": "enum", "required": True, "allowed_values": ["inflow", "outflow"], "description": "Cash event direction."},
+                {"path": "scheduled_events[].label", "type": "string", "required": False, "description": "Event label for review."},
+                {"path": "scheduled_events[].amount", "type": "number", "required": True, "description": "Positive event amount."},
+            ],
+        },
+        {
+            "file": "assumptions.json",
+            "description": "Runway window, reserve threshold, default scenario, and named scenario stress assumptions.",
+            "required_fields": ["months", "target_reserve_months", "default_scenario", "scenarios"],
+            "fields": [
+                {"path": "months", "type": "integer", "required": True, "description": "Number of monthly runway rows to produce."},
+                {"path": "target_reserve_months", "type": "number", "required": True, "description": "Same-day reserve threshold used for warnings."},
+                {"path": "default_scenario", "type": "string", "required": False, "description": "Scenario used when no scenario argument is supplied."},
+                {"path": "scenarios", "type": "object", "required": True, "description": "Named scenario map."},
+                {"path": "scenarios.<name>.expense_multiplier", "type": "number", "required": True, "description": "Multiplier applied to monthly expenses."},
+                {"path": "scenarios.<name>.income_multiplier", "type": "number", "required": True, "description": "Multiplier applied to monthly income."},
+                {"path": "scenarios.<name>.liquidity_haircuts", "type": "object", "required": True, "description": "Haircut map keyed by liquidity tier."},
+                {"path": "scenarios.<name>.liquidity_haircuts.same_day", "type": "number", "required": True, "description": "Haircut from 0 to 1."},
+                {"path": "scenarios.<name>.liquidity_haircuts.one_week", "type": "number", "required": True, "description": "Haircut from 0 to 1."},
+                {"path": "scenarios.<name>.liquidity_haircuts.one_month", "type": "number", "required": True, "description": "Haircut from 0 to 1."},
+                {"path": "scenarios.<name>.liquidity_haircuts.locked", "type": "number", "required": True, "description": "Haircut from 0 to 1."},
+            ],
+        },
+        {
+            "file": "history.json",
+            "description": "Historical reserve and burn snapshots for compare-history.",
+            "required_fields": ["snapshots"],
+            "fields": [
+                {"path": "snapshots", "type": "array<object>", "required": True, "description": "At least two snapshots."},
+                {"path": "snapshots[].label", "type": "string", "required": True, "description": "Snapshot label."},
+                {"path": "snapshots[].same_day_reserve_months", "type": "number", "required": True, "description": "Reserve-month value for delta comparison."},
+                {"path": "snapshots[].effective_monthly_burn", "type": "number", "required": True, "description": "Monthly burn value for delta comparison."},
+            ],
+        },
+    ]
+    output_artifacts = [
+        {"artifact": "liquidity_packet.json", "command": "build-packet", "top_level_fields": ["boundary", "scenario", "portfolio_name", "currency", "totals", "cash_buckets", "assets", "scheduled_events", "monthly_runway", "forced_sale_warnings", "review_prompts"]},
+        {"artifact": "liquidity_packet.md", "command": "build-packet", "top_level_fields": ["summary", "cash buckets", "scheduled events", "monthly runway", "warnings", "review prompts"]},
+        {"artifact": "liquidity_packet.html", "command": "build-packet/static-dashboard", "top_level_fields": ["no JavaScript static HTML rendering of packet Markdown"]},
+        {"artifact": "scenario_gallery.json", "command": "scenario-gallery", "top_level_fields": ["boundary", "portfolio_name", "currency", "scenario_names", "summary", "scenarios"]},
+        {"artifact": "assumption_audit.json", "command": "assumption-audit", "top_level_fields": ["boundary", "status", "finding_counts", "portfolio_name", "findings"]},
+        {"artifact": "batch_compare.json", "command": "batch-compare", "top_level_fields": ["boundary", "portfolio_files", "scenario_names", "summary", "warnings"]},
+        {"artifact": "casebook.json", "command": "casebook", "top_level_fields": ["boundary", "title", "inputs", "regeneration_commands", "packet_summary", "scenario_gallery_summary", "assumption_audit_summary", "batch_compare_summary"]},
+        {"artifact": "visual_receipt.md", "command": "visual-receipt", "top_level_fields": ["packet linkage", "regeneration", "snapshot", "liquidity view", "review signals"]},
+        {"artifact": "artifact_catalog.json", "command": "artifact-catalog", "top_level_fields": ["boundary", "root", "artifact_count", "artifacts"]},
+        {"artifact": "release_check.json", "command": "release-check", "top_level_fields": ["boundary", "status", "checks", "missing_files", "html_files", "html_with_script_tags", "public_scan_findings"]},
+        {"artifact": "schema_guide.json", "command": "schema-export", "top_level_fields": ["boundary", "version", "input_files", "output_artifacts"]},
+        {"artifact": "fixture_doctor.json", "command": "fixture-doctor", "top_level_fields": ["boundary", "status", "work_dir", "examples", "command_plan", "results"]},
+        {"artifact": "static-docs/index.html", "command": "docs-export", "top_level_fields": ["no JavaScript static documentation index"]},
+    ]
+    command_matrix = command_matrix_data()
+    return {
+        "boundary": BOUNDARY_TEXT,
+        "version": "0.5.0",
+        "input_files": input_files,
+        "output_artifacts": output_artifacts,
+        "command_matrix": command_matrix,
+    }
+
+
+def render_schema_guide_markdown(guide: Mapping[str, Any]) -> str:
+    lines = [
+        "# Schema Guide",
+        "",
+        f"> {guide['boundary']}",
+        "",
+        f"Version: `{guide['version']}`",
+        "",
+        "## Input Files",
+        "",
+    ]
+    for file_spec in guide["input_files"]:
+        lines.extend(
+            [
+                f"### {file_spec['file']}",
+                "",
+                file_spec["description"],
+                "",
+                "Required fields: " + ", ".join(f"`{field}`" for field in file_spec["required_fields"]),
+                "",
+                "| Path | Type | Required | Description |",
+                "| --- | --- | --- | --- |",
+            ]
+        )
+        for field in file_spec["fields"]:
+            allowed = ""
+            if "allowed_values" in field:
+                allowed = " Allowed values: " + ", ".join(f"`{value}`" for value in field["allowed_values"]) + "."
+            lines.append(f"| `{field['path']}` | `{field['type']}` | {str(field['required']).lower()} | {field['description']}{allowed} |")
+        lines.append("")
+    lines.extend(["## Output Artifacts", "", "| Artifact | Command | Top-level fields |", "| --- | --- | --- |"])
+    for artifact in guide["output_artifacts"]:
+        fields = ", ".join(f"`{field}`" for field in artifact["top_level_fields"])
+        lines.append(f"| `{artifact['artifact']}` | `{artifact['command']}` | {fields} |")
+    lines.extend(["", "## Command Matrix", "", "| Command | Inputs | Outputs | Static no-JS HTML |", "| --- | --- | --- | --- |"])
+    for command in guide["command_matrix"]:
+        lines.append(
+            f"| `{command['command']}` | {', '.join(command['inputs']) or 'none'} | "
+            f"{', '.join(command['outputs']) or 'stdout'} | {str(command['no_script_html']).lower()} |"
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
+def build_schema_export(out_dir: Path) -> SchemaExportPaths:
+    guide = schema_guide()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    json_path = out_dir / "schema_guide.json"
+    markdown_path = out_dir / "schema_guide.md"
+    dump_json(guide, json_path)
+    markdown_path.write_text(render_schema_guide_markdown(guide), encoding="utf-8")
+    return SchemaExportPaths(out_dir, json_path, markdown_path)
+
+
+def command_matrix_data() -> List[Dict[str, Any]]:
+    return [
+        {"command": "build-packet", "inputs": ["portfolio.json", "ledger.json", "assumptions.json"], "outputs": ["liquidity_packet.json", "liquidity_packet.md", "liquidity_packet.html"], "no_script_html": True},
+        {"command": "compare-history", "inputs": ["history.json"], "outputs": ["stdout JSON", "optional JSON file"], "no_script_html": False},
+        {"command": "review-ledger", "inputs": ["ledger.json"], "outputs": ["stdout JSON", "optional JSON file"], "no_script_html": False},
+        {"command": "static-dashboard", "inputs": ["portfolio.json", "ledger.json", "assumptions.json"], "outputs": ["liquidity_packet.html"], "no_script_html": True},
+        {"command": "scenario-gallery", "inputs": ["portfolio.json", "ledger.json", "assumptions.json"], "outputs": ["scenario_gallery.json", "scenario_gallery.md", "scenario_gallery.html"], "no_script_html": True},
+        {"command": "assumption-audit", "inputs": ["portfolio.json", "ledger.json", "assumptions.json"], "outputs": ["assumption_audit.json", "assumption_audit.md"], "no_script_html": False},
+        {"command": "batch-compare", "inputs": ["portfolio directory", "ledger.json", "assumptions.json"], "outputs": ["batch_compare.json", "batch_compare.md", "batch_compare.html"], "no_script_html": True},
+        {"command": "casebook", "inputs": ["portfolio.json", "portfolio directory", "ledger.json", "assumptions.json"], "outputs": ["casebook.json", "casebook.md", "casebook.html"], "no_script_html": True},
+        {"command": "artifact-catalog", "inputs": ["repo or output root"], "outputs": ["artifact_catalog.json", "artifact_catalog.md"], "no_script_html": False},
+        {"command": "release-check", "inputs": ["repo root"], "outputs": ["release_check.json", "release_check.md"], "no_script_html": False},
+        {"command": "visual-receipt", "inputs": ["portfolio.json", "ledger.json", "assumptions.json"], "outputs": ["visual_receipt.md"], "no_script_html": False},
+        {"command": "quickstart-check", "inputs": ["bundled examples"], "outputs": ["copied examples", "packet artifacts"], "no_script_html": True},
+        {"command": "selfcheck", "inputs": ["bundled examples"], "outputs": ["stdout JSON"], "no_script_html": True},
+        {"command": "public-scan", "inputs": ["repo root"], "outputs": ["stdout JSON", "optional JSON file"], "no_script_html": False},
+        {"command": "release-manifest", "inputs": ["repo root"], "outputs": ["stdout JSON", "optional JSON file"], "no_script_html": False},
+        {"command": "maturity-report", "inputs": ["repo root"], "outputs": ["stdout JSON", "optional JSON file"], "no_script_html": False},
+        {"command": "schema-export", "inputs": ["built-in schema metadata"], "outputs": ["schema_guide.json", "schema_guide.md"], "no_script_html": False},
+        {"command": "fixture-doctor", "inputs": ["bundled or supplied examples"], "outputs": ["fixture_doctor.json", "fixture_doctor.md"], "no_script_html": True},
+        {"command": "docs-export", "inputs": ["README and generated release evidence"], "outputs": ["static-docs/index.html", "static-docs/index.md", "static-docs/*.md"], "no_script_html": True},
+    ]
+
+
+def _copy_example_set(target: Path, source: Optional[Path] = None) -> Dict[str, str]:
+    target.mkdir(parents=True, exist_ok=True)
+    copied = {}
+    for name in ("portfolio.json", "portfolio_concentrated.json", "ledger.json", "assumptions.json", "history.json"):
+        src = source / name if source else bundled_example_path(name)
+        dst = target / name
+        shutil.copyfile(src, dst)
+        copied[name] = dst.as_posix()
+    return copied
+
+
+def fixture_doctor(work_dir: Path, examples_dir: Optional[Path] = None) -> Dict[str, Any]:
+    examples = work_dir / "examples"
+    copied = _copy_example_set(examples, examples_dir)
+    portfolios_dir = work_dir / "portfolios"
+    portfolios_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(examples / "portfolio.json", portfolios_dir / "portfolio.json")
+    shutil.copyfile(examples / "portfolio_concentrated.json", portfolios_dir / "portfolio_concentrated.json")
+
+    plan = [
+        {"command": "build-packet", "argv": ["build-packet", "--portfolio", copied["portfolio.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--scenario", "stress", "--out", (work_dir / "packet").as_posix()]},
+        {"command": "static-dashboard", "argv": ["static-dashboard", "--portfolio", copied["portfolio.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--out", (work_dir / "dashboard").as_posix()]},
+        {"command": "scenario-gallery", "argv": ["scenario-gallery", "--portfolio", copied["portfolio.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--out", (work_dir / "scenario-gallery").as_posix()]},
+        {"command": "assumption-audit", "argv": ["assumption-audit", "--portfolio", copied["portfolio_concentrated.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--out", (work_dir / "assumption-audit").as_posix()]},
+        {"command": "batch-compare", "argv": ["batch-compare", "--portfolios-dir", portfolios_dir.as_posix(), "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--scenarios", "base,stress", "--out", (work_dir / "batch-compare").as_posix()]},
+        {"command": "casebook", "argv": ["casebook", "--portfolio", copied["portfolio.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--portfolios-dir", portfolios_dir.as_posix(), "--scenario", "stress", "--scenarios", "base,stress,income_shock", "--out", (work_dir / "casebook").as_posix()]},
+        {"command": "visual-receipt", "argv": ["visual-receipt", "--portfolio", copied["portfolio.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--scenario", "stress", "--out", (work_dir / "visual_receipt.md").as_posix()]},
+        {"command": "compare-history", "argv": ["compare-history", "--history", copied["history.json"], "--out", (work_dir / "history_compare.json").as_posix()]},
+        {"command": "review-ledger", "argv": ["review-ledger", "--ledger", copied["ledger.json"], "--out", (work_dir / "ledger_review.json").as_posix()]},
+        {"command": "schema-export", "argv": ["schema-export", "--out", (work_dir / "schema-export").as_posix()]},
+        {"command": "docs-export", "argv": ["docs-export", "--root", work_dir.as_posix(), "--out", (work_dir / "static-docs").as_posix()]},
+        {"command": "artifact-catalog", "argv": ["artifact-catalog", "--root", work_dir.as_posix(), "--paths", "packet,dashboard,scenario-gallery,assumption-audit,batch-compare,casebook,schema-export,static-docs", "--out", (work_dir / "catalog").as_posix()]},
+        {"command": "release-check", "argv": ["release-check", "--root", work_dir.as_posix(), "--out", (work_dir / "release-check").as_posix()]},
+        {"command": "public-scan", "argv": ["public-scan", "--root", work_dir.as_posix(), "--out", (work_dir / "public_scan.json").as_posix()]},
+        {"command": "release-manifest", "argv": ["release-manifest", "--root", work_dir.as_posix(), "--out", (work_dir / "release_manifest.json").as_posix()]},
+        {"command": "maturity-report", "argv": ["maturity-report", "--root", work_dir.as_posix(), "--out", (work_dir / "maturity_report.json").as_posix()]},
+    ]
+
+    results = []
+    for item in plan:
+        command = item["command"]
+        try:
+            if command in {"build-packet", "static-dashboard"}:
+                paths = build_packet(examples / "portfolio.json", examples / "ledger.json", examples / "assumptions.json", Path(item["argv"][-1]), "stress" if command == "build-packet" else None)
+                output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix(), paths.html_path.as_posix()]
+                passed = paths.html_path.exists() and not _contains_script_tag(paths.html_path)
+            elif command == "scenario-gallery":
+                paths = build_scenario_gallery(examples / "portfolio.json", examples / "ledger.json", examples / "assumptions.json", Path(item["argv"][-1]))
+                output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix(), paths.html_path.as_posix()]
+                passed = not _contains_script_tag(paths.html_path)
+            elif command == "assumption-audit":
+                paths = build_assumption_audit(examples / "portfolio_concentrated.json", examples / "ledger.json", examples / "assumptions.json", Path(item["argv"][-1]))
+                output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix()]
+                passed = paths.json_path.exists() and paths.markdown_path.exists()
+            elif command == "batch-compare":
+                paths = build_batch_compare(portfolios_dir, examples / "ledger.json", examples / "assumptions.json", Path(item["argv"][-1]), ["base", "stress"])
+                output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix(), paths.html_path.as_posix()]
+                passed = not _contains_script_tag(paths.html_path)
+            elif command == "casebook":
+                paths = build_casebook(examples / "portfolio.json", examples / "ledger.json", examples / "assumptions.json", portfolios_dir, Path(item["argv"][-1]), "stress", ["base", "stress", "income_shock"])
+                output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix(), paths.html_path.as_posix()]
+                passed = not _contains_script_tag(paths.html_path)
+            elif command == "visual-receipt":
+                path = build_visual_receipt(examples / "portfolio.json", examples / "ledger.json", examples / "assumptions.json", work_dir / "visual_receipt.md", "stress")
+                output_paths = [path.as_posix()]
+                passed = path.exists()
+            elif command == "compare-history":
+                out = work_dir / "history_compare.json"
+                dump_json(compare_history(load_json(examples / "history.json")), out)
+                output_paths = [out.as_posix()]
+                passed = out.exists()
+            elif command == "review-ledger":
+                out = work_dir / "ledger_review.json"
+                dump_json(review_ledger(load_json(examples / "ledger.json")), out)
+                output_paths = [out.as_posix()]
+                passed = out.exists()
+            elif command == "schema-export":
+                paths = build_schema_export(work_dir / "schema-export")
+                output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix()]
+                passed = paths.json_path.exists() and paths.markdown_path.exists()
+            elif command == "docs-export":
+                paths = build_docs_export(work_dir, work_dir / "static-docs")
+                output_paths = [paths.index_html_path.as_posix(), paths.index_markdown_path.as_posix()]
+                passed = paths.index_html_path.exists() and not _contains_script_tag(paths.index_html_path)
+            elif command == "artifact-catalog":
+                paths = build_artifact_catalog(work_dir, work_dir / "catalog", ["packet", "dashboard", "scenario-gallery", "assumption-audit", "batch-compare", "casebook", "schema-export", "static-docs"])
+                output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix()]
+                passed = load_json(paths.json_path)["artifact_count"] > 0
+            elif command == "release-check":
+                paths = build_release_check(work_dir, work_dir / "release-check", ["examples/portfolio.json", "examples/ledger.json", "packet/liquidity_packet.html"])
+                output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix()]
+                passed = load_json(paths.json_path)["checks"]["html_no_script_tags"]
+            elif command == "public-scan":
+                out = work_dir / "public_scan.json"
+                result = public_scan(work_dir)
+                dump_json(result, out)
+                output_paths = [out.as_posix()]
+                passed = result["status"] == "pass"
+            elif command == "release-manifest":
+                out = work_dir / "release_manifest.json"
+                dump_json(release_manifest(work_dir), out)
+                output_paths = [out.as_posix()]
+                passed = out.exists()
+            elif command == "maturity-report":
+                out = work_dir / "maturity_report.json"
+                dump_json(maturity_report(work_dir), out)
+                output_paths = [out.as_posix()]
+                passed = out.exists()
+            else:
+                output_paths = []
+                passed = False
+            results.append({"command": command, "status": "pass" if passed else "fail", "argv": item["argv"], "outputs": output_paths, "message": ""})
+        except Exception as exc:
+            results.append({"command": command, "status": "fail", "argv": item["argv"], "outputs": [], "message": str(exc)})
+    status = "pass" if all(result["status"] == "pass" for result in results) else "fail"
+    return {
+        "boundary": BOUNDARY_TEXT,
+        "status": status,
+        "work_dir": work_dir.as_posix(),
+        "examples": copied,
+        "command_plan": plan,
+        "results": results,
+    }
+
+
+def render_fixture_doctor_markdown(report: Mapping[str, Any]) -> str:
+    lines = [
+        "# Fixture Doctor",
+        "",
+        f"> {report['boundary']}",
+        "",
+        f"Status: `{report['status']}`",
+        f"Work dir: `{report['work_dir']}`",
+        "",
+        "## Copied Examples",
+        "",
+    ]
+    for name in sorted(report["examples"]):
+        lines.append(f"- `{name}` -> `{report['examples'][name]}`")
+    lines.extend(["", "## Command Plan", "", "| Command | Args |", "| --- | --- |"])
+    for item in report["command_plan"]:
+        lines.append(f"| `{item['command']}` | `{' '.join(item['argv'])}` |")
+    lines.extend(["", "## Results", "", "| Command | Status | Outputs | Message |", "| --- | --- | --- | --- |"])
+    for result in report["results"]:
+        outputs = ", ".join(f"`{path}`" for path in result["outputs"]) or ""
+        lines.append(f"| `{result['command']}` | `{result['status']}` | {outputs} | {result['message']} |")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def build_fixture_doctor(out_dir: Path, work_dir: Optional[Path] = None, examples_dir: Optional[Path] = None) -> FixtureDoctorPaths:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    actual_work = work_dir or (out_dir / "work")
+    actual_work.mkdir(parents=True, exist_ok=True)
+    report = fixture_doctor(actual_work, examples_dir)
+    json_path = out_dir / "fixture_doctor.json"
+    markdown_path = out_dir / "fixture_doctor.md"
+    dump_json(report, json_path)
+    markdown_path.write_text(render_fixture_doctor_markdown(report), encoding="utf-8")
+    return FixtureDoctorPaths(out_dir, json_path, markdown_path, actual_work)
+
+
+def _read_summary(path: Path, fallback: str) -> str:
+    if not path.exists():
+        return fallback
+    text = path.read_text(encoding="utf-8")
+    lines = []
+    for line in text.splitlines():
+        if line.startswith("# ") or line.startswith("## "):
+            lines.append(line)
+        elif line.strip() and len(lines) < 8:
+            lines.append(line)
+        if len(lines) >= 12:
+            break
+    return "\n".join(lines) if lines else fallback
+
+
+def render_docs_index_markdown(root: Path) -> str:
+    lines = [
+        "# Static Documentation Bundle",
+        "",
+        f"> {BOUNDARY_TEXT}",
+        "",
+        "## README Summary",
+        "",
+        _read_summary(root / "README.md", "README.md was not present in this export root."),
+        "",
+        "## Links",
+        "",
+        "- [Command matrix](command_matrix.md)",
+        "- [Boundaries](boundaries.md)",
+        "- [Demos](demos.md)",
+        "- [Release evidence](release_evidence.md)",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def render_command_matrix_markdown() -> str:
+    lines = ["# Command Matrix", "", "| Command | Inputs | Outputs | Static no-JS HTML |", "| --- | --- | --- | --- |"]
+    for item in command_matrix_data():
+        lines.append(f"| `{item['command']}` | {', '.join(item['inputs']) or 'none'} | {', '.join(item['outputs']) or 'stdout'} | {str(item['no_script_html']).lower()} |")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def render_boundaries_markdown() -> str:
+    return "\n".join(
+        [
+            "# Boundaries",
+            "",
+            BOUNDARY_TEXT,
+            "",
+            "- No live market, account, broker, or banking data is fetched.",
+            "- No orders, allocations, optimizations, buy/sell/hold recommendations, or predictions are produced.",
+            "- Outputs are deterministic local review artifacts for records and professional discussion.",
+            "",
+        ]
+    )
+
+
+def render_demos_markdown(root: Path) -> str:
+    demo_paths = []
+    demo_root = root / "demo"
+    if demo_root.exists():
+        demo_paths = sorted(path.relative_to(root).as_posix() for path in demo_root.rglob("*") if path.is_file())
+    lines = ["# Demos", "", "| Artifact |", "| --- |"]
+    if demo_paths:
+        lines.extend(f"| `{path}` |" for path in demo_paths)
+    else:
+        lines.append("| No demo directory was present in this export root. |")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def render_release_evidence_markdown(root: Path) -> str:
+    evidence = [
+        "docs/release_manifest.json",
+        "docs/maturity_report.json",
+        "docs/release_check.json",
+        "docs/artifact_catalog.json",
+        "docs/schema_guide.json",
+        "docs/fixture_doctor.json",
+    ]
+    lines = ["# Release Evidence", "", "| Artifact | Present |", "| --- | --- |"]
+    for rel in evidence:
+        lines.append(f"| `{rel}` | {str((root / rel).exists()).lower()} |")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def render_docs_index_html(index_markdown: str) -> str:
+    body = [
+        "<h1>Static Documentation Bundle</h1>",
+        f"<blockquote>{html.escape(BOUNDARY_TEXT)}</blockquote>",
+        "<h2>README Summary</h2>",
+    ]
+    in_list = False
+    for line in index_markdown.splitlines():
+        if line.startswith("# ") or line.startswith("## ") or line.startswith("> "):
+            continue
+        if line.startswith("- ["):
+            if not in_list:
+                body.append("<ul>")
+                in_list = True
+            label = line.split("[", 1)[1].split("]", 1)[0]
+            href = line.split("(", 1)[1].split(")", 1)[0]
+            body.append(f'<li><a href="{html.escape(href)}">{html.escape(label)}</a></li>')
+        elif line.strip():
+            if in_list:
+                body.append("</ul>")
+                in_list = False
+            body.append(f"<p>{html.escape(line)}</p>")
+    if in_list:
+        body.append("</ul>")
+    return _html_shell("Static Documentation Bundle", "\n".join(body))
+
+
+def build_docs_export(root: Path, out_dir: Path) -> DocsExportPaths:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    index_md = render_docs_index_markdown(root)
+    files = {
+        "index.md": index_md,
+        "command_matrix.md": render_command_matrix_markdown(),
+        "boundaries.md": render_boundaries_markdown(),
+        "demos.md": render_demos_markdown(root),
+        "release_evidence.md": render_release_evidence_markdown(root),
+    }
+    for name, text in files.items():
+        (out_dir / name).write_text(text, encoding="utf-8")
+    index_html_path = out_dir / "index.html"
+    index_html_path.write_text(render_docs_index_html(index_md), encoding="utf-8")
+    return DocsExportPaths(out_dir, index_html_path, out_dir / "index.md")
+
+
 def artifact_catalog(root: Path, paths: Iterable[str] = ("demo", "docs")) -> Dict[str, Any]:
     entries = []
     for part in paths:
@@ -1369,8 +1871,9 @@ def artifact_catalog(root: Path, paths: Iterable[str] = ("demo", "docs")) -> Dic
         if not base.exists():
             continue
         for path in sorted(base.rglob("*")):
-            if path.is_file() and not _is_ignored_release_path(path):
-                rel = path.relative_to(root).as_posix()
+            rel_path = path.relative_to(root)
+            if path.is_file() and not _is_ignored_release_path(rel_path):
+                rel = rel_path.as_posix()
                 if rel in {"docs/artifact_catalog.json", "docs/artifact_catalog.md"}:
                     continue
                 entries.append(
@@ -1396,6 +1899,12 @@ def _regeneration_command_for(rel: str) -> str:
         )
     if rel.startswith("demo/batch-compare/"):
         return "portfolio-liquidity-runway-lab batch-compare --portfolios-dir demo/batch-inputs --scenarios base,stress --out demo/batch-compare"
+    if rel.startswith("demo/schema-export/") or rel.startswith("docs/schema_guide."):
+        return "portfolio-liquidity-runway-lab schema-export --out demo/schema-export"
+    if rel.startswith("demo/fixture-doctor/") or rel.startswith("docs/fixture_doctor."):
+        return "portfolio-liquidity-runway-lab fixture-doctor --out demo/fixture-doctor"
+    if rel.startswith("demo/static-docs/") or rel.startswith("docs/static-docs/"):
+        return "portfolio-liquidity-runway-lab docs-export --out demo/static-docs"
     if rel == "demo/visual_receipt.md":
         return "portfolio-liquidity-runway-lab visual-receipt --out demo/visual_receipt.md --scenario stress"
     if rel == "docs/release_manifest.json":
@@ -1550,11 +2059,12 @@ def review_ledger(ledger: Mapping[str, Any]) -> Dict[str, Any]:
 def public_scan(root: Path) -> Dict[str, Any]:
     findings: List[str] = []
     for path in sorted(root.rglob("*")):
-        if _is_ignored_release_path(path):
+        rel_path = path.relative_to(root)
+        if _is_ignored_release_path(rel_path):
             continue
         if path.is_dir():
             continue
-        rel = path.relative_to(root).as_posix()
+        rel = rel_path.as_posix()
         if rel.startswith(".github/workflows/"):
             findings.append(f"Forbidden workflow file: {rel}")
         if path.suffix.lower() in {".pyc", ".pyo", ".so", ".dll", ".dylib"}:
@@ -1574,11 +2084,12 @@ def public_scan(root: Path) -> Dict[str, Any]:
 def release_manifest(root: Path) -> Dict[str, Any]:
     files = []
     for path in sorted(root.rglob("*")):
-        if path.is_file() and not _is_ignored_release_path(path):
+        rel_path = path.relative_to(root)
+        if path.is_file() and not _is_ignored_release_path(rel_path):
             files.append(path.relative_to(root).as_posix())
     return {
         "name": "portfolio-liquidity-runway-lab",
-        "version": "0.4.0",
+        "version": "0.5.0",
         "boundary": BOUNDARY_TEXT,
         "files": files,
         "console_script": "portfolio-liquidity-runway-lab",
@@ -1602,10 +2113,16 @@ def maturity_report(root: Path) -> Dict[str, Any]:
         "release_manifest": (root / "docs/release_manifest.json").exists(),
         "artifact_catalog": (root / "docs/artifact_catalog.json").exists() and (root / "docs/artifact_catalog.md").exists(),
         "release_check": (root / "docs/release_check.json").exists() and (root / "docs/release_check.md").exists(),
+        "schema_guide": (root / "docs/schema_guide.json").exists() and (root / "docs/schema_guide.md").exists(),
+        "fixture_doctor": (root / "docs/fixture_doctor.json").exists() and (root / "docs/fixture_doctor.md").exists(),
+        "static_docs": (root / "docs/static-docs/index.html").exists() and (root / "docs/static-docs/index.md").exists(),
         "demo_casebook": (root / "demo/casebook/casebook.html").exists(),
         "demo_scenario_gallery": (root / "demo/scenario-gallery/scenario_gallery.md").exists(),
         "demo_assumption_audit": (root / "demo/assumption-audit/assumption_audit.md").exists(),
         "demo_batch_compare": (root / "demo/batch-compare/batch_compare.html").exists(),
+        "demo_schema_export": (root / "demo/schema-export/schema_guide.md").exists(),
+        "demo_fixture_doctor": (root / "demo/fixture-doctor/fixture_doctor.md").exists(),
+        "demo_static_docs": (root / "demo/static-docs/index.html").exists(),
         "demo_visual_receipt": (root / "demo/visual_receipt.md").exists(),
         "tests": (root / "tests").exists(),
         "agent_skill": (root / "skills/agent/portfolio-liquidity-runway-lab/SKILL.md").exists(),
