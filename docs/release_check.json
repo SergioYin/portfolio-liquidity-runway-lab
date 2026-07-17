@@ -1,0 +1,17 @@
+{
+  "boundary": "Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.",
+  "checks": {
+    "expected_files": true,
+    "html_no_script_tags": true,
+    "public_scan": true
+  },
+  "html_files": [
+    "demo/batch-compare/batch_compare.html",
+    "demo/casebook/casebook.html",
+    "demo/scenario-gallery/scenario_gallery.html"
+  ],
+  "html_with_script_tags": [],
+  "missing_files": [],
+  "public_scan_findings": [],
+  "status": "pass"
+}

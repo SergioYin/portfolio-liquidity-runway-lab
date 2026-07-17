@@ -17,9 +17,15 @@ Use this skill when a user needs static local portfolio liquidity runway artifac
    `portfolio-liquidity-runway-lab batch-compare --portfolios-dir portfolios --ledger ledger.json --assumptions assumptions.json --scenarios base,stress --out dist/batch-compare`
 7. Build a compact receipt/showcase when the user needs a review handoff:
    `portfolio-liquidity-runway-lab visual-receipt --portfolio portfolio.json --ledger ledger.json --assumptions assumptions.json --out demo/visual_receipt.md`
-8. For stress review, pass `--scenario stress` or another scenario defined in the assumptions JSON. For gallery and batch review, pass `--scenarios base,stress,income_shock` or rely on bundled defaults.
-9. Use `review-ledger`, `compare-history`, `static-dashboard`, `maturity-report`, `release-manifest`, and `public-scan` for supporting checks.
+8. Build a release-owner casebook when the user needs one handoff artifact family:
+   `portfolio-liquidity-runway-lab casebook --portfolio portfolio.json --ledger ledger.json --assumptions assumptions.json --portfolios-dir portfolios --scenario stress --scenarios base,stress,income_shock --out dist/casebook`
+9. Catalog generated docs and demo files before release:
+   `portfolio-liquidity-runway-lab artifact-catalog --out docs`
+10. Run the release validator before packaging:
+   `portfolio-liquidity-runway-lab release-check --out docs`
+11. For stress review, pass `--scenario stress` or another scenario defined in the assumptions JSON. For gallery, batch, and casebook review, pass `--scenarios base,stress,income_shock` or rely on bundled defaults.
+12. Use `review-ledger`, `compare-history`, `static-dashboard`, `maturity-report`, `release-manifest`, and `public-scan` for supporting checks.
 
 ## Output Expectations
 
-Artifacts are deterministic JSON, Markdown, no-JavaScript HTML, scenario galleries, assumption audits, batch comparisons, and optional visual receipt Markdown. Review warnings are prompts to inspect assumptions, liquidity tiers, scheduled events, fees, yields, and forced-sale risks; they are not transaction instructions.
+Artifacts are deterministic JSON, Markdown, no-JavaScript HTML, scenario galleries, assumption audits, batch comparisons, release-owner casebooks, artifact catalogs, release checks, and optional visual receipt Markdown. Review warnings are prompts to inspect assumptions, liquidity tiers, scheduled events, fees, yields, and forced-sale risks; they are not transaction instructions.

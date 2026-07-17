@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Release Owner Casebook: Synthetic household reserve portfolio</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 2rem; color: #1d2329; background: #fbfbf8; }
+main { max-width: 1120px; margin: 0 auto; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0 2rem; }
+th, td { border: 1px solid #c7cbd1; padding: 0.45rem; text-align: left; vertical-align: top; }
+th { background: #e8ecef; }
+blockquote { border-left: 4px solid #6b7280; margin-left: 0; padding-left: 1rem; color: #3f4650; }
+section { border-top: 1px solid #c7cbd1; padding-top: 1rem; margin-top: 1rem; }
+code { background: #eef0f2; padding: 0.1rem 0.25rem; }
+</style>
+</head>
+<body><main>
+<h1>Release Owner Casebook: Synthetic household reserve portfolio</h1>
+<blockquote>Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.</blockquote>
+<h2>Regeneration</h2>
+<pre><code>
+portfolio-liquidity-runway-lab casebook --out demo/casebook
+portfolio-liquidity-runway-lab build-packet --out demo/casebook/packet
+portfolio-liquidity-runway-lab scenario-gallery --out demo/casebook/scenario-gallery
+portfolio-liquidity-runway-lab assumption-audit --out demo/casebook/assumption-audit
+portfolio-liquidity-runway-lab batch-compare --portfolios-dir portfolio_liquidity_runway_lab/examples --out demo/casebook/batch-compare
+</code></pre>
+<h2>Packet Summary</h2>
+<ul>
+<li>Scenario: `stress`</li>
+<li>Gross assets: $165,000.00</li>
+<li>Stress haircut assets: $133,460.00</li>
+<li>Effective monthly burn: $7,282.83</li>
+<li>Same-day reserve months: 4.51</li>
+</ul>
+<h3>Cash Buckets</h3>
+<table>
+<tr><th>Tier</th><th>Count</th><th>Gross</th><th>Stress value</th></tr>
+<tr><td>Same day</td><td>2</td><td>$50,000.00</td><td>$50,000.00</td></tr>
+<tr><td>One week</td><td>1</td><td>$28,000.00</td><td>$25,760.00</td></tr>
+<tr><td>One month</td><td>1</td><td>$22,000.00</td><td>$18,700.00</td></tr>
+<tr><td>Locked or gated</td><td>1</td><td>$65,000.00</td><td>$39,000.00</td></tr>
+</table>
+<h3>Forced-Sale Warnings</h3>
+<ul>
+<li>Liquid balance turns negative in month 10; review whether one_month or locked holdings would be needed.</li>
+<li>Same-day reserve is 4.5 months, below the 6.0 month review threshold.</li>
+<li>Locked or gated assets exceed 35% of gross assets while burn is positive.</li>
+</ul>
+<h2>Scenario Gallery Summary</h2>
+<table>
+<tr><td>Scenario</td><td>Haircut assets</td><td>Effective monthly burn</td><td>30-day runway</td><td>Warnings</td></tr>
+<tr><td>base</td><td>$147,090.00</td><td>$4,030.83</td><td>24.4</td><td>2</td></tr>
+<tr><td>stress</td><td>$133,460.00</td><td>$7,282.83</td><td>12.97</td><td>3</td></tr>
+<tr><td>income_shock</td><td>$138,210.00</td><td>$7,360.83</td><td>13.04</td><td>3</td></tr>
+</table>
+<h2>Assumption Audit Summary</h2>
+<ul>
+<li>Status: `pass`</li>
+<li>Errors: 0</li>
+<li>Warnings: 0</li>
+<table>
+<tr><th>Severity</th><th>Code</th><th>Location</th><th>Message</th></tr>
+<tr><th>pass</th><th>none</th><th></th><th>No audit findings were triggered.</th></tr>
+</table>
+</ul>
+<h2>Batch Compare Summary</h2>
+<table>
+<tr><td>Portfolio</td><td>Scenario</td><td>Same-day reserve months</td><td>30-day runway</td><td>Effective monthly burn</td><td>Warnings</td></tr>
+<tr><td>portfolio.json</td><td>base</td><td>5.32</td><td>24.4</td><td>$4,030.83</td><td>2</td></tr>
+<tr><td>portfolio.json</td><td>stress</td><td>4.51</td><td>12.97</td><td>$7,282.83</td><td>3</td></tr>
+<tr><td>portfolio.json</td><td>income_shock</td><td>5.07</td><td>13.04</td><td>$7,360.83</td><td>3</td></tr>
+<tr><td>portfolio_concentrated.json</td><td>base</td><td>1.01</td><td>3.83</td><td>$2,478.38</td><td>3</td></tr>
+<tr><td>portfolio_concentrated.json</td><td>stress</td><td>0.86</td><td>1.66</td><td>$5,730.38</td><td>3</td></tr>
+<tr><td>portfolio_concentrated.json</td><td>income_shock</td><td>0.96</td><td>1.64</td><td>$5,808.38</td><td>3</td></tr>
+</table>
+</main></body>
+</html>

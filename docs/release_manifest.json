@@ -11,13 +11,20 @@
     "demo/batch-compare/batch_compare.html",
     "demo/batch-compare/batch_compare.json",
     "demo/batch-compare/batch_compare.md",
+    "demo/casebook/casebook.html",
+    "demo/casebook/casebook.json",
+    "demo/casebook/casebook.md",
     "demo/scenario-gallery/scenario_gallery.html",
     "demo/scenario-gallery/scenario_gallery.json",
     "demo/scenario-gallery/scenario_gallery.md",
     "demo/visual_receipt.md",
+    "docs/artifact_catalog.json",
+    "docs/artifact_catalog.md",
     "docs/cold_start_walkthrough.md",
     "docs/engineering_note.md",
     "docs/maturity_report.json",
+    "docs/release_check.json",
+    "docs/release_check.md",
     "docs/release_manifest.json",
     "docs/release_readiness_review.md",
     "portfolio_liquidity_runway_lab/__init__.py",
@@ -36,5 +43,5 @@
   ],
   "name": "portfolio-liquidity-runway-lab",
   "runtime_dependencies": [],
-  "version": "0.3.0"
+  "version": "0.4.0"
 }

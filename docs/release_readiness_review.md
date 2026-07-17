@@ -17,8 +17,12 @@ tmpdir="$(mktemp -d)"
 cp portfolio_liquidity_runway_lab/examples/portfolio.json "$tmpdir/portfolio.json"
 cp portfolio_liquidity_runway_lab/examples/portfolio_concentrated.json "$tmpdir/portfolio_concentrated.json"
 python -m portfolio_liquidity_runway_lab batch-compare --portfolios-dir "$tmpdir" --scenarios base,stress --out demo/batch-compare
+python -m portfolio_liquidity_runway_lab casebook --portfolios-dir "$tmpdir" --scenario stress --scenarios base,stress,income_shock --out demo/casebook
 python -m portfolio_liquidity_runway_lab visual-receipt --out demo/visual_receipt.md --scenario stress
 python -m portfolio_liquidity_runway_lab release-manifest --out docs/release_manifest.json
+python -m portfolio_liquidity_runway_lab maturity-report --out docs/maturity_report.json
+python -m portfolio_liquidity_runway_lab artifact-catalog --out docs
+python -m portfolio_liquidity_runway_lab release-check --out docs
 ```
 
 Optional manual demo:
@@ -34,6 +38,7 @@ mkdir -p liquidity-demo/portfolios
 cp liquidity-demo/portfolio.json liquidity-demo/portfolios/portfolio.json
 cp liquidity-demo/portfolio_concentrated.json liquidity-demo/portfolios/portfolio_concentrated.json
 portfolio-liquidity-runway-lab batch-compare --portfolios-dir liquidity-demo/portfolios --scenarios base,stress --out liquidity-demo/batch-compare
+portfolio-liquidity-runway-lab casebook --portfolios-dir liquidity-demo/portfolios --scenario stress --scenarios base,stress,income_shock --out liquidity-demo/casebook
 portfolio-liquidity-runway-lab visual-receipt --out liquidity-demo/visual_receipt.md --scenario stress
 ```
 
@@ -49,6 +54,9 @@ Current maturity: alpha public utility.
 | Scenario gallery | Ready | `scenario-gallery` writes deterministic JSON, Markdown, and no-JavaScript HTML for bundled `base`, `stress`, `income_shock`, and `reserve_rebuild` scenarios. |
 | Assumption audit | Ready | `assumption-audit` writes deterministic JSON and Markdown findings for liquidity tier completeness, nonnumeric values, suspicious yields or fees, missing scenarios, reserve thresholds, and scheduled event issues. |
 | Batch compare | Ready | `batch-compare` writes deterministic JSON, Markdown, and no-JavaScript HTML comparing runway, reserves, and warnings across portfolio JSON files. |
+| Casebook | Ready | `casebook` writes deterministic JSON, Markdown, and no-JavaScript HTML release-owner artifacts combining packet, scenario gallery, assumption audit, and batch compare summaries. |
+| Artifact catalog | Ready | `artifact-catalog` records demo/docs file sizes, SHA256 hashes, and regeneration commands in deterministic JSON and Markdown. |
+| Release check | Ready | `release-check` validates expected docs/demo/package files, public scan status, and generated HTML no-script requirements. |
 | Visual receipt | Ready | `visual-receipt` writes compact deterministic Markdown linking packet artifacts, boundary text, bucket bars, and regeneration commands. |
 | Cold start | Ready | `quickstart-check` copies packaged examples and builds a packet from an empty directory. |
 | Test coverage | Basic | Unit tests cover analysis, static artifacts, CLI smoke paths, public metadata, README expectations, and manifest expectations. |
@@ -65,6 +73,9 @@ Current maturity: alpha public utility.
 - Regenerate `demo/scenario-gallery/` when changing bundled scenarios or gallery formatting.
 - Regenerate `demo/assumption-audit/` when changing audit rules or bundled concentrated fixtures.
 - Regenerate `demo/batch-compare/` when changing batch compare rendering or summary fields.
+- Regenerate `demo/casebook/` when changing casebook summaries, bundled examples, or release-owner review fields.
+- Regenerate `docs/artifact_catalog.*` after changing demo or docs artifacts.
+- Regenerate `docs/release_check.*` after changing release expectations or generated HTML artifacts.
 - Regenerate `docs/release_manifest.json` after adding or removing release files.
 - Do not add `.github/workflows` for this release.
 - Do not include large generated demo output directories in a source distribution.

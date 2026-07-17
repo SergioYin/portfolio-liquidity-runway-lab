@@ -11,9 +11,13 @@ from typing import Any, Dict, Optional
 from . import __version__
 from .core import (
     BOUNDARY_TEXT,
+    artifact_catalog,
     build_assumption_audit,
+    build_artifact_catalog,
     build_batch_compare,
+    build_casebook,
     build_packet,
+    build_release_check,
     build_scenario_gallery,
     build_visual_receipt,
     bundled_example_path,
@@ -22,6 +26,7 @@ from .core import (
     load_json,
     maturity_report,
     public_scan,
+    release_check,
     release_manifest,
     review_ledger,
 )
@@ -153,6 +158,74 @@ def cmd_batch_compare(args: argparse.Namespace) -> int:
     return 0
 
 
+def _default_portfolios_dir() -> tempfile.TemporaryDirectory[str]:
+    tmp = tempfile.TemporaryDirectory(prefix="plrl-portfolios-")
+    tmp_path = Path(tmp.name)
+    shutil.copyfile(bundled_example_path("portfolio"), tmp_path / "portfolio.json")
+    shutil.copyfile(bundled_example_path("portfolio_concentrated"), tmp_path / "portfolio_concentrated.json")
+    return tmp
+
+
+def cmd_casebook(args: argparse.Namespace) -> int:
+    temp_dir: Optional[tempfile.TemporaryDirectory[str]] = None
+    try:
+        portfolios_dir = Path(args.portfolios_dir) if args.portfolios_dir else None
+        if portfolios_dir is None:
+            temp_dir = _default_portfolios_dir()
+            portfolios_dir = Path(temp_dir.name)
+        paths = build_casebook(
+            _example_or_path(args.portfolio, "portfolio"),
+            _example_or_path(args.ledger, "ledger"),
+            _example_or_path(args.assumptions, "assumptions"),
+            portfolios_dir,
+            Path(args.out),
+            args.scenario,
+            _split_scenarios(args.scenarios) if args.scenarios else None,
+        )
+    finally:
+        if temp_dir is not None:
+            temp_dir.cleanup()
+    _print_json(
+        {
+            "status": "ok",
+            "boundary": BOUNDARY_TEXT,
+            "json": str(paths.json_path),
+            "markdown": str(paths.markdown_path),
+            "html": str(paths.html_path),
+        }
+    )
+    return 0
+
+
+def cmd_artifact_catalog(args: argparse.Namespace) -> int:
+    selected = [item.strip() for item in args.paths.split(",") if item.strip()] if args.paths else ["demo", "docs"]
+    if args.out:
+        paths = build_artifact_catalog(Path(args.root), Path(args.out), selected)
+        _print_json({"status": "ok", "boundary": BOUNDARY_TEXT, "json": str(paths.json_path), "markdown": str(paths.markdown_path)})
+    else:
+        _print_json(artifact_catalog(Path(args.root), selected))
+    return 0
+
+
+def cmd_release_check(args: argparse.Namespace) -> int:
+    if args.out:
+        paths = build_release_check(Path(args.root), Path(args.out))
+        result = load_json(paths.json_path)
+        _print_json(
+            {
+                "status": result["status"],
+                "boundary": BOUNDARY_TEXT,
+                "json": str(paths.json_path),
+                "markdown": str(paths.markdown_path),
+                "checks": result["checks"],
+            }
+        )
+    else:
+        result = release_check(Path(args.root))
+        _print_json(result)
+    return 0 if result["status"] == "pass" else 1
+
+
 def cmd_visual_receipt(args: argparse.Namespace) -> int:
     path = build_visual_receipt(
         _example_or_path(args.portfolio, "portfolio"),
@@ -240,6 +313,20 @@ def cmd_selfcheck(args: argparse.Namespace) -> int:
                 and batch.get("scenario_names") == ["base", "stress"]
                 and len(batch.get("summary", [])) == 4
             ),
+            "casebook": (
+                build_casebook(
+                    bundled_example_path("portfolio"),
+                    bundled_example_path("ledger"),
+                    bundled_example_path("assumptions"),
+                    batch_dir,
+                    tmp_path / "casebook",
+                    "stress",
+                    ["base", "stress", "income_shock"],
+                ).html_path.read_text(encoding="utf-8").lower().find("<script")
+                == -1
+            ),
+            "artifact_catalog": artifact_catalog(tmp_path, ["packet", "scenario-gallery", "assumption-audit", "batch-compare"])["artifact_count"] >= 8,
+            "release_check_failure_mode": release_check(tmp_path, ["missing.md"])["status"] == "fail",
             "visual_receipt": (
                 build_visual_receipt(
                     bundled_example_path("portfolio"),
@@ -338,6 +425,24 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--scenarios", help="Comma-separated scenario names. Defaults to bundled scenario order when present.")
     p.add_argument("--out", default="dist/batch-compare", help="Output directory.")
     p.set_defaults(func=cmd_batch_compare)
+
+    p = sub.add_parser("casebook", help="Build deterministic Markdown, JSON, and no-JavaScript HTML release-owner casebook artifacts.")
+    add_common_inputs(p)
+    p.add_argument("--portfolios-dir", help="Directory containing portfolio JSON files for the batch summary. Defaults to bundled synthetic examples.")
+    p.add_argument("--scenarios", help="Comma-separated scenario names for gallery and batch summaries. Defaults to bundled gallery scenarios.")
+    p.add_argument("--out", default="dist/casebook", help="Output directory.")
+    p.set_defaults(func=cmd_casebook)
+
+    p = sub.add_parser("artifact-catalog", help="Catalog demo/docs artifacts with sizes, sha256 hashes, and regeneration commands.")
+    p.add_argument("--root", default=".", help="Repository root.")
+    p.add_argument("--paths", default="demo,docs", help="Comma-separated root-relative paths to catalog.")
+    p.add_argument("--out", help="Optional output directory for artifact_catalog.json and artifact_catalog.md.")
+    p.set_defaults(func=cmd_artifact_catalog)
+
+    p = sub.add_parser("release-check", help="Validate expected files, public scan, and no-script generated HTML.")
+    p.add_argument("--root", default=".", help="Repository root.")
+    p.add_argument("--out", help="Optional output directory for release_check.json and release_check.md.")
+    p.set_defaults(func=cmd_release_check)
 
     p = sub.add_parser("visual-receipt", help="Write a compact deterministic Markdown receipt for packet review.")
     add_common_inputs(p)

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import html
 import json
 from dataclasses import dataclass
@@ -65,6 +66,28 @@ class BatchComparePaths:
     html_path: Path
 
 
+@dataclass(frozen=True)
+class CasebookPaths:
+    out_dir: Path
+    json_path: Path
+    markdown_path: Path
+    html_path: Path
+
+
+@dataclass(frozen=True)
+class CatalogPaths:
+    out_dir: Path
+    json_path: Path
+    markdown_path: Path
+
+
+@dataclass(frozen=True)
+class ReleaseCheckPaths:
+    out_dir: Path
+    json_path: Path
+    markdown_path: Path
+
+
 IGNORED_RELEASE_PARTS = {
     ".git",
     ".mypy_cache",
@@ -74,6 +97,43 @@ IGNORED_RELEASE_PARTS = {
     "build",
     "dist",
 }
+
+EXPECTED_RELEASE_FILES = (
+    "README.md",
+    "LICENSE",
+    "MANIFEST.in",
+    "pyproject.toml",
+    "portfolio_liquidity_runway_lab/__init__.py",
+    "portfolio_liquidity_runway_lab/__main__.py",
+    "portfolio_liquidity_runway_lab/cli.py",
+    "portfolio_liquidity_runway_lab/core.py",
+    "portfolio_liquidity_runway_lab/examples/portfolio.json",
+    "portfolio_liquidity_runway_lab/examples/portfolio_concentrated.json",
+    "portfolio_liquidity_runway_lab/examples/ledger.json",
+    "portfolio_liquidity_runway_lab/examples/assumptions.json",
+    "portfolio_liquidity_runway_lab/examples/history.json",
+    "docs/cold_start_walkthrough.md",
+    "docs/release_readiness_review.md",
+    "docs/release_manifest.json",
+    "docs/maturity_report.json",
+    "docs/artifact_catalog.json",
+    "docs/artifact_catalog.md",
+    "demo/visual_receipt.md",
+    "demo/casebook/casebook.json",
+    "demo/casebook/casebook.md",
+    "demo/casebook/casebook.html",
+    "demo/scenario-gallery/scenario_gallery.json",
+    "demo/scenario-gallery/scenario_gallery.md",
+    "demo/scenario-gallery/scenario_gallery.html",
+    "demo/assumption-audit/assumption_audit.json",
+    "demo/assumption-audit/assumption_audit.md",
+    "demo/batch-compare/batch_compare.json",
+    "demo/batch-compare/batch_compare.md",
+    "demo/batch-compare/batch_compare.html",
+    "skills/agent/portfolio-liquidity-runway-lab/SKILL.md",
+    "tests/test_cli.py",
+    "tests/test_core.py",
+)
 
 
 def _is_ignored_release_path(path: Path) -> bool:
@@ -1044,6 +1104,401 @@ def build_batch_compare(
     return BatchComparePaths(out_dir, json_path, markdown_path, html_path)
 
 
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _contains_script_tag(path: Path) -> bool:
+    try:
+        return "<script" in path.read_text(encoding="utf-8").lower()
+    except UnicodeDecodeError:
+        return False
+
+
+def _html_shell(title: str, body: str) -> str:
+    return """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>""" + html.escape(title) + """</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 2rem; color: #1d2329; background: #fbfbf8; }
+main { max-width: 1120px; margin: 0 auto; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0 2rem; }
+th, td { border: 1px solid #c7cbd1; padding: 0.45rem; text-align: left; vertical-align: top; }
+th { background: #e8ecef; }
+blockquote { border-left: 4px solid #6b7280; margin-left: 0; padding-left: 1rem; color: #3f4650; }
+section { border-top: 1px solid #c7cbd1; padding-top: 1rem; margin-top: 1rem; }
+code { background: #eef0f2; padding: 0.1rem 0.25rem; }
+</style>
+</head>
+<body><main>
+""" + body + "\n</main></body>\n</html>\n"
+
+
+def build_casebook_data(
+    portfolio_path: Path,
+    ledger_path: Path,
+    assumptions_path: Path,
+    portfolios_dir: Path,
+    scenario: Optional[str] = None,
+    scenario_names: Optional[Iterable[str]] = None,
+) -> Dict[str, Any]:
+    portfolio = load_json(portfolio_path)
+    ledger = load_json(ledger_path)
+    assumptions = load_json(assumptions_path)
+    packet = analyze(portfolio, ledger, assumptions, scenario)
+    gallery = build_scenario_gallery_data(portfolio, ledger, assumptions, scenario_names)
+    audit = assumption_audit(portfolio, ledger, assumptions)
+    batch = build_batch_compare_data(portfolios_dir, ledger, assumptions, scenario_names)
+    return {
+        "boundary": BOUNDARY_TEXT,
+        "title": f"Release Owner Casebook: {packet['portfolio_name']}",
+        "inputs": {
+            "portfolio": portfolio_path.as_posix(),
+            "ledger": ledger_path.as_posix(),
+            "assumptions": assumptions_path.as_posix(),
+            "portfolios_dir": portfolios_dir.as_posix(),
+        },
+        "regeneration_commands": [
+            "portfolio-liquidity-runway-lab casebook --out demo/casebook",
+            "portfolio-liquidity-runway-lab build-packet --out demo/casebook/packet",
+            "portfolio-liquidity-runway-lab scenario-gallery --out demo/casebook/scenario-gallery",
+            "portfolio-liquidity-runway-lab assumption-audit --out demo/casebook/assumption-audit",
+            "portfolio-liquidity-runway-lab batch-compare --portfolios-dir portfolio_liquidity_runway_lab/examples --out demo/casebook/batch-compare",
+        ],
+        "packet_summary": {
+            "scenario": packet["scenario"],
+            "portfolio_name": packet["portfolio_name"],
+            "totals": packet["totals"],
+            "cash_buckets": packet["cash_buckets"],
+            "forced_sale_warnings": packet["forced_sale_warnings"],
+            "review_prompts": packet["review_prompts"],
+        },
+        "scenario_gallery_summary": gallery["summary"],
+        "scenario_names": gallery["scenario_names"],
+        "assumption_audit_summary": {
+            "status": audit["status"],
+            "finding_counts": audit["finding_counts"],
+            "findings": audit["findings"],
+        },
+        "batch_compare_summary": batch["summary"],
+        "batch_portfolio_files": batch["portfolio_files"],
+        "batch_warnings": batch["warnings"],
+    }
+
+
+def render_casebook_markdown(casebook: Mapping[str, Any]) -> str:
+    totals = casebook["packet_summary"]["totals"]
+    lines = [
+        f"# {casebook['title']}",
+        "",
+        f"> {casebook['boundary']}",
+        "",
+        "## Regeneration",
+        "",
+        "```bash",
+        *casebook["regeneration_commands"],
+        "```",
+        "",
+        "## Packet Summary",
+        "",
+        f"- Scenario: `{casebook['packet_summary']['scenario']}`",
+        f"- Gross assets: {money(totals['gross_assets'])}",
+        f"- Stress haircut assets: {money(totals['stress_haircut_assets'])}",
+        f"- Effective monthly burn: {money(totals['effective_monthly_burn'])}",
+        f"- Same-day reserve months: {totals['same_day_reserve_months']:.2f}",
+        "",
+        "### Cash Buckets",
+        "",
+        "| Tier | Count | Gross | Stress value |",
+        "| --- | ---: | ---: | ---: |",
+    ]
+    for tier in LIQUIDITY_ORDER:
+        bucket = casebook["packet_summary"]["cash_buckets"][tier]
+        lines.append(f"| {bucket['label']} | {bucket['count']} | {money(bucket['gross'])} | {money(bucket['stress_haircut_value'])} |")
+    lines.extend(["", "### Forced-Sale Warnings", ""])
+    warnings = casebook["packet_summary"]["forced_sale_warnings"]
+    lines.extend(f"- {warning}" for warning in warnings) if warnings else lines.append("- No forced-sale warnings were triggered by these assumptions.")
+    lines.extend(
+        [
+            "",
+            "## Scenario Gallery Summary",
+            "",
+            "| Scenario | Haircut assets | Effective monthly burn | 30-day runway | Warnings |",
+            "| --- | ---: | ---: | ---: | ---: |",
+        ]
+    )
+    for row in casebook["scenario_gallery_summary"]:
+        lines.append(
+            f"| {row['scenario']} | {money(row['stress_haircut_assets'])} | {money(row['effective_monthly_burn'])} | "
+            f"{row['thirty_day_runway_months']} | {row['warning_count']} |"
+        )
+    audit = casebook["assumption_audit_summary"]
+    lines.extend(
+        [
+            "",
+            "## Assumption Audit Summary",
+            "",
+            f"- Status: `{audit['status']}`",
+            f"- Errors: {audit['finding_counts']['error']}",
+            f"- Warnings: {audit['finding_counts']['warning']}",
+            "",
+            "| Severity | Code | Location | Message |",
+            "| --- | --- | --- | --- |",
+        ]
+    )
+    if audit["findings"]:
+        for finding in audit["findings"]:
+            lines.append(f"| {finding['severity']} | {finding['code']} | `{finding['location']}` | {finding['message']} |")
+    else:
+        lines.append("| pass | none |  | No audit findings were triggered. |")
+    lines.extend(
+        [
+            "",
+            "## Batch Compare Summary",
+            "",
+            "| Portfolio | Scenario | Same-day reserve months | 30-day runway | Effective monthly burn | Warnings |",
+            "| --- | --- | ---: | ---: | ---: | ---: |",
+        ]
+    )
+    for row in casebook["batch_compare_summary"]:
+        lines.append(
+            f"| {row['portfolio_file']} | {row['scenario']} | {row['same_day_reserve_months']:.2f} | "
+            f"{row['thirty_day_runway_months']} | {money(row['effective_monthly_burn'])} | {row['warning_count']} |"
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
+def render_casebook_html(casebook: Mapping[str, Any]) -> str:
+    md = render_casebook_markdown(casebook)
+    body = []
+    in_table = False
+    in_list = False
+    in_code = False
+    for line in md.splitlines():
+        if line == "```bash":
+            body.append("<pre><code>")
+            in_code = True
+            continue
+        if line == "```" and in_code:
+            body.append("</code></pre>")
+            in_code = False
+            continue
+        if in_code:
+            body.append(html.escape(line))
+            continue
+        if line.startswith("# "):
+            if in_table:
+                body.append("</table>")
+                in_table = False
+            if in_list:
+                body.append("</ul>")
+                in_list = False
+            body.append(f"<h1>{html.escape(line[2:])}</h1>")
+        elif line.startswith("## "):
+            if in_table:
+                body.append("</table>")
+                in_table = False
+            if in_list:
+                body.append("</ul>")
+                in_list = False
+            body.append(f"<h2>{html.escape(line[3:])}</h2>")
+        elif line.startswith("### "):
+            if in_table:
+                body.append("</table>")
+                in_table = False
+            if in_list:
+                body.append("</ul>")
+                in_list = False
+            body.append(f"<h3>{html.escape(line[4:])}</h3>")
+        elif line.startswith("> "):
+            body.append(f"<blockquote>{html.escape(line[2:])}</blockquote>")
+        elif line.startswith("- "):
+            if not in_list:
+                body.append("<ul>")
+                in_list = True
+            body.append(f"<li>{html.escape(line[2:])}</li>")
+        elif line.startswith("| ") and not line.startswith("| ---"):
+            if not in_table:
+                body.append("<table>")
+                in_table = True
+            cells = [cell.strip() for cell in line.strip("|").split("|")]
+            tag = "th" if all(not any(ch.isdigit() for ch in cell) for cell in cells) else "td"
+            body.append("<tr>" + "".join(f"<{tag}>{html.escape(cell)}</{tag}>" for cell in cells) + "</tr>")
+        elif line.startswith("| ---"):
+            continue
+        elif line.strip():
+            body.append(f"<p>{html.escape(line)}</p>")
+    if in_table:
+        body.append("</table>")
+    if in_list:
+        body.append("</ul>")
+    return _html_shell(str(casebook["title"]), "\n".join(body))
+
+
+def build_casebook(
+    portfolio_path: Path,
+    ledger_path: Path,
+    assumptions_path: Path,
+    portfolios_dir: Path,
+    out_dir: Path,
+    scenario: Optional[str] = None,
+    scenario_names: Optional[Iterable[str]] = None,
+) -> CasebookPaths:
+    casebook = build_casebook_data(portfolio_path, ledger_path, assumptions_path, portfolios_dir, scenario, scenario_names)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    json_path = out_dir / "casebook.json"
+    markdown_path = out_dir / "casebook.md"
+    html_path = out_dir / "casebook.html"
+    dump_json(casebook, json_path)
+    markdown_path.write_text(render_casebook_markdown(casebook), encoding="utf-8")
+    html_path.write_text(render_casebook_html(casebook), encoding="utf-8")
+    return CasebookPaths(out_dir, json_path, markdown_path, html_path)
+
+
+def artifact_catalog(root: Path, paths: Iterable[str] = ("demo", "docs")) -> Dict[str, Any]:
+    entries = []
+    for part in paths:
+        base = root / part
+        if not base.exists():
+            continue
+        for path in sorted(base.rglob("*")):
+            if path.is_file() and not _is_ignored_release_path(path):
+                rel = path.relative_to(root).as_posix()
+                if rel in {"docs/artifact_catalog.json", "docs/artifact_catalog.md"}:
+                    continue
+                entries.append(
+                    {
+                        "path": rel,
+                        "size_bytes": path.stat().st_size,
+                        "sha256": _sha256_file(path),
+                        "regeneration_command": _regeneration_command_for(rel),
+                    }
+                )
+    return {"boundary": BOUNDARY_TEXT, "root": root.as_posix(), "artifact_count": len(entries), "artifacts": entries}
+
+
+def _regeneration_command_for(rel: str) -> str:
+    if rel.startswith("demo/casebook/"):
+        return "portfolio-liquidity-runway-lab casebook --out demo/casebook"
+    if rel.startswith("demo/scenario-gallery/"):
+        return "portfolio-liquidity-runway-lab scenario-gallery --out demo/scenario-gallery"
+    if rel.startswith("demo/assumption-audit/"):
+        return (
+            "portfolio-liquidity-runway-lab assumption-audit "
+            "--portfolio portfolio_liquidity_runway_lab/examples/portfolio_concentrated.json --out demo/assumption-audit"
+        )
+    if rel.startswith("demo/batch-compare/"):
+        return "portfolio-liquidity-runway-lab batch-compare --portfolios-dir demo/batch-inputs --scenarios base,stress --out demo/batch-compare"
+    if rel == "demo/visual_receipt.md":
+        return "portfolio-liquidity-runway-lab visual-receipt --out demo/visual_receipt.md --scenario stress"
+    if rel == "docs/release_manifest.json":
+        return "portfolio-liquidity-runway-lab release-manifest --out docs/release_manifest.json"
+    if rel == "docs/maturity_report.json":
+        return "portfolio-liquidity-runway-lab maturity-report --out docs/maturity_report.json"
+    if rel.startswith("docs/release_check."):
+        return "portfolio-liquidity-runway-lab release-check --out docs"
+    if rel.startswith("docs/artifact_catalog."):
+        return "portfolio-liquidity-runway-lab artifact-catalog --out docs"
+    return "manual edit"
+
+
+def render_artifact_catalog_markdown(catalog: Mapping[str, Any]) -> str:
+    lines = [
+        "# Artifact Catalog",
+        "",
+        f"> {catalog['boundary']}",
+        "",
+        f"Artifact count: {catalog['artifact_count']}",
+        "",
+        "| Path | Size bytes | SHA256 | Regeneration command |",
+        "| --- | ---: | --- | --- |",
+    ]
+    for item in catalog["artifacts"]:
+        lines.append(f"| `{item['path']}` | {item['size_bytes']} | `{item['sha256']}` | `{item['regeneration_command']}` |")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def build_artifact_catalog(root: Path, out_dir: Path, paths: Iterable[str] = ("demo", "docs")) -> CatalogPaths:
+    catalog = artifact_catalog(root, paths)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    json_path = out_dir / "artifact_catalog.json"
+    markdown_path = out_dir / "artifact_catalog.md"
+    dump_json(catalog, json_path)
+    markdown_path.write_text(render_artifact_catalog_markdown(catalog), encoding="utf-8")
+    return CatalogPaths(out_dir, json_path, markdown_path)
+
+
+def release_check(root: Path, expected_files: Iterable[str] = EXPECTED_RELEASE_FILES) -> Dict[str, Any]:
+    missing = [rel for rel in expected_files if not (root / rel).is_file()]
+    html_files = sorted(
+        path.relative_to(root).as_posix()
+        for base in (root / "demo", root / "docs")
+        if base.exists()
+        for path in base.rglob("*.html")
+        if path.is_file()
+    )
+    html_with_script = [rel for rel in html_files if _contains_script_tag(root / rel)]
+    scan = public_scan(root)
+    checks = {
+        "expected_files": not missing,
+        "public_scan": scan["status"] == "pass",
+        "html_no_script_tags": not html_with_script,
+    }
+    status = "pass" if all(checks.values()) else "fail"
+    return {
+        "boundary": BOUNDARY_TEXT,
+        "status": status,
+        "checks": checks,
+        "missing_files": missing,
+        "html_files": html_files,
+        "html_with_script_tags": html_with_script,
+        "public_scan_findings": scan["findings"],
+    }
+
+
+def render_release_check_markdown(result: Mapping[str, Any]) -> str:
+    lines = [
+        "# Release Check",
+        "",
+        f"> {result['boundary']}",
+        "",
+        f"Status: `{result['status']}`",
+        "",
+        "## Checks",
+        "",
+        "| Check | Pass |",
+        "| --- | --- |",
+    ]
+    for key in sorted(result["checks"]):
+        lines.append(f"| {key} | {str(result['checks'][key]).lower()} |")
+    lines.extend(["", "## Missing Files", ""])
+    lines.extend(f"- `{rel}`" for rel in result["missing_files"]) if result["missing_files"] else lines.append("- None")
+    lines.extend(["", "## HTML Script Tag Findings", ""])
+    lines.extend(f"- `{rel}`" for rel in result["html_with_script_tags"]) if result["html_with_script_tags"] else lines.append("- None")
+    lines.extend(["", "## Public Scan Findings", ""])
+    lines.extend(f"- {finding}" for finding in result["public_scan_findings"]) if result["public_scan_findings"] else lines.append("- None")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def build_release_check(root: Path, out_dir: Path, expected_files: Iterable[str] = EXPECTED_RELEASE_FILES) -> ReleaseCheckPaths:
+    result = release_check(root, expected_files)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    json_path = out_dir / "release_check.json"
+    markdown_path = out_dir / "release_check.md"
+    dump_json(result, json_path)
+    markdown_path.write_text(render_release_check_markdown(result), encoding="utf-8")
+    return ReleaseCheckPaths(out_dir, json_path, markdown_path)
+
+
 def compare_history(history: Mapping[str, Any]) -> Dict[str, Any]:
     snapshots = history.get("snapshots", [])
     if not isinstance(snapshots, list) or len(snapshots) < 2:
@@ -1123,7 +1578,7 @@ def release_manifest(root: Path) -> Dict[str, Any]:
             files.append(path.relative_to(root).as_posix())
     return {
         "name": "portfolio-liquidity-runway-lab",
-        "version": "0.3.0",
+        "version": "0.4.0",
         "boundary": BOUNDARY_TEXT,
         "files": files,
         "console_script": "portfolio-liquidity-runway-lab",
@@ -1145,6 +1600,9 @@ def maturity_report(root: Path) -> Dict[str, Any]:
         "cold_start_walkthrough": (root / "docs/cold_start_walkthrough.md").exists(),
         "release_readiness_review": (root / "docs/release_readiness_review.md").exists(),
         "release_manifest": (root / "docs/release_manifest.json").exists(),
+        "artifact_catalog": (root / "docs/artifact_catalog.json").exists() and (root / "docs/artifact_catalog.md").exists(),
+        "release_check": (root / "docs/release_check.json").exists() and (root / "docs/release_check.md").exists(),
+        "demo_casebook": (root / "demo/casebook/casebook.html").exists(),
         "demo_scenario_gallery": (root / "demo/scenario-gallery/scenario_gallery.md").exists(),
         "demo_assumption_audit": (root / "demo/assumption-audit/assumption_audit.md").exists(),
         "demo_batch_compare": (root / "demo/batch-compare/batch_compare.html").exists(),

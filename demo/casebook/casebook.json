@@ -1,0 +1,222 @@
+{
+  "assumption_audit_summary": {
+    "finding_counts": {
+      "error": 0,
+      "warning": 0
+    },
+    "findings": [],
+    "status": "pass"
+  },
+  "batch_compare_summary": [
+    {
+      "effective_monthly_burn": 4030.83,
+      "first_negative_month": null,
+      "portfolio_file": "portfolio.json",
+      "portfolio_name": "Synthetic household reserve portfolio",
+      "same_day_one_week_runway_months": 19.21,
+      "same_day_reserve_months": 5.32,
+      "scenario": "base",
+      "thirty_day_runway_months": 24.4,
+      "warning_count": 2
+    },
+    {
+      "effective_monthly_burn": 7282.83,
+      "first_negative_month": 10,
+      "portfolio_file": "portfolio.json",
+      "portfolio_name": "Synthetic household reserve portfolio",
+      "same_day_one_week_runway_months": 10.4,
+      "same_day_reserve_months": 4.51,
+      "scenario": "stress",
+      "thirty_day_runway_months": 12.97,
+      "warning_count": 3
+    },
+    {
+      "effective_monthly_burn": 7360.83,
+      "first_negative_month": 10,
+      "portfolio_file": "portfolio.json",
+      "portfolio_name": "Synthetic household reserve portfolio",
+      "same_day_one_week_runway_months": 10.41,
+      "same_day_reserve_months": 5.07,
+      "scenario": "income_shock",
+      "thirty_day_runway_months": 13.04,
+      "warning_count": 3
+    },
+    {
+      "effective_monthly_burn": 2478.38,
+      "first_negative_month": 7,
+      "portfolio_file": "portfolio_concentrated.json",
+      "portfolio_name": "Synthetic concentrated liquidity portfolio",
+      "same_day_one_week_runway_months": 3.83,
+      "same_day_reserve_months": 1.01,
+      "scenario": "base",
+      "thirty_day_runway_months": 3.83,
+      "warning_count": 3
+    },
+    {
+      "effective_monthly_burn": 5730.38,
+      "first_negative_month": 2,
+      "portfolio_file": "portfolio_concentrated.json",
+      "portfolio_name": "Synthetic concentrated liquidity portfolio",
+      "same_day_one_week_runway_months": 1.66,
+      "same_day_reserve_months": 0.86,
+      "scenario": "stress",
+      "thirty_day_runway_months": 1.66,
+      "warning_count": 3
+    },
+    {
+      "effective_monthly_burn": 5808.38,
+      "first_negative_month": 2,
+      "portfolio_file": "portfolio_concentrated.json",
+      "portfolio_name": "Synthetic concentrated liquidity portfolio",
+      "same_day_one_week_runway_months": 1.64,
+      "same_day_reserve_months": 0.96,
+      "scenario": "income_shock",
+      "thirty_day_runway_months": 1.64,
+      "warning_count": 3
+    }
+  ],
+  "batch_portfolio_files": [
+    "portfolio.json",
+    "portfolio_concentrated.json"
+  ],
+  "batch_warnings": {
+    "portfolio:base": [
+      "Same-day reserve is 5.3 months, below the 6.0 month review threshold.",
+      "Locked or gated assets exceed 35% of gross assets while burn is positive."
+    ],
+    "portfolio:income_shock": [
+      "Liquid balance turns negative in month 10; review whether one_month or locked holdings would be needed.",
+      "Same-day reserve is 5.1 months, below the 6.0 month review threshold.",
+      "Locked or gated assets exceed 35% of gross assets while burn is positive."
+    ],
+    "portfolio:stress": [
+      "Liquid balance turns negative in month 10; review whether one_month or locked holdings would be needed.",
+      "Same-day reserve is 4.5 months, below the 6.0 month review threshold.",
+      "Locked or gated assets exceed 35% of gross assets while burn is positive."
+    ],
+    "portfolio_concentrated:base": [
+      "Liquid balance turns negative in month 7; review whether one_month or locked holdings would be needed.",
+      "Same-day reserve is 1.0 months, below the 6.0 month review threshold.",
+      "Locked or gated assets exceed 35% of gross assets while burn is positive."
+    ],
+    "portfolio_concentrated:income_shock": [
+      "Liquid balance turns negative in month 2; review whether one_month or locked holdings would be needed.",
+      "Same-day reserve is 1.0 months, below the 6.0 month review threshold.",
+      "Locked or gated assets exceed 35% of gross assets while burn is positive."
+    ],
+    "portfolio_concentrated:stress": [
+      "Liquid balance turns negative in month 2; review whether one_month or locked holdings would be needed.",
+      "Same-day reserve is 0.9 months, below the 6.0 month review threshold.",
+      "Locked or gated assets exceed 35% of gross assets while burn is positive."
+    ]
+  },
+  "boundary": "Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.",
+  "inputs": {
+    "assumptions": "/home/xjyin/workspace/token-lab/20260718-portfolio-liquidity-runway-lab/portfolio_liquidity_runway_lab/examples/assumptions.json",
+    "ledger": "/home/xjyin/workspace/token-lab/20260718-portfolio-liquidity-runway-lab/portfolio_liquidity_runway_lab/examples/ledger.json",
+    "portfolio": "/home/xjyin/workspace/token-lab/20260718-portfolio-liquidity-runway-lab/portfolio_liquidity_runway_lab/examples/portfolio.json",
+    "portfolios_dir": "/tmp/tmp.DDmpsVTuTa"
+  },
+  "packet_summary": {
+    "cash_buckets": {
+      "locked": {
+        "count": 1,
+        "gross": 65000.0,
+        "label": "Locked or gated",
+        "stress_haircut_value": 39000.0
+      },
+      "one_month": {
+        "count": 1,
+        "gross": 22000.0,
+        "label": "One month",
+        "stress_haircut_value": 18700.0
+      },
+      "one_week": {
+        "count": 1,
+        "gross": 28000.0,
+        "label": "One week",
+        "stress_haircut_value": 25760.0
+      },
+      "same_day": {
+        "count": 2,
+        "gross": 50000.0,
+        "label": "Same day",
+        "stress_haircut_value": 50000.0
+      }
+    },
+    "forced_sale_warnings": [
+      "Liquid balance turns negative in month 10; review whether one_month or locked holdings would be needed.",
+      "Same-day reserve is 4.5 months, below the 6.0 month review threshold.",
+      "Locked or gated assets exceed 35% of gross assets while burn is positive."
+    ],
+    "portfolio_name": "Synthetic household reserve portfolio",
+    "review_prompts": [
+      "Confirm each liquidity tier against account restrictions and settlement timing.",
+      "Check that scheduled inflows and outflows are documented and still expected.",
+      "Review whether fees, yields, and stress haircuts are assumptions rather than live quotes.",
+      "Escalate to a qualified professional for tax, legal, investment, or brokerage decisions."
+    ],
+    "scenario": "stress",
+    "totals": {
+      "annual_fee_assumption": 856.0,
+      "annual_yield_assumption": 2886.0,
+      "effective_monthly_burn": 7282.83,
+      "gross_assets": 165000.0,
+      "monthly_fee_assumption": 71.33,
+      "monthly_net_burn_before_yield_fee": 7452.0,
+      "monthly_yield_assumption": 240.5,
+      "same_day_one_week_runway_months": 10.4,
+      "same_day_reserve_months": 4.51,
+      "stress_haircut_assets": 133460.0,
+      "thirty_day_runway_months": 12.97
+    }
+  },
+  "regeneration_commands": [
+    "portfolio-liquidity-runway-lab casebook --out demo/casebook",
+    "portfolio-liquidity-runway-lab build-packet --out demo/casebook/packet",
+    "portfolio-liquidity-runway-lab scenario-gallery --out demo/casebook/scenario-gallery",
+    "portfolio-liquidity-runway-lab assumption-audit --out demo/casebook/assumption-audit",
+    "portfolio-liquidity-runway-lab batch-compare --portfolios-dir portfolio_liquidity_runway_lab/examples --out demo/casebook/batch-compare"
+  ],
+  "scenario_gallery_summary": [
+    {
+      "effective_monthly_burn": 4030.83,
+      "first_negative_month": null,
+      "gross_assets": 165000.0,
+      "same_day_one_week_runway_months": 19.21,
+      "same_day_reserve_months": 5.32,
+      "scenario": "base",
+      "stress_haircut_assets": 147090.0,
+      "thirty_day_runway_months": 24.4,
+      "warning_count": 2
+    },
+    {
+      "effective_monthly_burn": 7282.83,
+      "first_negative_month": 10,
+      "gross_assets": 165000.0,
+      "same_day_one_week_runway_months": 10.4,
+      "same_day_reserve_months": 4.51,
+      "scenario": "stress",
+      "stress_haircut_assets": 133460.0,
+      "thirty_day_runway_months": 12.97,
+      "warning_count": 3
+    },
+    {
+      "effective_monthly_burn": 7360.83,
+      "first_negative_month": 10,
+      "gross_assets": 165000.0,
+      "same_day_one_week_runway_months": 10.41,
+      "same_day_reserve_months": 5.07,
+      "scenario": "income_shock",
+      "stress_haircut_assets": 138210.0,
+      "thirty_day_runway_months": 13.04,
+      "warning_count": 3
+    }
+  ],
+  "scenario_names": [
+    "base",
+    "stress",
+    "income_shock"
+  ],
+  "title": "Release Owner Casebook: Synthetic household reserve portfolio"
+}

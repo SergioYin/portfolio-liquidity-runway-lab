@@ -5,15 +5,20 @@ from pathlib import Path
 
 from portfolio_liquidity_runway_lab.core import (
     analyze,
+    artifact_catalog,
     assumption_audit,
+    build_artifact_catalog,
     build_assumption_audit,
     build_batch_compare,
+    build_casebook,
     build_packet,
+    build_release_check,
     build_scenario_gallery,
     bundled_example_path,
     load_json,
     maturity_report,
     release_manifest,
+    release_check,
 )
 
 
@@ -174,12 +179,104 @@ class CoreTests(unittest.TestCase):
             self.assertEqual(first_markdown, paths.markdown_path.read_text(encoding="utf-8"))
             self.assertEqual(first_html, paths.html_path.read_text(encoding="utf-8"))
 
+    def test_casebook_writes_deterministic_no_script_release_owner_artifacts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            portfolio_dir = Path(tmp) / "portfolios"
+            portfolio_dir.mkdir()
+            (portfolio_dir / "portfolio.json").write_text(bundled_example_path("portfolio").read_text(encoding="utf-8"), encoding="utf-8")
+            (portfolio_dir / "portfolio_concentrated.json").write_text(
+                bundled_example_path("portfolio_concentrated").read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
+            out = Path(tmp) / "casebook"
+            paths = build_casebook(
+                bundled_example_path("portfolio"),
+                bundled_example_path("ledger"),
+                bundled_example_path("assumptions"),
+                portfolio_dir,
+                out,
+                "stress",
+                ["base", "stress", "income_shock"],
+            )
+            first_json = paths.json_path.read_text(encoding="utf-8")
+            first_markdown = paths.markdown_path.read_text(encoding="utf-8")
+            first_html = paths.html_path.read_text(encoding="utf-8")
+            payload = json.loads(first_json)
+            self.assertEqual(payload["packet_summary"]["scenario"], "stress")
+            self.assertEqual(payload["scenario_names"], ["base", "stress", "income_shock"])
+            self.assertEqual(len(payload["batch_compare_summary"]), 6)
+            self.assertIn("# Release Owner Casebook:", first_markdown)
+            self.assertIn("<!doctype html>", first_html)
+            self.assertNotIn("<script", first_html.lower())
+
+            build_casebook(
+                bundled_example_path("portfolio"),
+                bundled_example_path("ledger"),
+                bundled_example_path("assumptions"),
+                portfolio_dir,
+                out,
+                "stress",
+                ["base", "stress", "income_shock"],
+            )
+            self.assertEqual(first_json, paths.json_path.read_text(encoding="utf-8"))
+            self.assertEqual(first_markdown, paths.markdown_path.read_text(encoding="utf-8"))
+            self.assertEqual(first_html, paths.html_path.read_text(encoding="utf-8"))
+
+    def test_artifact_catalog_records_deterministic_sizes_hashes_and_commands(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            demo = root / "demo"
+            docs = root / "docs"
+            demo.mkdir()
+            docs.mkdir()
+            (demo / "alpha.md").write_text("alpha\n", encoding="utf-8")
+            (docs / "beta.html").write_text("<!doctype html>\n<p>beta</p>\n", encoding="utf-8")
+            first = artifact_catalog(root)
+            second = artifact_catalog(root)
+            self.assertEqual(first, second)
+            self.assertEqual(first["artifact_count"], 2)
+            alpha = next(item for item in first["artifacts"] if item["path"] == "demo/alpha.md")
+            self.assertEqual(alpha["size_bytes"], 6)
+            self.assertEqual(alpha["sha256"], "b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060")
+            self.assertEqual(alpha["regeneration_command"], "manual edit")
+
+            paths = build_artifact_catalog(root, docs)
+            markdown = paths.markdown_path.read_text(encoding="utf-8")
+            self.assertIn("Artifact Catalog", markdown)
+            self.assertIn(alpha["sha256"], markdown)
+
+    def test_release_check_passes_and_reports_failure_modes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for rel in ("README.md", "demo/ok.html"):
+                path = root / rel
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("plain\n", encoding="utf-8")
+            passing = release_check(root, ["README.md", "demo/ok.html"])
+            self.assertEqual(passing["status"], "pass")
+            self.assertTrue(passing["checks"]["html_no_script_tags"])
+
+            bad_html = root / "demo" / "bad.html"
+            bad_html.write_text("<script>alert(1)</script>\n", encoding="utf-8")
+            failing = release_check(root, ["README.md", "missing.md"])
+            self.assertEqual(failing["status"], "fail")
+            self.assertIn("missing.md", failing["missing_files"])
+            self.assertIn("demo/bad.html", failing["html_with_script_tags"])
+
+            paths = build_release_check(root, root / "docs", ["README.md", "missing.md"])
+            payload = json.loads(paths.json_path.read_text(encoding="utf-8"))
+            self.assertEqual(payload["status"], "fail")
+            self.assertIn("Release Check", paths.markdown_path.read_text(encoding="utf-8"))
+
     def test_readme_and_maturity_report_cover_public_release_expectations(self):
         repo_root = Path(__file__).resolve().parents[1]
         readme = (repo_root / "README.md").read_text(encoding="utf-8").lower()
         self.assertLess(readme.index("quickstart"), readme.index("## commands"))
         self.assertIn("example outputs", readme)
         self.assertIn("visual-receipt", readme)
+        self.assertIn("casebook", readme)
+        self.assertIn("artifact-catalog", readme)
+        self.assertIn("release-check", readme)
         self.assertIn("scenario-gallery", readme)
         self.assertIn("assumption-audit", readme)
         self.assertIn("batch-compare", readme)
@@ -197,11 +294,13 @@ class CoreTests(unittest.TestCase):
         self.assertIn("docs/cold_start_walkthrough.md", manifest["files"])
         self.assertIn("docs/release_readiness_review.md", manifest["files"])
         self.assertIn("demo/visual_receipt.md", manifest["files"])
+        self.assertIn("docs/artifact_catalog.json", manifest["files"])
+        self.assertIn("demo/casebook/casebook.md", manifest["files"])
         self.assertIn("demo/scenario-gallery/scenario_gallery.md", manifest["files"])
         self.assertIn("demo/assumption-audit/assumption_audit.md", manifest["files"])
         self.assertIn("demo/batch-compare/batch_compare.html", manifest["files"])
         self.assertIn("README.md", manifest["files"])
-        self.assertEqual(manifest["version"], "0.3.0")
+        self.assertEqual(manifest["version"], "0.4.0")
 
 
 if __name__ == "__main__":

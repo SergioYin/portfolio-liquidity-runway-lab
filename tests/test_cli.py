@@ -159,6 +159,87 @@ class CliTests(unittest.TestCase):
             self.assertEqual(first["markdown"], batch_md.read_text(encoding="utf-8"))
             self.assertEqual(first["html"], batch_html.read_text(encoding="utf-8"))
 
+    def test_casebook_command_writes_deterministic_no_script_artifacts(self):
+        repo_root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as tmp:
+            portfolio_dir = Path(tmp) / "portfolios"
+            portfolio_dir.mkdir()
+            for name in ("portfolio.json", "portfolio_concentrated.json"):
+                (portfolio_dir / name).write_text(
+                    (repo_root / "portfolio_liquidity_runway_lab" / "examples" / name).read_text(encoding="utf-8"),
+                    encoding="utf-8",
+                )
+            out = Path(tmp) / "casebook"
+            result = self.run_cli(
+                "casebook",
+                "--portfolios-dir",
+                str(portfolio_dir),
+                "--scenario",
+                "stress",
+                "--scenarios",
+                "base,stress,income_shock",
+                "--out",
+                str(out),
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "ok")
+            casebook_json = out / "casebook.json"
+            casebook_md = out / "casebook.md"
+            casebook_html = out / "casebook.html"
+            first = {
+                "json": casebook_json.read_text(encoding="utf-8"),
+                "markdown": casebook_md.read_text(encoding="utf-8"),
+                "html": casebook_html.read_text(encoding="utf-8"),
+            }
+            data = json.loads(first["json"])
+            self.assertEqual(data["packet_summary"]["scenario"], "stress")
+            self.assertIn("Assumption Audit Summary", first["markdown"])
+            self.assertNotIn("<script", first["html"].lower())
+
+            second = self.run_cli(
+                "casebook",
+                "--portfolios-dir",
+                str(portfolio_dir),
+                "--scenario",
+                "stress",
+                "--scenarios",
+                "base,stress,income_shock",
+                "--out",
+                str(out),
+            )
+            self.assertEqual(second.returncode, 0, second.stderr)
+            self.assertEqual(first["json"], casebook_json.read_text(encoding="utf-8"))
+            self.assertEqual(first["markdown"], casebook_md.read_text(encoding="utf-8"))
+            self.assertEqual(first["html"], casebook_html.read_text(encoding="utf-8"))
+
+    def test_artifact_catalog_command_writes_hash_catalog(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "demo").mkdir()
+            (root / "docs").mkdir()
+            (root / "demo" / "alpha.md").write_text("alpha\n", encoding="utf-8")
+            out = root / "docs"
+            result = self.run_cli("artifact-catalog", "--root", str(root), "--out", str(out))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "ok")
+            catalog = json.loads((out / "artifact_catalog.json").read_text(encoding="utf-8"))
+            self.assertTrue(any(item["path"] == "demo/alpha.md" for item in catalog["artifacts"]))
+            self.assertIn("b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060", (out / "artifact_catalog.md").read_text(encoding="utf-8"))
+
+    def test_release_check_command_reports_no_script_failure(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "README.md").write_text("readme\n", encoding="utf-8")
+            (root / "demo").mkdir()
+            (root / "demo" / "bad.html").write_text("<script>alert(1)</script>\n", encoding="utf-8")
+            result = self.run_cli("release-check", "--root", str(root))
+            self.assertEqual(result.returncode, 1)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "fail")
+            self.assertIn("demo/bad.html", payload["html_with_script_tags"])
+
     def test_public_scan_passes_repo_without_ai_metadata(self):
         repo_root = Path(__file__).resolve().parents[1]
         result = self.run_cli("public-scan", "--root", str(repo_root))

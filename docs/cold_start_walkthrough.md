@@ -34,6 +34,7 @@ mkdir -p liquidity-demo/portfolios
 cp liquidity-demo/portfolio.json liquidity-demo/portfolios/portfolio.json
 cp liquidity-demo/portfolio_concentrated.json liquidity-demo/portfolios/portfolio_concentrated.json
 portfolio-liquidity-runway-lab batch-compare --portfolios-dir liquidity-demo/portfolios --scenarios base,stress --out liquidity-demo/batch-compare
+portfolio-liquidity-runway-lab casebook --portfolios-dir liquidity-demo/portfolios --scenario stress --scenarios base,stress,income_shock --out liquidity-demo/casebook
 portfolio-liquidity-runway-lab visual-receipt --out liquidity-demo/visual_receipt.md --scenario stress
 ```
 
@@ -56,6 +57,9 @@ liquidity-demo/assumption-audit/assumption_audit.md
 liquidity-demo/batch-compare/batch_compare.json
 liquidity-demo/batch-compare/batch_compare.md
 liquidity-demo/batch-compare/batch_compare.html
+liquidity-demo/casebook/casebook.json
+liquidity-demo/casebook/casebook.md
+liquidity-demo/casebook/casebook.html
 liquidity-demo/visual_receipt.md
 ```
 
@@ -68,10 +72,12 @@ portfolio-liquidity-runway-lab static-dashboard --out liquidity-demo/dashboard -
 portfolio-liquidity-runway-lab scenario-gallery --out liquidity-demo/scenario-gallery
 portfolio-liquidity-runway-lab assumption-audit --portfolio liquidity-demo/portfolio_concentrated.json --out liquidity-demo/assumption-audit
 portfolio-liquidity-runway-lab batch-compare --portfolios-dir liquidity-demo/portfolios --scenarios base,stress --out liquidity-demo/batch-compare
+portfolio-liquidity-runway-lab casebook --portfolios-dir liquidity-demo/portfolios --scenario stress --scenarios base,stress,income_shock --out liquidity-demo/casebook
 portfolio-liquidity-runway-lab visual-receipt --out liquidity-demo/visual_receipt.md --scenario stress
+portfolio-liquidity-runway-lab artifact-catalog --root liquidity-demo
 ```
 
-The packet, gallery, audit, batch compare, and visual receipt artifacts should be deterministic for the same inputs. HTML artifacts are static and contain no JavaScript.
+The packet, gallery, audit, batch compare, casebook, catalog, and visual receipt artifacts should be deterministic for the same inputs. HTML artifacts are static and contain no JavaScript.
 
 ## Public Readiness Checks
 
@@ -88,7 +94,12 @@ tmpdir="$(mktemp -d)"
 cp portfolio_liquidity_runway_lab/examples/portfolio.json "$tmpdir/portfolio.json"
 cp portfolio_liquidity_runway_lab/examples/portfolio_concentrated.json "$tmpdir/portfolio_concentrated.json"
 python -m portfolio_liquidity_runway_lab batch-compare --portfolios-dir "$tmpdir" --scenarios base,stress --out demo/batch-compare
+python -m portfolio_liquidity_runway_lab casebook --portfolios-dir "$tmpdir" --scenario stress --scenarios base,stress,income_shock --out demo/casebook
+python -m portfolio_liquidity_runway_lab visual-receipt --out demo/visual_receipt.md --scenario stress
 python -m portfolio_liquidity_runway_lab release-manifest --out docs/release_manifest.json
+python -m portfolio_liquidity_runway_lab maturity-report --out docs/maturity_report.json
+python -m portfolio_liquidity_runway_lab artifact-catalog --out docs
+python -m portfolio_liquidity_runway_lab release-check --out docs
 ```
 
 All commands should exit with status 0 before a public release candidate is tagged.
