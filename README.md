@@ -22,6 +22,10 @@ portfolio-liquidity-runway-lab batch-compare --portfolios-dir liquidity-demo/por
 portfolio-liquidity-runway-lab casebook --portfolios-dir liquidity-demo/portfolios --scenario stress --scenarios base,stress,income_shock --out liquidity-demo/casebook
 portfolio-liquidity-runway-lab visual-receipt --out liquidity-demo/visual_receipt.md --scenario stress
 portfolio-liquidity-runway-lab schema-export --out liquidity-demo/schema-export
+portfolio-liquidity-runway-lab csv-import --portfolio-csv liquidity-demo/portfolio.csv --ledger-csv liquidity-demo/ledger.csv --out liquidity-demo/csv-import
+portfolio-liquidity-runway-lab build-packet --portfolio liquidity-demo/csv-import/portfolio.json --ledger liquidity-demo/csv-import/ledger.json --out liquidity-demo/csv-packet
+portfolio-liquidity-runway-lab csv-export --packet liquidity-demo/csv-packet/liquidity_packet.json --out liquidity-demo/csv-export
+portfolio-liquidity-runway-lab input-lint --portfolio liquidity-demo/portfolio.json --ledger liquidity-demo/ledger.json --assumptions liquidity-demo/assumptions.json --portfolio-csv liquidity-demo/portfolio.csv --ledger-csv liquidity-demo/ledger.csv
 portfolio-liquidity-runway-lab fixture-doctor --out liquidity-demo/fixture-doctor
 portfolio-liquidity-runway-lab docs-export --root . --out liquidity-demo/static-docs
 portfolio-liquidity-runway-lab command-matrix --out liquidity-demo/command-matrix
@@ -33,7 +37,7 @@ portfolio-liquidity-runway-lab release-check --root .
 
 Example outputs:
 
-- `liquidity-demo/portfolio.json`, `portfolio_concentrated.json`, `ledger.json`, `assumptions.json`, and `history.json`
+- `liquidity-demo/portfolio.json`, `portfolio_concentrated.json`, `ledger.json`, `assumptions.json`, `history.json`, `portfolio.csv`, and `ledger.csv`
 - `liquidity-demo/packet/liquidity_packet.json`
 - `liquidity-demo/packet/liquidity_packet.md`
 - `liquidity-demo/packet/liquidity_packet.html`
@@ -51,6 +55,16 @@ Example outputs:
 - `liquidity-demo/visual_receipt.md`
 - `liquidity-demo/schema-export/schema_guide.json`
 - `liquidity-demo/schema-export/schema_guide.md`
+- `liquidity-demo/csv-import/portfolio.json`
+- `liquidity-demo/csv-import/ledger.json`
+- `liquidity-demo/csv-import/import_report.json`
+- `liquidity-demo/csv-import/import_report.md`
+- `liquidity-demo/csv-export/assets.csv`
+- `liquidity-demo/csv-export/runway.csv`
+- `liquidity-demo/csv-export/warnings.csv`
+- `liquidity-demo/csv-export/bucket_summaries.csv`
+- `liquidity-demo/csv-export/export_manifest.json`
+- `liquidity-demo/csv-export/export_manifest.md`
 - `liquidity-demo/fixture-doctor/fixture_doctor.json`
 - `liquidity-demo/fixture-doctor/fixture_doctor.md`
 - `liquidity-demo/static-docs/index.html`
@@ -63,7 +77,7 @@ Example outputs:
 - `liquidity-demo/golden-replay/golden_replay.json`
 - `liquidity-demo/golden-replay/golden_replay.md`
 
-The packet contains liquidity buckets, stress-haircut values, monthly runway rows, forced-sale warnings, and review prompts. The scenario gallery compares bundled `base`, `stress`, `income_shock`, and `reserve_rebuild` scenarios across deterministic JSON, Markdown, and no-JavaScript HTML artifacts. `assumption-audit` validates portfolio, ledger, and assumptions JSON for liquidity tier completeness, nonnumeric values, suspicious yields or fees, missing scenarios, reserve thresholds, and scheduled event issues. `batch-compare` compares runway, reserves, and warnings across a directory of portfolio JSON files that share one ledger and assumptions file. `casebook` combines packet, scenario gallery, assumption audit, and batch compare summaries into deterministic JSON, Markdown, and no-JavaScript HTML release-owner artifacts. `schema-export` writes deterministic JSON and Markdown guides for every supported input file and output artifact. `fixture-doctor` copies examples into an isolated work directory, runs the command plan, and writes pass/fail diagnosis artifacts. `docs-export` creates a compact no-JavaScript documentation bundle linking README summary, command matrix, boundaries, demos, and release evidence. `command-matrix` writes the full deterministic JSON, Markdown, and no-JavaScript HTML command catalog with purpose, inputs, outputs, demo command, and risk boundary for every CLI command. `release-deck` builds a deterministic Markdown and no-JavaScript HTML one-page promotion/release deck covering product value, commands, evidence, risks, and roadmap. `golden-replay` regenerates key demo artifacts into a replay directory and compares committed demo hashes/content with JSON and Markdown pass/fail summaries. `artifact-catalog` walks demo/docs outputs and records file sizes, SHA256 hashes, and regeneration commands. `release-check` validates expected package/docs/demo files, public scan results, and generated HTML script tags. The visual receipt is a compact Markdown showcase that links the packet artifacts, boundary text, liquidity bucket bars, and regeneration commands. Open `liquidity-demo/packet/liquidity_packet.html`, inspect `liquidity-demo/scenario-gallery/scenario_gallery.html`, inspect `liquidity-demo/batch-compare/batch_compare.html`, inspect `liquidity-demo/casebook/casebook.html`, inspect `liquidity-demo/static-docs/index.html`, inspect `liquidity-demo/command-matrix/command_matrix.html`, inspect `liquidity-demo/release-deck/release_deck.html`, inspect `demo/visual_receipt.md`, or run supporting checks:
+The packet contains liquidity buckets, stress-haircut values, monthly runway rows, forced-sale warnings, and review prompts. The scenario gallery compares bundled `base`, `stress`, `income_shock`, and `reserve_rebuild` scenarios across deterministic JSON, Markdown, and no-JavaScript HTML artifacts. `assumption-audit` validates portfolio, ledger, and assumptions JSON for liquidity tier completeness, nonnumeric values, suspicious yields or fees, missing scenarios, reserve thresholds, and scheduled event issues. `csv-import` converts local portfolio and ledger CSV rows into the existing JSON schemas with a deterministic import report. `csv-export` writes packet assets, runway rows, warnings, and bucket summaries as deterministic CSV with a manifest. `input-lint` strictly validates JSON and CSV inputs with remediation messages, schema references, and nonzero failure exits. `batch-compare` compares runway, reserves, and warnings across a directory of portfolio JSON files that share one ledger and assumptions file. `casebook` combines packet, scenario gallery, assumption audit, and batch compare summaries into deterministic JSON, Markdown, and no-JavaScript HTML release-owner artifacts. `schema-export` writes deterministic JSON and Markdown guides for every supported input file and output artifact. `fixture-doctor` copies examples into an isolated work directory, runs the command plan, and writes pass/fail diagnosis artifacts. `docs-export` creates a compact no-JavaScript documentation bundle linking README summary, command matrix, boundaries, demos, and release evidence. `command-matrix` writes the full deterministic JSON, Markdown, and no-JavaScript HTML command catalog with purpose, inputs, outputs, demo command, and risk boundary for every CLI command. `release-deck` builds a deterministic Markdown and no-JavaScript HTML one-page promotion/release deck covering product value, commands, evidence, risks, and roadmap. `golden-replay` regenerates key demo artifacts into a replay directory and compares committed demo hashes/content with JSON and Markdown pass/fail summaries. `artifact-catalog` walks demo/docs outputs and records file sizes, SHA256 hashes, and regeneration commands. `release-check` validates expected package/docs/demo files, public scan results, and generated HTML script tags. The visual receipt is a compact Markdown showcase that links the packet artifacts, boundary text, liquidity bucket bars, and regeneration commands. Open `liquidity-demo/packet/liquidity_packet.html`, inspect `liquidity-demo/scenario-gallery/scenario_gallery.html`, inspect `liquidity-demo/batch-compare/batch_compare.html`, inspect `liquidity-demo/casebook/casebook.html`, inspect `liquidity-demo/static-docs/index.html`, inspect `liquidity-demo/command-matrix/command_matrix.html`, inspect `liquidity-demo/release-deck/release_deck.html`, inspect `demo/visual_receipt.md`, or run supporting checks:
 
 ```bash
 portfolio-liquidity-runway-lab compare-history
@@ -73,6 +87,10 @@ portfolio-liquidity-runway-lab assumption-audit
 portfolio-liquidity-runway-lab batch-compare --portfolios-dir liquidity-demo/portfolios
 portfolio-liquidity-runway-lab casebook --portfolios-dir liquidity-demo/portfolios
 portfolio-liquidity-runway-lab schema-export --out docs
+portfolio-liquidity-runway-lab csv-import --out demo/csv-import
+portfolio-liquidity-runway-lab build-packet --out demo/csv-export-packet --scenario stress
+portfolio-liquidity-runway-lab csv-export --packet demo/csv-export-packet/liquidity_packet.json --out demo/csv-export
+portfolio-liquidity-runway-lab input-lint
 portfolio-liquidity-runway-lab fixture-doctor --out docs
 portfolio-liquidity-runway-lab docs-export --out docs/static-docs
 portfolio-liquidity-runway-lab command-matrix --out docs/command-matrix
@@ -106,6 +124,9 @@ python -m portfolio_liquidity_runway_lab selfcheck
 - `release-check`: validate expected package/docs/demo files, public scan status, and generated HTML no-script requirements.
 - `visual-receipt`: write a compact deterministic Markdown receipt for packet review.
 - `schema-export`: export deterministic JSON and Markdown schema guides for supported inputs and artifacts.
+- `csv-import`: convert local portfolio and ledger CSV rows into validated JSON schemas plus an import report.
+- `csv-export`: export packet assets, runway rows, warnings, and bucket summaries into deterministic CSV plus a manifest.
+- `input-lint`: strictly validate JSON and CSV inputs with remediation messages and schema references.
 - `fixture-doctor`: copy examples to a work directory, run the command plan, and write pass/fail JSON and Markdown diagnosis.
 - `docs-export`: export a compact static no-JavaScript documentation bundle.
 - `command-matrix`: export deterministic JSON, Markdown, and no-JavaScript HTML command catalog with purpose, inputs, outputs, demo command, and risk boundary for every CLI command.
@@ -129,7 +150,7 @@ Portfolio assets include:
 - `annual_yield_rate`
 - `annual_fee_rate`
 
-Ledger inputs include monthly income, monthly expenses, and scheduled inflow or outflow events by month. Assumptions include reserve thresholds, scenario expense and income multipliers, and liquidity haircuts.
+Ledger inputs include monthly income, monthly expenses, and scheduled inflow or outflow events by month. Assumptions include reserve thresholds, scenario expense and income multipliers, and liquidity haircuts. CSV imports use `portfolio.csv` columns `name,value,liquidity_tier,annual_yield_rate,annual_fee_rate` and `ledger.csv` columns `record_type,monthly_income,monthly_expenses,month,type,label,amount`.
 
 ## Boundaries
 

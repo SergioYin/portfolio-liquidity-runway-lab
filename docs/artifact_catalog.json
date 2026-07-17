@@ -1,5 +1,5 @@
 {
-  "artifact_count": 55,
+  "artifact_count": 69,
   "artifacts": [
     {
       "path": "demo/assumption-audit/assumption_audit.json",
@@ -64,56 +64,134 @@
     {
       "path": "demo/command-matrix/command_matrix.html",
       "regeneration_command": "portfolio-liquidity-runway-lab command-matrix --out demo/command-matrix",
-      "sha256": "18a85518a912b5eda065e1fafd1bdec7ee4a95c8b007e39087c94c708b876c10",
-      "size_bytes": 10102
+      "sha256": "909e8583dc5a6d2d85a1bf91df03ea3ee716f722b48290d9ac6f21fda9405546",
+      "size_bytes": 11534
     },
     {
       "path": "demo/command-matrix/command_matrix.json",
       "regeneration_command": "portfolio-liquidity-runway-lab command-matrix --out demo/command-matrix",
-      "sha256": "7b5d8fba4a1646fa4b99e936c1eedbc4025c7e70d504e33ecf14e3cdeea10e0e",
-      "size_bytes": 12076
+      "sha256": "336e2aee071e361c48d554c80c99acfd08162a3a5dcea4f1536a7024f4f1ebd9",
+      "size_bytes": 13951
     },
     {
       "path": "demo/command-matrix/command_matrix.md",
       "regeneration_command": "portfolio-liquidity-runway-lab command-matrix --out demo/command-matrix",
-      "sha256": "8703b5f2bc3e04714c71a493c92e136942aa0a6fc34e2bfb09bace415f7624c1",
-      "size_bytes": 7733
+      "sha256": "470dfcd1b0f95dc9a5edc6df4e71554365337e11768ca29b9acd102f29c968c1",
+      "size_bytes": 8949
+    },
+    {
+      "path": "demo/csv-export/assets.csv",
+      "regeneration_command": "portfolio-liquidity-runway-lab csv-export --packet demo/casebook/packet/liquidity_packet.json --out demo/csv-export",
+      "sha256": "f6eaaed019a5be0a1a822d1181ad33de8053f3e32b8959ca74f3a5be2b5a0469",
+      "size_bytes": 373
+    },
+    {
+      "path": "demo/csv-export/bucket_summaries.csv",
+      "regeneration_command": "portfolio-liquidity-runway-lab csv-export --packet demo/casebook/packet/liquidity_packet.json --out demo/csv-export",
+      "sha256": "cec6268e6099aaaf721192b2d0685eb95cf3bd67c53944accc7ca1f305d0e323",
+      "size_bytes": 208
+    },
+    {
+      "path": "demo/csv-export/export_manifest.json",
+      "regeneration_command": "portfolio-liquidity-runway-lab csv-export --packet demo/casebook/packet/liquidity_packet.json --out demo/csv-export",
+      "sha256": "c228da4883d462160e474efd8e2b8e9c5115d7dead274c83a45b5866fce8d732",
+      "size_bytes": 996
+    },
+    {
+      "path": "demo/csv-export/export_manifest.md",
+      "regeneration_command": "portfolio-liquidity-runway-lab csv-export --packet demo/casebook/packet/liquidity_packet.json --out demo/csv-export",
+      "sha256": "29f342e4cfcff1ee2a7053c2b8f9c35550e0f28608f9bf61659799e577abb619",
+      "size_bytes": 781
+    },
+    {
+      "path": "demo/csv-export/runway.csv",
+      "regeneration_command": "portfolio-liquidity-runway-lab csv-export --packet demo/casebook/packet/liquidity_packet.json --out demo/csv-export",
+      "sha256": "2c0268c54ef27239e995b795ceee4ce43ec8b1d9346a81568b4951e4984a124a",
+      "size_bytes": 451
+    },
+    {
+      "path": "demo/csv-export/warnings.csv",
+      "regeneration_command": "portfolio-liquidity-runway-lab csv-export --packet demo/casebook/packet/liquidity_packet.json --out demo/csv-export",
+      "sha256": "24be5e9bc434330bc75897f6eac748d6808f3ea28347a46c53a8141c7e1dd6f7",
+      "size_bytes": 274
+    },
+    {
+      "path": "demo/csv-export-packet/liquidity_packet.html",
+      "regeneration_command": "manual edit",
+      "sha256": "2345411729331346fc31cf6c3573840cf9809ef9f005f0f8b78b1731804f3a27",
+      "size_bytes": 3998
+    },
+    {
+      "path": "demo/csv-export-packet/liquidity_packet.json",
+      "regeneration_command": "manual edit",
+      "sha256": "45dc51aa0d56d6e7585af55934ff003700c038623488eb767b6b918f6bc7c3ae",
+      "size_bytes": 5511
+    },
+    {
+      "path": "demo/csv-export-packet/liquidity_packet.md",
+      "regeneration_command": "manual edit",
+      "sha256": "b41f34697ef3e923bb3792d02b59f3e1af33721846d76b5a8aa32c6e791a6964",
+      "size_bytes": 2467
+    },
+    {
+      "path": "demo/csv-import/import_report.json",
+      "regeneration_command": "portfolio-liquidity-runway-lab csv-import --out demo/csv-import",
+      "sha256": "149efe002c1d8ab009da742a02f1cbda935d5ea4086b06c44b8c72cebc9f47a3",
+      "size_bytes": 694
+    },
+    {
+      "path": "demo/csv-import/import_report.md",
+      "regeneration_command": "portfolio-liquidity-runway-lab csv-import --out demo/csv-import",
+      "sha256": "10ce38f6c034fb870fa57fa91efcaa08c0de1853703029472b7ebc5f1ab52e69",
+      "size_bytes": 457
+    },
+    {
+      "path": "demo/csv-import/ledger.json",
+      "regeneration_command": "portfolio-liquidity-runway-lab csv-import --out demo/csv-import",
+      "sha256": "a11b6648f486e59089ea6e44da5e2e7de3c7f464b1a49fc2f2aa134f655906e7",
+      "size_bytes": 434
+    },
+    {
+      "path": "demo/csv-import/portfolio.json",
+      "regeneration_command": "portfolio-liquidity-runway-lab csv-import --out demo/csv-import",
+      "sha256": "e58dc912beefd3c18489b0b6ffba905ca2b0465b3d6ff07f0d95030573647c1b",
+      "size_bytes": 757
     },
     {
       "path": "demo/fixture-doctor/fixture_doctor.json",
       "regeneration_command": "portfolio-liquidity-runway-lab fixture-doctor --out demo/fixture-doctor",
-      "sha256": "fa0316be4ed3ac402ec1bdbbec6020f7c94fc064c64ed0ce84c7d1e459152ce7",
-      "size_bytes": 15710
+      "sha256": "39380747d33ffbbcfd7cd28f0fb7207cfda857ede53398c0eaa07e516b7fcb46",
+      "size_bytes": 18878
     },
     {
       "path": "demo/fixture-doctor/fixture_doctor.md",
       "regeneration_command": "portfolio-liquidity-runway-lab fixture-doctor --out demo/fixture-doctor",
-      "sha256": "9670226caf6c5f00e5b3374283962689a82c58111555322da55da1688ccf3fd3",
-      "size_bytes": 6919
+      "sha256": "b1e88a1c901e11468c7f57cd2dd22327527d6d3b2d66c60225da5f56fe3b15eb",
+      "size_bytes": 8399
     },
     {
       "path": "demo/golden-replay/golden_replay.json",
       "regeneration_command": "portfolio-liquidity-runway-lab golden-replay --out demo/golden-replay",
-      "sha256": "a9fd20abf261e39cbd2b897f8f6be05682fba9a8d78b1d9e6c1addb2ba58b609",
-      "size_bytes": 8671
+      "sha256": "78b20f6400c9c85fe9b92c4a7cbccf81a49fe0877158ad3e662af5fa68b58851",
+      "size_bytes": 8673
     },
     {
       "path": "demo/golden-replay/golden_replay.md",
       "regeneration_command": "portfolio-liquidity-runway-lab golden-replay --out demo/golden-replay",
-      "sha256": "0e7f9e07d20a44353abdf3010f6565a815f6ede765cd4788fede9243664e2928",
-      "size_bytes": 3941
+      "sha256": "c7559cc02aaba66483aa698bc2e6de2337e323a1b2d05c63bf590382435f1bb1",
+      "size_bytes": 3943
     },
     {
       "path": "demo/release-deck/release_deck.html",
       "regeneration_command": "portfolio-liquidity-runway-lab release-deck --out demo/release-deck",
-      "sha256": "a10b31b14b0611911059a199d0e8810245a64483aaccf9d1bb1c09e88cf0557e",
-      "size_bytes": 4282
+      "sha256": "4d52eabb2f8fe694371bcfa3f332b501677a5da8c5ee71b1a4a8cb64eb5cd696",
+      "size_bytes": 4779
     },
     {
       "path": "demo/release-deck/release_deck.md",
       "regeneration_command": "portfolio-liquidity-runway-lab release-deck --out demo/release-deck",
-      "sha256": "67d868d1030302b6afac87fe9e82917e8a9f04b831cc013bc74f79e9695edbba",
-      "size_bytes": 2938
+      "sha256": "7106e030f06ef088693dc9a4eab14d38b4ab1d2c80439814a95e64032a2d1ef8",
+      "size_bytes": 3374
     },
     {
       "path": "demo/scenario-gallery/scenario_gallery.html",
@@ -136,14 +214,14 @@
     {
       "path": "demo/schema-export/schema_guide.json",
       "regeneration_command": "portfolio-liquidity-runway-lab schema-export --out demo/schema-export",
-      "sha256": "74d0146d7a731df233b6c8551ac7f15b99566aec01e72c8c288e204e7a6180cf",
-      "size_bytes": 22340
+      "sha256": "0a0ec56b28dc58dded7b0cba1bf479e56205af7483955f23d25eecca1b78c0de",
+      "size_bytes": 27960
     },
     {
       "path": "demo/schema-export/schema_guide.md",
       "regeneration_command": "portfolio-liquidity-runway-lab schema-export --out demo/schema-export",
-      "sha256": "ba8959f6b83df340e7c60f3f9b6b24c82d56b2ab2a706aa788f7f10d42766fac",
-      "size_bytes": 8105
+      "sha256": "7a7c2573011461264b13f983f5b3167fd1599b8541144f9289b6423478969ce6",
+      "size_bytes": 10356
     },
     {
       "path": "demo/static-docs/boundaries.md",
@@ -154,14 +232,14 @@
     {
       "path": "demo/static-docs/command_matrix.md",
       "regeneration_command": "portfolio-liquidity-runway-lab docs-export --out demo/static-docs",
-      "sha256": "8703b5f2bc3e04714c71a493c92e136942aa0a6fc34e2bfb09bace415f7624c1",
-      "size_bytes": 7733
+      "sha256": "470dfcd1b0f95dc9a5edc6df4e71554365337e11768ca29b9acd102f29c968c1",
+      "size_bytes": 8949
     },
     {
       "path": "demo/static-docs/demos.md",
       "regeneration_command": "portfolio-liquidity-runway-lab docs-export --out demo/static-docs",
-      "sha256": "7a439db266d6fd80393b55ab632bb749bab5394864b1acd4fb71e181cbe9f3e5",
-      "size_bytes": 1146
+      "sha256": "f4c675d1673b5c284b3aa84640c7f562ca7e45dda177b9c6713c52355def62e8",
+      "size_bytes": 5341
     },
     {
       "path": "demo/static-docs/index.html",
@@ -196,20 +274,26 @@
     {
       "path": "docs/command-matrix/command_matrix.html",
       "regeneration_command": "portfolio-liquidity-runway-lab command-matrix --out demo/command-matrix",
-      "sha256": "18a85518a912b5eda065e1fafd1bdec7ee4a95c8b007e39087c94c708b876c10",
-      "size_bytes": 10102
+      "sha256": "909e8583dc5a6d2d85a1bf91df03ea3ee716f722b48290d9ac6f21fda9405546",
+      "size_bytes": 11534
     },
     {
       "path": "docs/command-matrix/command_matrix.json",
       "regeneration_command": "portfolio-liquidity-runway-lab command-matrix --out demo/command-matrix",
-      "sha256": "7b5d8fba4a1646fa4b99e936c1eedbc4025c7e70d504e33ecf14e3cdeea10e0e",
-      "size_bytes": 12076
+      "sha256": "336e2aee071e361c48d554c80c99acfd08162a3a5dcea4f1536a7024f4f1ebd9",
+      "size_bytes": 13951
     },
     {
       "path": "docs/command-matrix/command_matrix.md",
       "regeneration_command": "portfolio-liquidity-runway-lab command-matrix --out demo/command-matrix",
-      "sha256": "8703b5f2bc3e04714c71a493c92e136942aa0a6fc34e2bfb09bace415f7624c1",
-      "size_bytes": 7733
+      "sha256": "470dfcd1b0f95dc9a5edc6df4e71554365337e11768ca29b9acd102f29c968c1",
+      "size_bytes": 8949
+    },
+    {
+      "path": "docs/csv_workflow.md",
+      "regeneration_command": "manual edit",
+      "sha256": "0cfd5d103bccf85ce484a63d378eb78cdea9b654092800725173f569e3de660c",
+      "size_bytes": 1496
     },
     {
       "path": "docs/engineering_note.md",
@@ -220,50 +304,50 @@
     {
       "path": "docs/fixture_doctor.json",
       "regeneration_command": "portfolio-liquidity-runway-lab fixture-doctor --out demo/fixture-doctor",
-      "sha256": "fa0316be4ed3ac402ec1bdbbec6020f7c94fc064c64ed0ce84c7d1e459152ce7",
-      "size_bytes": 15710
+      "sha256": "82f518e8f349a14c8fa0be89a4c8a1a4aea8be49ac48e14cc9bf7f6ee60e0619",
+      "size_bytes": 16298
     },
     {
       "path": "docs/fixture_doctor.md",
       "regeneration_command": "portfolio-liquidity-runway-lab fixture-doctor --out demo/fixture-doctor",
-      "sha256": "9670226caf6c5f00e5b3374283962689a82c58111555322da55da1688ccf3fd3",
-      "size_bytes": 6919
+      "sha256": "7729e2a297b466d2aa025fe47367bdae5d3ce101c7c608e8d9e46247c54e965e",
+      "size_bytes": 6704
     },
     {
       "path": "docs/golden-replay/golden_replay.json",
       "regeneration_command": "portfolio-liquidity-runway-lab golden-replay --out demo/golden-replay",
-      "sha256": "a9fd20abf261e39cbd2b897f8f6be05682fba9a8d78b1d9e6c1addb2ba58b609",
-      "size_bytes": 8671
+      "sha256": "78b20f6400c9c85fe9b92c4a7cbccf81a49fe0877158ad3e662af5fa68b58851",
+      "size_bytes": 8673
     },
     {
       "path": "docs/golden-replay/golden_replay.md",
       "regeneration_command": "portfolio-liquidity-runway-lab golden-replay --out demo/golden-replay",
-      "sha256": "0e7f9e07d20a44353abdf3010f6565a815f6ede765cd4788fede9243664e2928",
-      "size_bytes": 3941
+      "sha256": "c7559cc02aaba66483aa698bc2e6de2337e323a1b2d05c63bf590382435f1bb1",
+      "size_bytes": 3943
     },
     {
       "path": "docs/maturity_report.json",
       "regeneration_command": "portfolio-liquidity-runway-lab maturity-report --out docs/maturity_report.json",
-      "sha256": "3ed76882530e0fa0edf26647c515d89428f276bad945bc93d09705e5bb5d98ca",
-      "size_bytes": 1168
+      "sha256": "7461b7d6427cc5db8c5d2f1b8ba977e8669ee6248e5a862e02443333169afa8c",
+      "size_bytes": 1226
     },
     {
       "path": "docs/release-deck/release_deck.html",
       "regeneration_command": "portfolio-liquidity-runway-lab release-deck --out demo/release-deck",
-      "sha256": "a10b31b14b0611911059a199d0e8810245a64483aaccf9d1bb1c09e88cf0557e",
-      "size_bytes": 4282
+      "sha256": "4d52eabb2f8fe694371bcfa3f332b501677a5da8c5ee71b1a4a8cb64eb5cd696",
+      "size_bytes": 4779
     },
     {
       "path": "docs/release-deck/release_deck.md",
       "regeneration_command": "portfolio-liquidity-runway-lab release-deck --out demo/release-deck",
-      "sha256": "67d868d1030302b6afac87fe9e82917e8a9f04b831cc013bc74f79e9695edbba",
-      "size_bytes": 2938
+      "sha256": "7106e030f06ef088693dc9a4eab14d38b4ab1d2c80439814a95e64032a2d1ef8",
+      "size_bytes": 3374
     },
     {
       "path": "docs/release_check.json",
       "regeneration_command": "portfolio-liquidity-runway-lab release-check --out docs",
-      "sha256": "b9ecb5c361c9bf158e55e4d99f877bae79b31024244065fbed1aa7ba9b3250d6",
-      "size_bytes": 871
+      "sha256": "1649ba2e238e5bf39659a8b9137ca135e166018e9b6fac6d76ff4491b4d61c58",
+      "size_bytes": 923
     },
     {
       "path": "docs/release_check.md",
@@ -274,8 +358,8 @@
     {
       "path": "docs/release_manifest.json",
       "regeneration_command": "portfolio-liquidity-runway-lab release-manifest --out docs/release_manifest.json",
-      "sha256": "edfa835088cca6c5929a5ba1aeaf0e3b2f8ae4c77561e74fe07ae73f08f2b72c",
-      "size_bytes": 3423
+      "sha256": "93c829a39f6c86ec08891feb93eea015e44e212065d74a9ab392eb59282c7cb5",
+      "size_bytes": 4113
     },
     {
       "path": "docs/release_readiness_review.md",
@@ -286,14 +370,14 @@
     {
       "path": "docs/schema_guide.json",
       "regeneration_command": "portfolio-liquidity-runway-lab schema-export --out demo/schema-export",
-      "sha256": "74d0146d7a731df233b6c8551ac7f15b99566aec01e72c8c288e204e7a6180cf",
-      "size_bytes": 22340
+      "sha256": "0a0ec56b28dc58dded7b0cba1bf479e56205af7483955f23d25eecca1b78c0de",
+      "size_bytes": 27960
     },
     {
       "path": "docs/schema_guide.md",
       "regeneration_command": "portfolio-liquidity-runway-lab schema-export --out demo/schema-export",
-      "sha256": "ba8959f6b83df340e7c60f3f9b6b24c82d56b2ab2a706aa788f7f10d42766fac",
-      "size_bytes": 8105
+      "sha256": "7a7c2573011461264b13f983f5b3167fd1599b8541144f9289b6423478969ce6",
+      "size_bytes": 10356
     },
     {
       "path": "docs/static-docs/boundaries.md",
@@ -304,14 +388,14 @@
     {
       "path": "docs/static-docs/command_matrix.md",
       "regeneration_command": "portfolio-liquidity-runway-lab docs-export --out demo/static-docs",
-      "sha256": "8703b5f2bc3e04714c71a493c92e136942aa0a6fc34e2bfb09bace415f7624c1",
-      "size_bytes": 7733
+      "sha256": "470dfcd1b0f95dc9a5edc6df4e71554365337e11768ca29b9acd102f29c968c1",
+      "size_bytes": 8949
     },
     {
       "path": "docs/static-docs/demos.md",
       "regeneration_command": "portfolio-liquidity-runway-lab docs-export --out demo/static-docs",
-      "sha256": "7a439db266d6fd80393b55ab632bb749bab5394864b1acd4fb71e181cbe9f3e5",
-      "size_bytes": 1146
+      "sha256": "f4c675d1673b5c284b3aa84640c7f562ca7e45dda177b9c6713c52355def62e8",
+      "size_bytes": 5341
     },
     {
       "path": "docs/static-docs/index.html",

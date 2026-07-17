@@ -1,0 +1,24 @@
+{
+  "monthly_expenses": 11200.0,
+  "monthly_income": 8200.0,
+  "scheduled_events": [
+    {
+      "amount": 3600.0,
+      "label": "Insurance renewal",
+      "month": 2,
+      "type": "outflow"
+    },
+    {
+      "amount": 9000.0,
+      "label": "Grant payment",
+      "month": 4,
+      "type": "inflow"
+    },
+    {
+      "amount": 6500.0,
+      "label": "Equipment replacement",
+      "month": 7,
+      "type": "outflow"
+    }
+  ]
+}

@@ -248,6 +248,51 @@ class CliTests(unittest.TestCase):
             self.assertEqual(first_json, schema_json.read_text(encoding="utf-8"))
             self.assertEqual(first_md, schema_md.read_text(encoding="utf-8"))
 
+    def test_csv_import_command_writes_json_and_report(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "csv-import"
+            result = self.run_cli("csv-import", "--out", str(out), "--portfolio-name", "CLI CSV")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "ok")
+            portfolio = json.loads((out / "portfolio.json").read_text(encoding="utf-8"))
+            report_first = (out / "import_report.json").read_text(encoding="utf-8")
+            self.assertEqual(portfolio["name"], "CLI CSV")
+            self.assertIn("schema_refs", report_first)
+
+            second = self.run_cli("csv-import", "--out", str(out), "--portfolio-name", "CLI CSV")
+            self.assertEqual(second.returncode, 0, second.stderr)
+            self.assertEqual(report_first, (out / "import_report.json").read_text(encoding="utf-8"))
+
+    def test_csv_export_command_writes_manifest_and_csvs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            packet_out = Path(tmp) / "packet"
+            build = self.run_cli("build-packet", "--out", str(packet_out), "--scenario", "stress")
+            self.assertEqual(build.returncode, 0, build.stderr)
+            out = Path(tmp) / "csv-export"
+            result = self.run_cli("csv-export", "--packet", str(packet_out / "liquidity_packet.json"), "--out", str(out))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "ok")
+            self.assertTrue((out / "assets.csv").exists())
+            self.assertTrue((out / "runway.csv").exists())
+            first = (out / "export_manifest.json").read_text(encoding="utf-8")
+            self.assertNotIn("refresh" + "_" + "token", first.lower())
+
+            second = self.run_cli("csv-export", "--packet", str(packet_out / "liquidity_packet.json"), "--out", str(out))
+            self.assertEqual(second.returncode, 0, second.stderr)
+            self.assertEqual(first, (out / "export_manifest.json").read_text(encoding="utf-8"))
+
+    def test_input_lint_command_exits_nonzero_on_invalid_csv(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            bad = Path(tmp) / "portfolio.csv"
+            bad.write_text("name,value,liquidity_tier,annual_yield_rate,annual_fee_rate\nBad,nope,instant,0.01,0\n", encoding="utf-8")
+            result = self.run_cli("input-lint", "--portfolio-csv", str(bad))
+            self.assertEqual(result.returncode, 1)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "fail")
+            self.assertIn("remediation", result.stdout)
+
     def test_fixture_doctor_command_reports_success_and_failure(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "doctor"

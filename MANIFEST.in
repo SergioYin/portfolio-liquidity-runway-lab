@@ -1,6 +1,6 @@
 include README.md
 include LICENSE
-recursive-include portfolio_liquidity_runway_lab/examples *.json
+recursive-include portfolio_liquidity_runway_lab/examples *.json *.csv
 recursive-include docs *.md *.json
 recursive-include demo *.html *.json *.md
 recursive-include skills *.md

@@ -134,7 +134,27 @@ class ReleaseDeckPaths:
     html_path: Path
 
 
-PROJECT_VERSION = "0.6.0"
+@dataclass(frozen=True)
+class CsvImportPaths:
+    out_dir: Path
+    portfolio_json_path: Path
+    ledger_json_path: Path
+    report_json_path: Path
+    report_markdown_path: Path
+
+
+@dataclass(frozen=True)
+class CsvExportPaths:
+    out_dir: Path
+    assets_csv_path: Path
+    runway_csv_path: Path
+    warnings_csv_path: Path
+    bucket_summaries_csv_path: Path
+    manifest_json_path: Path
+    manifest_markdown_path: Path
+
+
+PROJECT_VERSION = "0.7.0"
 
 IGNORED_RELEASE_PARTS = {
     ".git",
@@ -160,7 +180,10 @@ EXPECTED_RELEASE_FILES = (
     "portfolio_liquidity_runway_lab/examples/ledger.json",
     "portfolio_liquidity_runway_lab/examples/assumptions.json",
     "portfolio_liquidity_runway_lab/examples/history.json",
+    "portfolio_liquidity_runway_lab/examples/portfolio.csv",
+    "portfolio_liquidity_runway_lab/examples/ledger.csv",
     "docs/cold_start_walkthrough.md",
+    "docs/csv_workflow.md",
     "docs/release_readiness_review.md",
     "docs/release_manifest.json",
     "docs/maturity_report.json",
@@ -206,6 +229,19 @@ EXPECTED_RELEASE_FILES = (
     "demo/golden-replay/golden_replay.md",
     "demo/release-deck/release_deck.md",
     "demo/release-deck/release_deck.html",
+    "demo/csv-import/portfolio.json",
+    "demo/csv-import/ledger.json",
+    "demo/csv-import/import_report.json",
+    "demo/csv-import/import_report.md",
+    "demo/csv-export-packet/liquidity_packet.json",
+    "demo/csv-export-packet/liquidity_packet.md",
+    "demo/csv-export-packet/liquidity_packet.html",
+    "demo/csv-export/assets.csv",
+    "demo/csv-export/runway.csv",
+    "demo/csv-export/warnings.csv",
+    "demo/csv-export/bucket_summaries.csv",
+    "demo/csv-export/export_manifest.json",
+    "demo/csv-export/export_manifest.md",
     "demo/static-docs/index.html",
     "demo/static-docs/index.md",
     "demo/static-docs/command_matrix.md",
@@ -241,6 +277,479 @@ def dump_json(data: Mapping[str, Any], path: Path) -> None:
     with path.open("w", encoding="utf-8") as handle:
         json.dump(data, handle, indent=2, sort_keys=True)
         handle.write("\n")
+
+
+def bundled_csv_example_path(name: str) -> Path:
+    if not name.endswith(".csv"):
+        name = f"{name}.csv"
+    return Path(str(resources.files(__package__).joinpath("examples", name)))
+
+
+def _read_csv_dicts(path: Path) -> Tuple[List[Dict[str, str]], List[str]]:
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        fieldnames = list(reader.fieldnames or [])
+        rows = [{key: (value or "").strip() for key, value in row.items() if key is not None} for row in reader]
+    return rows, fieldnames
+
+
+def _lint_error(code: str, location: str, message: str, remediation: str, schema_ref: str) -> Dict[str, str]:
+    return {
+        "severity": "error",
+        "code": code,
+        "location": location,
+        "message": message,
+        "remediation": remediation,
+        "schema_ref": schema_ref,
+    }
+
+
+def _lint_warning(code: str, location: str, message: str, remediation: str, schema_ref: str) -> Dict[str, str]:
+    return {
+        "severity": "warning",
+        "code": code,
+        "location": location,
+        "message": message,
+        "remediation": remediation,
+        "schema_ref": schema_ref,
+    }
+
+
+def _parse_required_number(value: str, location: str, findings: List[Dict[str, str]], schema_ref: str) -> float:
+    if value == "":
+        findings.append(
+            _lint_error("missing_number", location, "Required numeric value is blank.", "Provide a decimal number.", schema_ref)
+        )
+        return 0.0
+    try:
+        return float(value)
+    except ValueError:
+        findings.append(
+            _lint_error("invalid_number", location, f"Value {value!r} is not numeric.", "Use a plain decimal number without currency symbols.", schema_ref)
+        )
+        return 0.0
+
+
+def _parse_required_int(value: str, location: str, findings: List[Dict[str, str]], schema_ref: str) -> int:
+    number = _parse_required_number(value, location, findings, schema_ref)
+    if int(number) != number:
+        findings.append(_lint_error("invalid_integer", location, "Value must be an integer.", "Use a whole-number month.", schema_ref))
+    return int(number)
+
+
+def validate_portfolio_csv(path: Path) -> Dict[str, Any]:
+    required = ["name", "value", "liquidity_tier", "annual_yield_rate", "annual_fee_rate"]
+    rows, fieldnames = _read_csv_dicts(path)
+    findings: List[Dict[str, str]] = []
+    for field in required:
+        if field not in fieldnames:
+            findings.append(
+                _lint_error(
+                    "missing_column",
+                    f"{path.name}:{field}",
+                    f"Portfolio CSV is missing column {field!r}.",
+                    f"Add a {field} column.",
+                    f"csv.portfolio.{field}",
+                )
+            )
+    for row_index, row in enumerate(rows, start=2):
+        tier = row.get("liquidity_tier", "")
+        if tier not in LIQUIDITY_ORDER:
+            findings.append(
+                _lint_error(
+                    "invalid_liquidity_tier",
+                    f"{path.name}:row {row_index}:liquidity_tier",
+                    f"Unknown liquidity tier {tier!r}.",
+                    "Use one of: " + ", ".join(LIQUIDITY_ORDER) + ".",
+                    "portfolio.assets[].liquidity_tier",
+                )
+            )
+        for field in ("value", "annual_yield_rate", "annual_fee_rate"):
+            _parse_required_number(row.get(field, ""), f"{path.name}:row {row_index}:{field}", findings, f"portfolio.assets[].{field}")
+    if not rows:
+        findings.append(
+            _lint_error("empty_csv", path.name, "Portfolio CSV has no asset rows.", "Add at least one asset row.", "portfolio.assets")
+        )
+    return {"path": path.as_posix(), "kind": "portfolio_csv", "status": "pass" if not findings else "fail", "row_count": len(rows), "findings": findings}
+
+
+def validate_ledger_csv(path: Path) -> Dict[str, Any]:
+    required = ["record_type", "monthly_income", "monthly_expenses", "month", "type", "label", "amount"]
+    rows, fieldnames = _read_csv_dicts(path)
+    findings: List[Dict[str, str]] = []
+    for field in required:
+        if field not in fieldnames:
+            findings.append(
+                _lint_error("missing_column", f"{path.name}:{field}", f"Ledger CSV is missing column {field!r}.", f"Add a {field} column.", f"csv.ledger.{field}")
+            )
+    settings_rows = [row for row in rows if row.get("record_type", "").lower() == "settings"]
+    if len(settings_rows) != 1:
+        findings.append(
+            _lint_error(
+                "invalid_settings_count",
+                f"{path.name}:record_type",
+                "Ledger CSV must contain exactly one settings row.",
+                "Add one row with record_type=settings and monthly income/expenses.",
+                "ledger.monthly_income",
+            )
+        )
+    for row_index, row in enumerate(rows, start=2):
+        record_type = row.get("record_type", "").lower()
+        if record_type not in {"settings", "event"}:
+            findings.append(
+                _lint_error("invalid_record_type", f"{path.name}:row {row_index}:record_type", f"Unknown record type {record_type!r}.", "Use settings or event.", "csv.ledger.record_type")
+            )
+        if record_type == "settings":
+            _parse_required_number(row.get("monthly_income", ""), f"{path.name}:row {row_index}:monthly_income", findings, "ledger.monthly_income")
+            _parse_required_number(row.get("monthly_expenses", ""), f"{path.name}:row {row_index}:monthly_expenses", findings, "ledger.monthly_expenses")
+        if record_type == "event":
+            _parse_required_int(row.get("month", ""), f"{path.name}:row {row_index}:month", findings, "ledger.scheduled_events[].month")
+            kind = row.get("type", "").lower()
+            if kind not in {"inflow", "outflow"}:
+                findings.append(
+                    _lint_error("invalid_event_type", f"{path.name}:row {row_index}:type", f"Unknown event type {kind!r}.", "Use inflow or outflow.", "ledger.scheduled_events[].type")
+                )
+            _parse_required_number(row.get("amount", ""), f"{path.name}:row {row_index}:amount", findings, "ledger.scheduled_events[].amount")
+    return {"path": path.as_posix(), "kind": "ledger_csv", "status": "pass" if not findings else "fail", "row_count": len(rows), "findings": findings}
+
+
+def portfolio_from_csv(path: Path, portfolio_name: str = "Imported CSV portfolio", currency: str = "USD") -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    validation = validate_portfolio_csv(path)
+    if validation["status"] != "pass":
+        raise ValueError(f"portfolio CSV failed validation with {len(validation['findings'])} error(s)")
+    rows, _fieldnames = _read_csv_dicts(path)
+    assets = []
+    for row in rows:
+        assets.append(
+            {
+                "annual_fee_rate": round(float(row["annual_fee_rate"]), 8),
+                "annual_yield_rate": round(float(row["annual_yield_rate"]), 8),
+                "liquidity_tier": row["liquidity_tier"],
+                "name": row.get("name", "") or "Imported asset",
+                "value": round(float(row["value"]), 2),
+            }
+        )
+    assets.sort(key=lambda item: (LIQUIDITY_ORDER.index(item["liquidity_tier"]), item["name"]))
+    return {"assets": assets, "currency": currency, "name": portfolio_name}, validation
+
+
+def ledger_from_csv(path: Path) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    validation = validate_ledger_csv(path)
+    if validation["status"] != "pass":
+        raise ValueError(f"ledger CSV failed validation with {len(validation['findings'])} error(s)")
+    rows, _fieldnames = _read_csv_dicts(path)
+    settings = next(row for row in rows if row.get("record_type", "").lower() == "settings")
+    events = []
+    for row in rows:
+        if row.get("record_type", "").lower() != "event":
+            continue
+        events.append(
+            {
+                "amount": round(float(row["amount"]), 2),
+                "label": row.get("label", "") or "Imported event",
+                "month": int(float(row["month"])),
+                "type": row["type"].lower(),
+            }
+        )
+    events.sort(key=lambda item: (item["month"], item["type"], item["label"]))
+    return {
+        "monthly_expenses": round(float(settings["monthly_expenses"]), 2),
+        "monthly_income": round(float(settings["monthly_income"]), 2),
+        "scheduled_events": events,
+    }, validation
+
+
+def render_csv_import_markdown(report: Mapping[str, Any]) -> str:
+    lines = [
+        "# CSV Import Report",
+        "",
+        f"> {report['boundary']}",
+        "",
+        f"Status: `{report['status']}`",
+        "",
+        "## Outputs",
+        "",
+        f"- Portfolio JSON: `{report['outputs']['portfolio_json']}`",
+        f"- Ledger JSON: `{report['outputs']['ledger_json']}`",
+        "",
+        "## Row Counts",
+        "",
+        f"- Portfolio rows: `{report['row_counts']['portfolio_assets']}`",
+        f"- Ledger events: `{report['row_counts']['ledger_events']}`",
+        "",
+        "## Validation",
+        "",
+    ]
+    findings = report["findings"]
+    if findings:
+        for finding in findings:
+            lines.append(f"- `{finding['severity']}` `{finding['schema_ref']}` {finding['location']}: {finding['message']} Remediation: {finding['remediation']}")
+    else:
+        lines.append("- No validation findings.")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def build_csv_import(portfolio_csv: Path, ledger_csv: Path, out_dir: Path, portfolio_name: str = "Imported CSV portfolio", currency: str = "USD") -> CsvImportPaths:
+    portfolio, portfolio_validation = portfolio_from_csv(portfolio_csv, portfolio_name, currency)
+    ledger, ledger_validation = ledger_from_csv(ledger_csv)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    portfolio_json_path = out_dir / "portfolio.json"
+    ledger_json_path = out_dir / "ledger.json"
+    report_json_path = out_dir / "import_report.json"
+    report_markdown_path = out_dir / "import_report.md"
+    dump_json(portfolio, portfolio_json_path)
+    dump_json(ledger, ledger_json_path)
+    report = {
+        "boundary": BOUNDARY_TEXT,
+        "status": "pass",
+        "inputs": {"portfolio_csv": portfolio_csv.name, "ledger_csv": ledger_csv.name},
+        "outputs": {"portfolio_json": portfolio_json_path.name, "ledger_json": ledger_json_path.name},
+        "row_counts": {"portfolio_assets": len(portfolio["assets"]), "ledger_events": len(ledger["scheduled_events"])},
+        "schema_refs": ["portfolio.assets[]", "ledger.monthly_income", "ledger.monthly_expenses", "ledger.scheduled_events[]"],
+        "findings": portfolio_validation["findings"] + ledger_validation["findings"],
+    }
+    dump_json(report, report_json_path)
+    report_markdown_path.write_text(render_csv_import_markdown(report), encoding="utf-8")
+    return CsvImportPaths(out_dir, portfolio_json_path, ledger_json_path, report_json_path, report_markdown_path)
+
+
+def _csv_text(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, float):
+        return f"{value:.2f}"
+    return str(value)
+
+
+def _write_ordered_csv(rows: List[Mapping[str, Any]], path: Path, fields: List[str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields, extrasaction="ignore")
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({field: _csv_text(row.get(field, "")) for field in fields})
+
+
+def render_csv_export_manifest_markdown(manifest: Mapping[str, Any]) -> str:
+    lines = [
+        "# CSV Export Manifest",
+        "",
+        f"> {manifest['boundary']}",
+        "",
+        f"Status: `{manifest['status']}`",
+        f"Scenario: `{manifest['scenario']}`",
+        f"Portfolio: `{manifest['portfolio_name']}`",
+        "",
+        "## Files",
+        "",
+        "| File | Rows | SHA256 |",
+        "| --- | ---: | --- |",
+    ]
+    for item in manifest["files"]:
+        lines.append(f"| `{item['path']}` | {item['rows']} | `{item['sha256']}` |")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def build_csv_export(packet_json: Path, out_dir: Path) -> CsvExportPaths:
+    packet = load_json(packet_json)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    assets_path = out_dir / "assets.csv"
+    runway_path = out_dir / "runway.csv"
+    warnings_path = out_dir / "warnings.csv"
+    bucket_path = out_dir / "bucket_summaries.csv"
+    manifest_json_path = out_dir / "export_manifest.json"
+    manifest_markdown_path = out_dir / "export_manifest.md"
+    _write_ordered_csv(
+        list(packet.get("assets", [])),
+        assets_path,
+        ["name", "tier", "gross", "haircut_value", "annual_yield", "annual_fee"],
+    )
+    _write_ordered_csv(
+        list(packet.get("monthly_runway", [])),
+        runway_path,
+        ["month", "scheduled_inflows", "scheduled_outflows", "net_burn", "liquid_balance_after"],
+    )
+    warnings = [{"index": index + 1, "warning": warning} for index, warning in enumerate(packet.get("forced_sale_warnings", []))]
+    _write_ordered_csv(warnings, warnings_path, ["index", "warning"])
+    buckets = []
+    for tier in LIQUIDITY_ORDER:
+        bucket = packet.get("cash_buckets", {}).get(tier, {})
+        buckets.append(
+            {
+                "tier": tier,
+                "label": bucket.get("label", LIQUIDITY_LABELS[tier]),
+                "count": bucket.get("count", 0),
+                "gross": bucket.get("gross", 0),
+                "stress_haircut_value": bucket.get("stress_haircut_value", 0),
+            }
+        )
+    _write_ordered_csv(buckets, bucket_path, ["tier", "label", "count", "gross", "stress_haircut_value"])
+    file_rows = [
+        (assets_path, len(packet.get("assets", []))),
+        (runway_path, len(packet.get("monthly_runway", []))),
+        (warnings_path, len(warnings)),
+        (bucket_path, len(buckets)),
+    ]
+    manifest = {
+        "boundary": BOUNDARY_TEXT,
+        "status": "pass",
+        "packet": packet_json.name,
+        "portfolio_name": packet.get("portfolio_name", ""),
+        "scenario": packet.get("scenario", ""),
+        "files": [{"path": path.name, "rows": rows, "sha256": _sha256_file(path)} for path, rows in file_rows],
+    }
+    dump_json(manifest, manifest_json_path)
+    manifest_markdown_path.write_text(render_csv_export_manifest_markdown(manifest), encoding="utf-8")
+    return CsvExportPaths(out_dir, assets_path, runway_path, warnings_path, bucket_path, manifest_json_path, manifest_markdown_path)
+
+
+def validate_portfolio_json(path: Path) -> Dict[str, Any]:
+    findings: List[Dict[str, str]] = []
+    try:
+        data = load_json(path)
+    except Exception as exc:
+        return {
+            "path": path.as_posix(),
+            "kind": "portfolio_json",
+            "status": "fail",
+            "findings": [_lint_error("invalid_json", path.name, str(exc), "Write a valid JSON object.", "portfolio.json")],
+        }
+    assets = data.get("assets")
+    if not isinstance(assets, list) or not assets:
+        findings.append(_lint_error("invalid_assets", "portfolio.assets", "assets must be a non-empty list.", "Add asset objects under assets.", "portfolio.assets"))
+        assets = []
+    for index, asset in enumerate(assets):
+        location = f"portfolio.assets[{index}]"
+        if not isinstance(asset, dict):
+            findings.append(_lint_error("invalid_asset", location, "Asset row must be an object.", "Replace the row with an object.", "portfolio.assets[]"))
+            continue
+        tier = asset.get("liquidity_tier")
+        if tier not in LIQUIDITY_ORDER:
+            findings.append(_lint_error("invalid_liquidity_tier", f"{location}.liquidity_tier", f"Unknown liquidity tier {tier!r}.", "Use one of: " + ", ".join(LIQUIDITY_ORDER) + ".", "portfolio.assets[].liquidity_tier"))
+        for field in ("value", "annual_yield_rate", "annual_fee_rate"):
+            try:
+                _as_number(asset.get(field), f"{location}.{field}")
+            except ValueError as exc:
+                findings.append(_lint_error("invalid_number", f"{location}.{field}", str(exc), "Use a JSON number.", f"portfolio.assets[].{field}"))
+    return {"path": path.as_posix(), "kind": "portfolio_json", "status": "pass" if not findings else "fail", "findings": findings}
+
+
+def validate_ledger_json(path: Path) -> Dict[str, Any]:
+    findings: List[Dict[str, str]] = []
+    try:
+        data = load_json(path)
+    except Exception as exc:
+        return {
+            "path": path.as_posix(),
+            "kind": "ledger_json",
+            "status": "fail",
+            "findings": [_lint_error("invalid_json", path.name, str(exc), "Write a valid JSON object.", "ledger.json")],
+        }
+    for field in ("monthly_income", "monthly_expenses"):
+        try:
+            _as_number(data.get(field), f"ledger.{field}")
+        except ValueError as exc:
+            findings.append(_lint_error("invalid_number", f"ledger.{field}", str(exc), "Use a JSON number.", f"ledger.{field}"))
+    events = data.get("scheduled_events", [])
+    if not isinstance(events, list):
+        findings.append(_lint_error("invalid_events", "ledger.scheduled_events", "scheduled_events must be a list.", "Use an array of event objects.", "ledger.scheduled_events"))
+        events = []
+    for index, event in enumerate(events):
+        location = f"ledger.scheduled_events[{index}]"
+        if not isinstance(event, dict):
+            findings.append(_lint_error("invalid_event", location, "Event must be an object.", "Replace the row with an object.", "ledger.scheduled_events[]"))
+            continue
+        try:
+            month = _as_number(event.get("month"), f"{location}.month")
+            if int(month) != month:
+                findings.append(_lint_error("invalid_integer", f"{location}.month", "month must be an integer.", "Use a whole-number month.", "ledger.scheduled_events[].month"))
+        except ValueError as exc:
+            findings.append(_lint_error("invalid_number", f"{location}.month", str(exc), "Use a JSON number.", "ledger.scheduled_events[].month"))
+        if event.get("type") not in {"inflow", "outflow"}:
+            findings.append(_lint_error("invalid_event_type", f"{location}.type", f"Unknown event type {event.get('type')!r}.", "Use inflow or outflow.", "ledger.scheduled_events[].type"))
+        try:
+            _as_number(event.get("amount"), f"{location}.amount")
+        except ValueError as exc:
+            findings.append(_lint_error("invalid_number", f"{location}.amount", str(exc), "Use a JSON number.", "ledger.scheduled_events[].amount"))
+    return {"path": path.as_posix(), "kind": "ledger_json", "status": "pass" if not findings else "fail", "findings": findings}
+
+
+def validate_assumptions_json(path: Path) -> Dict[str, Any]:
+    findings: List[Dict[str, str]] = []
+    try:
+        data = load_json(path)
+    except Exception as exc:
+        return {
+            "path": path.as_posix(),
+            "kind": "assumptions_json",
+            "status": "fail",
+            "findings": [_lint_error("invalid_json", path.name, str(exc), "Write a valid JSON object.", "assumptions.json")],
+        }
+    for field in ("months", "target_reserve_months"):
+        try:
+            _as_number(data.get(field), f"assumptions.{field}")
+        except ValueError as exc:
+            findings.append(_lint_error("invalid_number", f"assumptions.{field}", str(exc), "Use a JSON number.", f"assumptions.{field}"))
+    scenarios = data.get("scenarios")
+    if not isinstance(scenarios, dict) or not scenarios:
+        findings.append(_lint_error("invalid_scenarios", "assumptions.scenarios", "scenarios must be a non-empty object.", "Add named scenario objects.", "assumptions.scenarios"))
+        scenarios = {}
+    for name, scenario in scenarios.items():
+        location = f"assumptions.scenarios.{name}"
+        if not isinstance(scenario, dict):
+            findings.append(_lint_error("invalid_scenario", location, "Scenario must be an object.", "Replace with a scenario object.", "assumptions.scenarios.<name>"))
+            continue
+        for field in ("expense_multiplier", "income_multiplier"):
+            try:
+                _as_number(scenario.get(field), f"{location}.{field}")
+            except ValueError as exc:
+                findings.append(_lint_error("invalid_number", f"{location}.{field}", str(exc), "Use a JSON number.", f"assumptions.scenarios.<name>.{field}"))
+        haircuts = scenario.get("liquidity_haircuts")
+        if not isinstance(haircuts, dict):
+            findings.append(_lint_error("invalid_haircuts", f"{location}.liquidity_haircuts", "liquidity_haircuts must be an object.", "Add haircut values for every liquidity tier.", "assumptions.scenarios.<name>.liquidity_haircuts"))
+            haircuts = {}
+        for tier in LIQUIDITY_ORDER:
+            try:
+                _as_number(haircuts.get(tier), f"{location}.liquidity_haircuts.{tier}")
+            except ValueError as exc:
+                findings.append(_lint_error("invalid_number", f"{location}.liquidity_haircuts.{tier}", str(exc), "Use a JSON number from 0 to 1.", f"assumptions.scenarios.<name>.liquidity_haircuts.{tier}"))
+    return {"path": path.as_posix(), "kind": "assumptions_json", "status": "pass" if not findings else "fail", "findings": findings}
+
+
+def input_lint(paths: Iterable[Tuple[Path, str]]) -> Dict[str, Any]:
+    results = []
+    for path, kind in paths:
+        if kind == "portfolio_json":
+            results.append(validate_portfolio_json(path))
+        elif kind == "ledger_json":
+            results.append(validate_ledger_json(path))
+        elif kind == "assumptions_json":
+            results.append(validate_assumptions_json(path))
+        elif kind == "portfolio_csv":
+            results.append(validate_portfolio_csv(path))
+        elif kind == "ledger_csv":
+            results.append(validate_ledger_csv(path))
+        else:
+            results.append(
+                {
+                    "path": path.as_posix(),
+                    "kind": kind,
+                    "status": "fail",
+                    "findings": [_lint_error("unknown_kind", path.name, f"Unknown lint kind {kind!r}.", "Use a supported input kind.", "input-lint.kind")],
+                }
+            )
+    findings = [finding for result in results for finding in result["findings"]]
+    return {
+        "boundary": BOUNDARY_TEXT,
+        "status": "pass" if not any(finding["severity"] == "error" for finding in findings) else "fail",
+        "results": results,
+        "finding_counts": {
+            "error": sum(1 for finding in findings if finding["severity"] == "error"),
+            "warning": sum(1 for finding in findings if finding["severity"] == "warning"),
+        },
+    }
 
 
 def money(value: float) -> str:
@@ -1504,6 +2013,32 @@ def schema_guide() -> Dict[str, Any]:
                 {"path": "snapshots[].effective_monthly_burn", "type": "number", "required": True, "description": "Monthly burn value for delta comparison."},
             ],
         },
+        {
+            "file": "portfolio.csv",
+            "description": "CSV asset rows accepted by csv-import and input-lint.",
+            "required_fields": ["name", "value", "liquidity_tier", "annual_yield_rate", "annual_fee_rate"],
+            "fields": [
+                {"path": "name", "type": "string", "required": True, "description": "Asset display name."},
+                {"path": "value", "type": "number", "required": True, "description": "Gross asset value."},
+                {"path": "liquidity_tier", "type": "enum", "required": True, "allowed_values": list(LIQUIDITY_ORDER), "description": "Liquidity bucket copied into portfolio.assets[].liquidity_tier."},
+                {"path": "annual_yield_rate", "type": "number", "required": True, "description": "Annual yield assumption as a decimal."},
+                {"path": "annual_fee_rate", "type": "number", "required": True, "description": "Annual fee assumption as a decimal."},
+            ],
+        },
+        {
+            "file": "ledger.csv",
+            "description": "CSV settings and scheduled event rows accepted by csv-import and input-lint.",
+            "required_fields": ["record_type", "monthly_income", "monthly_expenses", "month", "type", "label", "amount"],
+            "fields": [
+                {"path": "record_type", "type": "enum", "required": True, "allowed_values": ["settings", "event"], "description": "settings row supplies recurring values; event rows supply scheduled events."},
+                {"path": "monthly_income", "type": "number", "required": "settings", "description": "Monthly income for the single settings row."},
+                {"path": "monthly_expenses", "type": "number", "required": "settings", "description": "Monthly expenses for the single settings row."},
+                {"path": "month", "type": "integer", "required": "event", "description": "Scheduled event month."},
+                {"path": "type", "type": "enum", "required": "event", "allowed_values": ["inflow", "outflow"], "description": "Scheduled event direction."},
+                {"path": "label", "type": "string", "required": False, "description": "Scheduled event label."},
+                {"path": "amount", "type": "number", "required": "event", "description": "Scheduled event amount."},
+            ],
+        },
     ]
     output_artifacts = [
         {"artifact": "liquidity_packet.json", "command": "build-packet", "top_level_fields": ["boundary", "scenario", "portfolio_name", "currency", "totals", "cash_buckets", "assets", "scheduled_events", "monthly_runway", "forced_sale_warnings", "review_prompts"]},
@@ -1519,6 +2054,9 @@ def schema_guide() -> Dict[str, Any]:
         {"artifact": "schema_guide.json", "command": "schema-export", "top_level_fields": ["boundary", "version", "input_files", "output_artifacts"]},
         {"artifact": "fixture_doctor.json", "command": "fixture-doctor", "top_level_fields": ["boundary", "status", "work_dir", "examples", "command_plan", "results"]},
         {"artifact": "static-docs/index.html", "command": "docs-export", "top_level_fields": ["no JavaScript static documentation index"]},
+        {"artifact": "import_report.json", "command": "csv-import", "top_level_fields": ["boundary", "status", "inputs", "outputs", "row_counts", "schema_refs", "findings"]},
+        {"artifact": "export_manifest.json", "command": "csv-export", "top_level_fields": ["boundary", "status", "packet", "portfolio_name", "scenario", "files"]},
+        {"artifact": "input-lint stdout JSON", "command": "input-lint", "top_level_fields": ["boundary", "status", "results", "finding_counts"]},
     ]
     command_matrix = command_matrix_data()
     return {
@@ -1599,6 +2137,9 @@ def command_matrix_data() -> List[Dict[str, Any]]:
         ("release-check", "Validate expected files, public scan, and no-script HTML.", ["repo root"], ["release_check.json", "release_check.md"], "portfolio-liquidity-runway-lab release-check --out docs", False),
         ("visual-receipt", "Write a compact Markdown review receipt.", ["portfolio.json", "ledger.json", "assumptions.json"], ["visual_receipt.md"], "portfolio-liquidity-runway-lab visual-receipt --scenario stress --out demo/visual_receipt.md", False),
         ("schema-export", "Export input and artifact schema documentation.", ["built-in schema metadata"], ["schema_guide.json", "schema_guide.md"], "portfolio-liquidity-runway-lab schema-export --out docs", False),
+        ("csv-import", "Convert local portfolio and ledger CSV rows into validated JSON schemas.", ["portfolio.csv", "ledger.csv"], ["portfolio.json", "ledger.json", "import_report.json", "import_report.md"], "portfolio-liquidity-runway-lab csv-import --out dist/csv-import", False),
+        ("csv-export", "Export packet assets, runway rows, warnings, and bucket summaries as deterministic CSV.", ["liquidity_packet.json"], ["assets.csv", "runway.csv", "warnings.csv", "bucket_summaries.csv", "export_manifest.json", "export_manifest.md"], "portfolio-liquidity-runway-lab csv-export --packet dist/packet/liquidity_packet.json --out dist/csv-export", False),
+        ("input-lint", "Strict lint for JSON and CSV inputs with remediation and schema references.", ["portfolio/ledger/assumptions JSON", "portfolio/ledger CSV"], ["stdout JSON", "optional JSON file"], "portfolio-liquidity-runway-lab input-lint --portfolio portfolio.json --ledger ledger.json --assumptions assumptions.json", False),
         ("fixture-doctor", "Run all workflows against isolated copied fixtures.", ["bundled or supplied examples"], ["fixture_doctor.json", "fixture_doctor.md"], "portfolio-liquidity-runway-lab fixture-doctor --out docs", True),
         ("docs-export", "Export compact static documentation bundle.", ["README and generated release evidence"], ["static-docs/index.html", "static-docs/index.md", "static-docs/*.md"], "portfolio-liquidity-runway-lab docs-export --out docs/static-docs", True),
         ("command-matrix", "Export the full deterministic command catalog.", ["built-in command metadata"], ["command_matrix.json", "command_matrix.md", "command_matrix.html"], "portfolio-liquidity-runway-lab command-matrix --out docs/command-matrix", True),
@@ -1632,6 +2173,11 @@ def _copy_example_set(target: Path, source: Optional[Path] = None) -> Dict[str, 
         dst = target / name
         shutil.copyfile(src, dst)
         copied[name] = dst.as_posix()
+    for name in ("portfolio.csv", "ledger.csv"):
+        src = source / name if source and (source / name).exists() else bundled_csv_example_path(name)
+        dst = target / name
+        shutil.copyfile(src, dst)
+        copied[name] = dst.as_posix()
     return copied
 
 
@@ -1654,10 +2200,13 @@ def fixture_doctor(work_dir: Path, examples_dir: Optional[Path] = None) -> Dict[
         {"command": "compare-history", "argv": ["compare-history", "--history", copied["history.json"], "--out", (work_dir / "history_compare.json").as_posix()]},
         {"command": "review-ledger", "argv": ["review-ledger", "--ledger", copied["ledger.json"], "--out", (work_dir / "ledger_review.json").as_posix()]},
         {"command": "schema-export", "argv": ["schema-export", "--out", (work_dir / "schema-export").as_posix()]},
+        {"command": "csv-import", "argv": ["csv-import", "--portfolio-csv", copied["portfolio.csv"], "--ledger-csv", copied["ledger.csv"], "--out", (work_dir / "csv-import").as_posix()]},
+        {"command": "csv-export", "argv": ["csv-export", "--packet", (work_dir / "packet" / "liquidity_packet.json").as_posix(), "--out", (work_dir / "csv-export").as_posix()]},
+        {"command": "input-lint", "argv": ["input-lint", "--portfolio", copied["portfolio.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--portfolio-csv", copied["portfolio.csv"], "--ledger-csv", copied["ledger.csv"]]},
         {"command": "docs-export", "argv": ["docs-export", "--root", work_dir.as_posix(), "--out", (work_dir / "static-docs").as_posix()]},
         {"command": "command-matrix", "argv": ["command-matrix", "--out", (work_dir / "command-matrix").as_posix()]},
         {"command": "release-deck", "argv": ["release-deck", "--root", work_dir.as_posix(), "--out", (work_dir / "release-deck").as_posix()]},
-        {"command": "artifact-catalog", "argv": ["artifact-catalog", "--root", work_dir.as_posix(), "--paths", "packet,dashboard,scenario-gallery,assumption-audit,batch-compare,casebook,schema-export,static-docs", "--out", (work_dir / "catalog").as_posix()]},
+        {"command": "artifact-catalog", "argv": ["artifact-catalog", "--root", work_dir.as_posix(), "--paths", "packet,dashboard,scenario-gallery,assumption-audit,batch-compare,casebook,schema-export,csv-import,csv-export,static-docs", "--out", (work_dir / "catalog").as_posix()]},
         {"command": "release-check", "argv": ["release-check", "--root", work_dir.as_posix(), "--out", (work_dir / "release-check").as_posix()]},
         {"command": "public-scan", "argv": ["public-scan", "--root", work_dir.as_posix(), "--out", (work_dir / "public_scan.json").as_posix()]},
         {"command": "release-manifest", "argv": ["release-manifest", "--root", work_dir.as_posix(), "--out", (work_dir / "release_manifest.json").as_posix()]},
@@ -1706,6 +2255,38 @@ def fixture_doctor(work_dir: Path, examples_dir: Optional[Path] = None) -> Dict[
                 paths = build_schema_export(work_dir / "schema-export")
                 output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix()]
                 passed = paths.json_path.exists() and paths.markdown_path.exists()
+            elif command == "csv-import":
+                paths = build_csv_import(examples / "portfolio.csv", examples / "ledger.csv", work_dir / "csv-import")
+                output_paths = [
+                    paths.portfolio_json_path.as_posix(),
+                    paths.ledger_json_path.as_posix(),
+                    paths.report_json_path.as_posix(),
+                    paths.report_markdown_path.as_posix(),
+                ]
+                passed = load_json(paths.report_json_path)["status"] == "pass"
+            elif command == "csv-export":
+                paths = build_csv_export(work_dir / "packet" / "liquidity_packet.json", work_dir / "csv-export")
+                output_paths = [
+                    paths.assets_csv_path.as_posix(),
+                    paths.runway_csv_path.as_posix(),
+                    paths.warnings_csv_path.as_posix(),
+                    paths.bucket_summaries_csv_path.as_posix(),
+                    paths.manifest_json_path.as_posix(),
+                    paths.manifest_markdown_path.as_posix(),
+                ]
+                passed = load_json(paths.manifest_json_path)["status"] == "pass"
+            elif command == "input-lint":
+                result = input_lint(
+                    [
+                        (examples / "portfolio.json", "portfolio_json"),
+                        (examples / "ledger.json", "ledger_json"),
+                        (examples / "assumptions.json", "assumptions_json"),
+                        (examples / "portfolio.csv", "portfolio_csv"),
+                        (examples / "ledger.csv", "ledger_csv"),
+                    ]
+                )
+                output_paths = ["stdout JSON"]
+                passed = result["status"] == "pass"
             elif command == "docs-export":
                 paths = build_docs_export(work_dir, work_dir / "static-docs")
                 output_paths = [paths.index_html_path.as_posix(), paths.index_markdown_path.as_posix()]
@@ -1719,7 +2300,7 @@ def fixture_doctor(work_dir: Path, examples_dir: Optional[Path] = None) -> Dict[
                 output_paths = [paths.markdown_path.as_posix(), paths.html_path.as_posix()]
                 passed = paths.html_path.exists() and not _contains_script_tag(paths.html_path)
             elif command == "artifact-catalog":
-                paths = build_artifact_catalog(work_dir, work_dir / "catalog", ["packet", "dashboard", "scenario-gallery", "assumption-audit", "batch-compare", "casebook", "schema-export", "static-docs"])
+                paths = build_artifact_catalog(work_dir, work_dir / "catalog", ["packet", "dashboard", "scenario-gallery", "assumption-audit", "batch-compare", "casebook", "schema-export", "csv-import", "csv-export", "static-docs"])
                 output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix()]
                 passed = load_json(paths.json_path)["artifact_count"] > 0
             elif command == "release-check":
@@ -2131,9 +2712,10 @@ def release_deck(root: Path) -> Dict[str, Any]:
     return {
         "boundary": BOUNDARY_TEXT,
         "version": PROJECT_VERSION,
-        "title": "Portfolio Liquidity Runway Lab v0.6.0 Release Deck",
+        "title": "Portfolio Liquidity Runway Lab v0.7.0 Release Deck",
         "product_value": [
-            "Builds deterministic local liquidity runway packets from JSON inputs.",
+            "Builds deterministic local liquidity runway packets from JSON and CSV inputs.",
+            "Imports portfolio and ledger CSV rows into validated JSON schemas, then exports packet analysis back to reviewable CSV.",
             "Packages scenario, audit, batch comparison, casebook, schema, command, and replay evidence.",
             "Keeps outputs static and reviewable with no runtime dependencies and no JavaScript in generated HTML demos.",
         ],
@@ -2151,9 +2733,9 @@ def release_deck(root: Path) -> Dict[str, Any]:
             "No live integrations means users must update inputs manually before each review.",
         ],
         "next_roadmap": [
-            "Add optional CSV import/export adapters while preserving zero live-data behavior.",
             "Expand fixture doctor coverage for malformed batch directories and scenario edge cases.",
             "Add signed release bundle checksums for downstream archival workflows.",
+            "Broaden CSV templates for multi-currency review workflows without adding live integrations.",
         ],
     }
 
@@ -2279,6 +2861,10 @@ def _regeneration_command_for(rel: str) -> str:
         return "portfolio-liquidity-runway-lab batch-compare --portfolios-dir demo/batch-inputs --scenarios base,stress --out demo/batch-compare"
     if rel.startswith("demo/schema-export/") or rel.startswith("docs/schema_guide."):
         return "portfolio-liquidity-runway-lab schema-export --out demo/schema-export"
+    if rel.startswith("demo/csv-import/"):
+        return "portfolio-liquidity-runway-lab csv-import --out demo/csv-import"
+    if rel.startswith("demo/csv-export/"):
+        return "portfolio-liquidity-runway-lab csv-export --packet demo/casebook/packet/liquidity_packet.json --out demo/csv-export"
     if rel.startswith("demo/fixture-doctor/") or rel.startswith("docs/fixture_doctor."):
         return "portfolio-liquidity-runway-lab fixture-doctor --out demo/fixture-doctor"
     if rel.startswith("demo/static-docs/") or rel.startswith("docs/static-docs/"):
@@ -2505,6 +3091,8 @@ def maturity_report(root: Path) -> Dict[str, Any]:
         "demo_assumption_audit": (root / "demo/assumption-audit/assumption_audit.md").exists(),
         "demo_batch_compare": (root / "demo/batch-compare/batch_compare.html").exists(),
         "demo_schema_export": (root / "demo/schema-export/schema_guide.md").exists(),
+        "demo_csv_import": (root / "demo/csv-import/import_report.md").exists(),
+        "demo_csv_export": (root / "demo/csv-export/export_manifest.md").exists(),
         "demo_fixture_doctor": (root / "demo/fixture-doctor/fixture_doctor.md").exists(),
         "demo_static_docs": (root / "demo/static-docs/index.html").exists(),
         "demo_command_matrix": (root / "demo/command-matrix/command_matrix.html").exists(),

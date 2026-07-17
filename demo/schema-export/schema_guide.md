@@ -2,7 +2,7 @@
 
 > Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.
 
-Version: `0.6.0`
+Version: `0.7.0`
 
 ## Input Files
 
@@ -72,6 +72,36 @@ Required fields: `snapshots`
 | `snapshots[].same_day_reserve_months` | `number` | true | Reserve-month value for delta comparison. |
 | `snapshots[].effective_monthly_burn` | `number` | true | Monthly burn value for delta comparison. |
 
+### portfolio.csv
+
+CSV asset rows accepted by csv-import and input-lint.
+
+Required fields: `name`, `value`, `liquidity_tier`, `annual_yield_rate`, `annual_fee_rate`
+
+| Path | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | `string` | true | Asset display name. |
+| `value` | `number` | true | Gross asset value. |
+| `liquidity_tier` | `enum` | true | Liquidity bucket copied into portfolio.assets[].liquidity_tier. Allowed values: `same_day`, `one_week`, `one_month`, `locked`. |
+| `annual_yield_rate` | `number` | true | Annual yield assumption as a decimal. |
+| `annual_fee_rate` | `number` | true | Annual fee assumption as a decimal. |
+
+### ledger.csv
+
+CSV settings and scheduled event rows accepted by csv-import and input-lint.
+
+Required fields: `record_type`, `monthly_income`, `monthly_expenses`, `month`, `type`, `label`, `amount`
+
+| Path | Type | Required | Description |
+| --- | --- | --- | --- |
+| `record_type` | `enum` | true | settings row supplies recurring values; event rows supply scheduled events. Allowed values: `settings`, `event`. |
+| `monthly_income` | `number` | settings | Monthly income for the single settings row. |
+| `monthly_expenses` | `number` | settings | Monthly expenses for the single settings row. |
+| `month` | `integer` | event | Scheduled event month. |
+| `type` | `enum` | event | Scheduled event direction. Allowed values: `inflow`, `outflow`. |
+| `label` | `string` | false | Scheduled event label. |
+| `amount` | `number` | event | Scheduled event amount. |
+
 ## Output Artifacts
 
 | Artifact | Command | Top-level fields |
@@ -89,6 +119,9 @@ Required fields: `snapshots`
 | `schema_guide.json` | `schema-export` | `boundary`, `version`, `input_files`, `output_artifacts` |
 | `fixture_doctor.json` | `fixture-doctor` | `boundary`, `status`, `work_dir`, `examples`, `command_plan`, `results` |
 | `static-docs/index.html` | `docs-export` | `no JavaScript static documentation index` |
+| `import_report.json` | `csv-import` | `boundary`, `status`, `inputs`, `outputs`, `row_counts`, `schema_refs`, `findings` |
+| `export_manifest.json` | `csv-export` | `boundary`, `status`, `packet`, `portfolio_name`, `scenario`, `files` |
+| `input-lint stdout JSON` | `input-lint` | `boundary`, `status`, `results`, `finding_counts` |
 
 ## Command Matrix
 
@@ -106,6 +139,9 @@ Required fields: `snapshots`
 | `release-check` | repo root | release_check.json, release_check.md | false |
 | `visual-receipt` | portfolio.json, ledger.json, assumptions.json | visual_receipt.md | false |
 | `schema-export` | built-in schema metadata | schema_guide.json, schema_guide.md | false |
+| `csv-import` | portfolio.csv, ledger.csv | portfolio.json, ledger.json, import_report.json, import_report.md | false |
+| `csv-export` | liquidity_packet.json | assets.csv, runway.csv, warnings.csv, bucket_summaries.csv, export_manifest.json, export_manifest.md | false |
+| `input-lint` | portfolio/ledger/assumptions JSON, portfolio/ledger CSV | stdout JSON, optional JSON file | false |
 | `fixture-doctor` | bundled or supplied examples | fixture_doctor.json, fixture_doctor.md | true |
 | `docs-export` | README and generated release evidence | static-docs/index.html, static-docs/index.md, static-docs/*.md | true |
 | `command-matrix` | built-in command metadata | command_matrix.json, command_matrix.md, command_matrix.html | true |

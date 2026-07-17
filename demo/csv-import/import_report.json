@@ -1,0 +1,23 @@
+{
+  "boundary": "Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.",
+  "findings": [],
+  "inputs": {
+    "ledger_csv": "ledger.csv",
+    "portfolio_csv": "portfolio.csv"
+  },
+  "outputs": {
+    "ledger_json": "ledger.json",
+    "portfolio_json": "portfolio.json"
+  },
+  "row_counts": {
+    "ledger_events": 3,
+    "portfolio_assets": 4
+  },
+  "schema_refs": [
+    "portfolio.assets[]",
+    "ledger.monthly_income",
+    "ledger.monthly_expenses",
+    "ledger.scheduled_events[]"
+  ],
+  "status": "pass"
+}

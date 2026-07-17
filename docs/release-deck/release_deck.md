@@ -1,10 +1,11 @@
-# Portfolio Liquidity Runway Lab v0.6.0 Release Deck
+# Portfolio Liquidity Runway Lab v0.7.0 Release Deck
 
 > Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.
 
 ## Product Value
 
-- Builds deterministic local liquidity runway packets from JSON inputs.
+- Builds deterministic local liquidity runway packets from JSON and CSV inputs.
+- Imports portfolio and ledger CSV rows into validated JSON schemas, then exports packet analysis back to reviewable CSV.
 - Packages scenario, audit, batch comparison, casebook, schema, command, and replay evidence.
 - Keeps outputs static and reviewable with no runtime dependencies and no JavaScript in generated HTML demos.
 
@@ -24,6 +25,9 @@
 | `release-check` | Validate expected files, public scan, and no-script HTML. |
 | `visual-receipt` | Write a compact Markdown review receipt. |
 | `schema-export` | Export input and artifact schema documentation. |
+| `csv-import` | Convert local portfolio and ledger CSV rows into validated JSON schemas. |
+| `csv-export` | Export packet assets, runway rows, warnings, and bucket summaries as deterministic CSV. |
+| `input-lint` | Strict lint for JSON and CSV inputs with remediation and schema references. |
 | `fixture-doctor` | Run all workflows against isolated copied fixtures. |
 | `docs-export` | Export compact static documentation bundle. |
 | `command-matrix` | Export the full deterministic command catalog. |
@@ -37,10 +41,10 @@
 
 ## Evidence
 
-- Release check: `pass`
-- Maturity score: `30/30`
-- Cataloged artifacts: `55`
-- No-script HTML files: `9`
+- Release check: `fail`
+- Maturity score: `32/32`
+- Cataloged artifacts: `187`
+- No-script HTML files: `26`
 
 ## Risks
 
@@ -50,6 +54,6 @@
 
 ## Next Roadmap
 
-- Add optional CSV import/export adapters while preserving zero live-data behavior.
 - Expand fixture doctor coverage for malformed batch directories and scenario edge cases.
 - Add signed release bundle checksums for downstream archival workflows.
+- Broaden CSV templates for multi-currency review workflows without adding live integrations.

@@ -1,0 +1,29 @@
+{
+  "boundary": "Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.",
+  "files": [
+    {
+      "path": "assets.csv",
+      "rows": 5,
+      "sha256": "f6eaaed019a5be0a1a822d1181ad33de8053f3e32b8959ca74f3a5be2b5a0469"
+    },
+    {
+      "path": "runway.csv",
+      "rows": 12,
+      "sha256": "2c0268c54ef27239e995b795ceee4ce43ec8b1d9346a81568b4951e4984a124a"
+    },
+    {
+      "path": "warnings.csv",
+      "rows": 3,
+      "sha256": "24be5e9bc434330bc75897f6eac748d6808f3ea28347a46c53a8141c7e1dd6f7"
+    },
+    {
+      "path": "bucket_summaries.csv",
+      "rows": 4,
+      "sha256": "cec6268e6099aaaf721192b2d0685eb95cf3bd67c53944accc7ca1f305d0e323"
+    }
+  ],
+  "packet": "liquidity_packet.json",
+  "portfolio_name": "Synthetic household reserve portfolio",
+  "scenario": "stress",
+  "status": "pass"
+}

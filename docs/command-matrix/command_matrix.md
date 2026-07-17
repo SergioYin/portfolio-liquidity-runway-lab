@@ -2,7 +2,7 @@
 
 > Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.
 
-Version: `0.6.0`
+Version: `0.7.0`
 
 | Command | Purpose | Inputs | Outputs | Demo command | Risk boundary | Static no-JS HTML |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -18,6 +18,9 @@ Version: `0.6.0`
 | `release-check` | Validate expected files, public scan, and no-script HTML. | repo root | release_check.json, release_check.md | `portfolio-liquidity-runway-lab release-check --out docs` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | false |
 | `visual-receipt` | Write a compact Markdown review receipt. | portfolio.json, ledger.json, assumptions.json | visual_receipt.md | `portfolio-liquidity-runway-lab visual-receipt --scenario stress --out demo/visual_receipt.md` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | false |
 | `schema-export` | Export input and artifact schema documentation. | built-in schema metadata | schema_guide.json, schema_guide.md | `portfolio-liquidity-runway-lab schema-export --out docs` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | false |
+| `csv-import` | Convert local portfolio and ledger CSV rows into validated JSON schemas. | portfolio.csv, ledger.csv | portfolio.json, ledger.json, import_report.json, import_report.md | `portfolio-liquidity-runway-lab csv-import --out dist/csv-import` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | false |
+| `csv-export` | Export packet assets, runway rows, warnings, and bucket summaries as deterministic CSV. | liquidity_packet.json | assets.csv, runway.csv, warnings.csv, bucket_summaries.csv, export_manifest.json, export_manifest.md | `portfolio-liquidity-runway-lab csv-export --packet dist/packet/liquidity_packet.json --out dist/csv-export` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | false |
+| `input-lint` | Strict lint for JSON and CSV inputs with remediation and schema references. | portfolio/ledger/assumptions JSON, portfolio/ledger CSV | stdout JSON, optional JSON file | `portfolio-liquidity-runway-lab input-lint --portfolio portfolio.json --ledger ledger.json --assumptions assumptions.json` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | false |
 | `fixture-doctor` | Run all workflows against isolated copied fixtures. | bundled or supplied examples | fixture_doctor.json, fixture_doctor.md | `portfolio-liquidity-runway-lab fixture-doctor --out docs` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | true |
 | `docs-export` | Export compact static documentation bundle. | README and generated release evidence | static-docs/index.html, static-docs/index.md, static-docs/*.md | `portfolio-liquidity-runway-lab docs-export --out docs/static-docs` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | true |
 | `command-matrix` | Export the full deterministic command catalog. | built-in command metadata | command_matrix.json, command_matrix.md, command_matrix.html | `portfolio-liquidity-runway-lab command-matrix --out docs/command-matrix` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | true |

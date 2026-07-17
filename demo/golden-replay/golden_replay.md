@@ -2,7 +2,7 @@
 
 > Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.
 
-Version: `0.6.0`
+Version: `0.7.0`
 Status: `pass`
 Compared artifacts: 17
 Passed: 17
@@ -21,9 +21,9 @@ Failed: 0
 | `demo/casebook/casebook.json` | `pass` | `401a2996126e05632c27e46ec8648ea7049d6617427f52e261a14fab53cab27d` | `401a2996126e05632c27e46ec8648ea7049d6617427f52e261a14fab53cab27d` | 8768 | 8768 |
 | `demo/casebook/casebook.md` | `pass` | `336450c4f9fb126d57490f308a760ce101935859b987923457f47578d8038929` | `336450c4f9fb126d57490f308a760ce101935859b987923457f47578d8038929` | 2560 | 2560 |
 | `demo/casebook/casebook.html` | `pass` | `c5f76e545b6dafa4606876def80df936d1aa7c4c0d196387a7dfa23cf56c3630` | `c5f76e545b6dafa4606876def80df936d1aa7c4c0d196387a7dfa23cf56c3630` | 4122 | 4122 |
-| `demo/schema-export/schema_guide.json` | `pass` | `74d0146d7a731df233b6c8551ac7f15b99566aec01e72c8c288e204e7a6180cf` | `74d0146d7a731df233b6c8551ac7f15b99566aec01e72c8c288e204e7a6180cf` | 22340 | 22340 |
-| `demo/schema-export/schema_guide.md` | `pass` | `ba8959f6b83df340e7c60f3f9b6b24c82d56b2ab2a706aa788f7f10d42766fac` | `ba8959f6b83df340e7c60f3f9b6b24c82d56b2ab2a706aa788f7f10d42766fac` | 8105 | 8105 |
+| `demo/schema-export/schema_guide.json` | `pass` | `0a0ec56b28dc58dded7b0cba1bf479e56205af7483955f23d25eecca1b78c0de` | `0a0ec56b28dc58dded7b0cba1bf479e56205af7483955f23d25eecca1b78c0de` | 27960 | 27960 |
+| `demo/schema-export/schema_guide.md` | `pass` | `7a7c2573011461264b13f983f5b3167fd1599b8541144f9289b6423478969ce6` | `7a7c2573011461264b13f983f5b3167fd1599b8541144f9289b6423478969ce6` | 10356 | 10356 |
 | `demo/visual_receipt.md` | `pass` | `2d1d63d6dacda005448092c5cc8569a024b8b2e73eb1f0ac6d43c7a73646988c` | `2d1d63d6dacda005448092c5cc8569a024b8b2e73eb1f0ac6d43c7a73646988c` | 1468 | 1468 |
-| `demo/command-matrix/command_matrix.json` | `pass` | `7b5d8fba4a1646fa4b99e936c1eedbc4025c7e70d504e33ecf14e3cdeea10e0e` | `7b5d8fba4a1646fa4b99e936c1eedbc4025c7e70d504e33ecf14e3cdeea10e0e` | 12076 | 12076 |
-| `demo/command-matrix/command_matrix.md` | `pass` | `8703b5f2bc3e04714c71a493c92e136942aa0a6fc34e2bfb09bace415f7624c1` | `8703b5f2bc3e04714c71a493c92e136942aa0a6fc34e2bfb09bace415f7624c1` | 7733 | 7733 |
-| `demo/command-matrix/command_matrix.html` | `pass` | `18a85518a912b5eda065e1fafd1bdec7ee4a95c8b007e39087c94c708b876c10` | `18a85518a912b5eda065e1fafd1bdec7ee4a95c8b007e39087c94c708b876c10` | 10102 | 10102 |
+| `demo/command-matrix/command_matrix.json` | `pass` | `336e2aee071e361c48d554c80c99acfd08162a3a5dcea4f1536a7024f4f1ebd9` | `336e2aee071e361c48d554c80c99acfd08162a3a5dcea4f1536a7024f4f1ebd9` | 13951 | 13951 |
+| `demo/command-matrix/command_matrix.md` | `pass` | `470dfcd1b0f95dc9a5edc6df4e71554365337e11768ca29b9acd102f29c968c1` | `470dfcd1b0f95dc9a5edc6df4e71554365337e11768ca29b9acd102f29c968c1` | 8949 | 8949 |
+| `demo/command-matrix/command_matrix.html` | `pass` | `909e8583dc5a6d2d85a1bf91df03ea3ee716f722b48290d9ac6f21fda9405546` | `909e8583dc5a6d2d85a1bf91df03ea3ee716f722b48290d9ac6f21fda9405546` | 11534 | 11534 |

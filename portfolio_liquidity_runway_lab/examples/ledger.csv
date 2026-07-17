@@ -1,0 +1,5 @@
+record_type,monthly_income,monthly_expenses,month,type,label,amount
+settings,8200,11200,,,,
+event,,,2,outflow,Insurance renewal,3600
+event,,,4,inflow,Grant payment,9000
+event,,,7,outflow,Equipment replacement,6500

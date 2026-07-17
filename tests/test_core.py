@@ -12,6 +12,8 @@ from portfolio_liquidity_runway_lab.core import (
     build_batch_compare,
     build_casebook,
     build_command_matrix,
+    build_csv_export,
+    build_csv_import,
     build_docs_export,
     build_fixture_doctor,
     build_golden_replay,
@@ -22,6 +24,7 @@ from portfolio_liquidity_runway_lab.core import (
     build_schema_export,
     bundled_example_path,
     load_json,
+    input_lint,
     maturity_report,
     release_manifest,
     release_check,
@@ -58,6 +61,68 @@ class CoreTests(unittest.TestCase):
             html = paths.html_path.read_text(encoding="utf-8")
             self.assertIn("<!doctype html>", html)
             self.assertNotIn("<script", html.lower())
+
+    def test_csv_import_converts_valid_rows_deterministically_without_private_leakage(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "csv-import"
+            paths = build_csv_import(
+                Path(__file__).resolve().parents[1] / "portfolio_liquidity_runway_lab" / "examples" / "portfolio.csv",
+                Path(__file__).resolve().parents[1] / "portfolio_liquidity_runway_lab" / "examples" / "ledger.csv",
+                out,
+                "CSV fixture",
+                "USD",
+            )
+            first_report = paths.report_json_path.read_text(encoding="utf-8")
+            portfolio = load_json(paths.portfolio_json_path)
+            ledger = load_json(paths.ledger_json_path)
+            self.assertEqual(portfolio["name"], "CSV fixture")
+            self.assertEqual([asset["liquidity_tier"] for asset in portfolio["assets"]], ["same_day", "one_week", "one_month", "locked"])
+            self.assertEqual(len(ledger["scheduled_events"]), 3)
+            combined = first_report + paths.report_markdown_path.read_text(encoding="utf-8")
+            self.assertNotIn("api" + "_" + "key", combined.lower())
+            self.assertNotIn("private" + "_" + "key", combined.lower())
+
+            build_csv_import(
+                Path(__file__).resolve().parents[1] / "portfolio_liquidity_runway_lab" / "examples" / "portfolio.csv",
+                Path(__file__).resolve().parents[1] / "portfolio_liquidity_runway_lab" / "examples" / "ledger.csv",
+                out,
+                "CSV fixture",
+                "USD",
+            )
+            self.assertEqual(first_report, paths.report_json_path.read_text(encoding="utf-8"))
+
+    def test_csv_export_writes_deterministic_packet_tables(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            packet_paths = build_packet(
+                bundled_example_path("portfolio"),
+                bundled_example_path("ledger"),
+                bundled_example_path("assumptions"),
+                Path(tmp) / "packet",
+                "stress",
+            )
+            paths = build_csv_export(packet_paths.json_path, Path(tmp) / "csv-export")
+            first_manifest = paths.manifest_json_path.read_text(encoding="utf-8")
+            self.assertIn("name,tier,gross,haircut_value,annual_yield,annual_fee", paths.assets_csv_path.read_text(encoding="utf-8").splitlines()[0])
+            self.assertIn("month,scheduled_inflows,scheduled_outflows,net_burn,liquid_balance_after", paths.runway_csv_path.read_text(encoding="utf-8").splitlines()[0])
+            manifest = load_json(paths.manifest_json_path)
+            self.assertEqual([item["path"] for item in manifest["files"]], ["assets.csv", "runway.csv", "warnings.csv", "bucket_summaries.csv"])
+            combined = first_manifest + paths.manifest_markdown_path.read_text(encoding="utf-8")
+            self.assertNotIn("access" + "_" + "token", combined.lower())
+
+            build_csv_export(packet_paths.json_path, Path(tmp) / "csv-export")
+            self.assertEqual(first_manifest, paths.manifest_json_path.read_text(encoding="utf-8"))
+
+    def test_input_lint_reports_csv_and_json_failures(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            bad_portfolio = Path(tmp) / "bad_portfolio.csv"
+            bad_portfolio.write_text("name,value,liquidity_tier,annual_yield_rate,annual_fee_rate\nBad,not-money,overnight,0.01,0\n", encoding="utf-8")
+            bad_ledger = Path(tmp) / "bad_ledger.json"
+            bad_ledger.write_text('{"monthly_income":"x","monthly_expenses":1000,"scheduled_events":[{"month":1,"type":"maybe","amount":"large"}]}\n', encoding="utf-8")
+            result = input_lint([(bad_portfolio, "portfolio_csv"), (bad_ledger, "ledger_json")])
+            self.assertEqual(result["status"], "fail")
+            self.assertGreaterEqual(result["finding_counts"]["error"], 3)
+            findings = [finding for item in result["results"] for finding in item["findings"]]
+            self.assertTrue(all("remediation" in finding and "schema_ref" in finding for finding in findings))
 
     def test_scenario_gallery_writes_static_deterministic_artifacts(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -453,7 +518,7 @@ class CoreTests(unittest.TestCase):
         self.assertIn("demo/assumption-audit/assumption_audit.md", manifest["files"])
         self.assertIn("demo/batch-compare/batch_compare.html", manifest["files"])
         self.assertIn("README.md", manifest["files"])
-        self.assertEqual(manifest["version"], "0.6.0")
+        self.assertEqual(manifest["version"], "0.7.0")
 
 
 if __name__ == "__main__":

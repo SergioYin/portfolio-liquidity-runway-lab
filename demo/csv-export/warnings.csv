@@ -1,0 +1,4 @@
+index,warning
+1,Liquid balance turns negative in month 10; review whether one_month or locked holdings would be needed.
+2,"Same-day reserve is 4.5 months, below the 6.0 month review threshold."
+3,Locked or gated assets exceed 35% of gross assets while burn is positive.

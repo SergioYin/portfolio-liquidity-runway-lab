@@ -26,9 +26,13 @@ from .core import (
     build_schema_export,
     build_scenario_gallery,
     build_visual_receipt,
+    build_csv_export,
+    build_csv_import,
+    bundled_csv_example_path,
     bundled_example_path,
     compare_history,
     dump_json,
+    input_lint,
     load_json,
     maturity_report,
     public_scan,
@@ -40,6 +44,10 @@ from .core import (
 
 def _example_or_path(path: Optional[str], example_name: str) -> Path:
     return Path(path) if path else bundled_example_path(example_name)
+
+
+def _csv_example_or_path(path: Optional[str], example_name: str) -> Path:
+    return Path(path) if path else bundled_csv_example_path(example_name)
 
 
 def _print_json(data: Dict[str, Any]) -> None:
@@ -251,6 +259,81 @@ def cmd_schema_export(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_csv_import(args: argparse.Namespace) -> int:
+    paths = build_csv_import(
+        _csv_example_or_path(args.portfolio_csv, "portfolio"),
+        _csv_example_or_path(args.ledger_csv, "ledger"),
+        Path(args.out),
+        args.portfolio_name,
+        args.currency,
+    )
+    _print_json(
+        {
+            "status": "ok",
+            "boundary": BOUNDARY_TEXT,
+            "portfolio_json": str(paths.portfolio_json_path),
+            "ledger_json": str(paths.ledger_json_path),
+            "report_json": str(paths.report_json_path),
+            "report_markdown": str(paths.report_markdown_path),
+        }
+    )
+    return 0
+
+
+def cmd_csv_export(args: argparse.Namespace) -> int:
+    paths = build_csv_export(Path(args.packet), Path(args.out))
+    _print_json(
+        {
+            "status": "ok",
+            "boundary": BOUNDARY_TEXT,
+            "assets": str(paths.assets_csv_path),
+            "runway": str(paths.runway_csv_path),
+            "warnings": str(paths.warnings_csv_path),
+            "bucket_summaries": str(paths.bucket_summaries_csv_path),
+            "manifest_json": str(paths.manifest_json_path),
+            "manifest_markdown": str(paths.manifest_markdown_path),
+        }
+    )
+    return 0
+
+
+def _lint_paths_from_args(args: argparse.Namespace) -> list[tuple[Path, str]]:
+    paths: list[tuple[Path, str]] = []
+    if args.portfolio:
+        paths.append((Path(args.portfolio), "portfolio_json"))
+    if args.ledger:
+        paths.append((Path(args.ledger), "ledger_json"))
+    if args.assumptions:
+        paths.append((Path(args.assumptions), "assumptions_json"))
+    if args.portfolio_csv:
+        paths.append((Path(args.portfolio_csv), "portfolio_csv"))
+    if args.ledger_csv:
+        paths.append((Path(args.ledger_csv), "ledger_csv"))
+    if args.input and not args.kind:
+        raise ValueError("--kind is required when --input is used")
+    if args.input:
+        paths.append((Path(args.input), args.kind))
+    if not paths:
+        paths.extend(
+            [
+                (bundled_example_path("portfolio"), "portfolio_json"),
+                (bundled_example_path("ledger"), "ledger_json"),
+                (bundled_example_path("assumptions"), "assumptions_json"),
+                (bundled_csv_example_path("portfolio"), "portfolio_csv"),
+                (bundled_csv_example_path("ledger"), "ledger_csv"),
+            ]
+        )
+    return paths
+
+
+def cmd_input_lint(args: argparse.Namespace) -> int:
+    result = input_lint(_lint_paths_from_args(args))
+    if args.out:
+        dump_json(result, Path(args.out))
+    _print_json(result)
+    return 0 if result["status"] == "pass" else 1
+
+
 def cmd_fixture_doctor(args: argparse.Namespace) -> int:
     paths = build_fixture_doctor(
         Path(args.out),
@@ -334,6 +417,8 @@ def cmd_quickstart_check(args: argparse.Namespace) -> int:
     out.mkdir(parents=True, exist_ok=True)
     for name in ("portfolio.json", "portfolio_concentrated.json", "ledger.json", "assumptions.json", "history.json"):
         shutil.copyfile(bundled_example_path(name), out / name)
+    for name in ("portfolio.csv", "ledger.csv"):
+        shutil.copyfile(bundled_csv_example_path(name), out / name)
     paths = build_packet(out / "portfolio.json", out / "ledger.json", out / "assumptions.json", out / "packet")
     _print_json({"status": "ok", "examples": str(out), "packet": str(paths.out_dir), "boundary": BOUNDARY_TEXT})
     return 0
@@ -357,6 +442,23 @@ def cmd_selfcheck(args: argparse.Namespace) -> int:
         )
         gallery = load_json(gallery_paths.json_path)
         packet = load_json(paths.json_path)
+        csv_import_paths = build_csv_import(
+            bundled_csv_example_path("portfolio"),
+            bundled_csv_example_path("ledger"),
+            tmp_path / "csv-import",
+            "Imported CSV portfolio",
+            "USD",
+        )
+        csv_export_paths = build_csv_export(paths.json_path, tmp_path / "csv-export")
+        lint_result = input_lint(
+            [
+                (bundled_example_path("portfolio"), "portfolio_json"),
+                (bundled_example_path("ledger"), "ledger_json"),
+                (bundled_example_path("assumptions"), "assumptions_json"),
+                (bundled_csv_example_path("portfolio"), "portfolio_csv"),
+                (bundled_csv_example_path("ledger"), "ledger_csv"),
+            ]
+        )
         audit_paths = build_assumption_audit(
             bundled_example_path("portfolio_concentrated"),
             bundled_example_path("ledger"),
@@ -433,6 +535,17 @@ def cmd_selfcheck(args: argparse.Namespace) -> int:
                 ).read_text(encoding="utf-8").count(BOUNDARY_TEXT)
                 == 1
             ),
+            "csv_import": (
+                csv_import_paths.portfolio_json_path.exists()
+                and csv_import_paths.ledger_json_path.exists()
+                and load_json(csv_import_paths.report_json_path).get("status") == "pass"
+            ),
+            "csv_export": (
+                csv_export_paths.assets_csv_path.exists()
+                and csv_export_paths.runway_csv_path.exists()
+                and load_json(csv_export_paths.manifest_json_path).get("status") == "pass"
+            ),
+            "input_lint": lint_result["status"] == "pass",
             "forced_sale_warnings": bool(packet.get("forced_sale_warnings")),
             "cash_buckets": set(packet.get("cash_buckets", {})) == {"same_day", "one_week", "one_month", "locked"},
         }
@@ -549,6 +662,30 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("schema-export", help="Export deterministic JSON and Markdown schema guides for inputs and artifacts.")
     p.add_argument("--out", default="dist/schema-export", help="Output directory.")
     p.set_defaults(func=cmd_schema_export)
+
+    p = sub.add_parser("csv-import", help="Convert local portfolio and ledger CSV files into validated JSON plus import report.")
+    p.add_argument("--portfolio-csv", help="Portfolio CSV path. Defaults to bundled synthetic CSV example.")
+    p.add_argument("--ledger-csv", help="Ledger CSV path. Defaults to bundled synthetic CSV example.")
+    p.add_argument("--portfolio-name", default="Imported CSV portfolio", help="Portfolio name to write into portfolio.json.")
+    p.add_argument("--currency", default="USD", help="Currency label to write into portfolio.json.")
+    p.add_argument("--out", default="dist/csv-import", help="Output directory.")
+    p.set_defaults(func=cmd_csv_import)
+
+    p = sub.add_parser("csv-export", help="Export packet assets, runway rows, warnings, and bucket summaries as deterministic CSV files.")
+    p.add_argument("--packet", required=True, help="Packet JSON path from build-packet.")
+    p.add_argument("--out", default="dist/csv-export", help="Output directory.")
+    p.set_defaults(func=cmd_csv_export)
+
+    p = sub.add_parser("input-lint", help="Strict JSON/CSV input lint with remediation messages and schema references.")
+    p.add_argument("--portfolio", help="Portfolio JSON path.")
+    p.add_argument("--ledger", help="Ledger JSON path.")
+    p.add_argument("--assumptions", help="Assumptions JSON path.")
+    p.add_argument("--portfolio-csv", help="Portfolio CSV path.")
+    p.add_argument("--ledger-csv", help="Ledger CSV path.")
+    p.add_argument("--input", help="Single input path for explicit --kind linting.")
+    p.add_argument("--kind", choices=["portfolio_json", "ledger_json", "assumptions_json", "portfolio_csv", "ledger_csv"], help="Kind for --input.")
+    p.add_argument("--out", help="Optional JSON output path.")
+    p.set_defaults(func=cmd_input_lint)
 
     p = sub.add_parser("fixture-doctor", help="Copy examples to a work dir and validate all CLI capabilities against them.")
     p.add_argument("--out", default="dist/fixture-doctor", help="Output directory for fixture_doctor.json and fixture_doctor.md.")

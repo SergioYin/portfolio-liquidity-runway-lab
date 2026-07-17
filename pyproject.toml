@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "portfolio-liquidity-runway-lab"
-version = "0.6.0"
+version = "0.7.0"
 description = "Static local portfolio liquidity runway packet builder with no runtime dependencies."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -29,4 +29,4 @@ portfolio-liquidity-runway-lab = "portfolio_liquidity_runway_lab.cli:main"
 include = ["portfolio_liquidity_runway_lab*"]
 
 [tool.setuptools.package-data]
-portfolio_liquidity_runway_lab = ["examples/*.json"]
+portfolio_liquidity_runway_lab = ["examples/*.json", "examples/*.csv"]

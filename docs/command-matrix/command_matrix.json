@@ -189,6 +189,56 @@
       "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
     },
     {
+      "command": "csv-import",
+      "demo_command": "portfolio-liquidity-runway-lab csv-import --out dist/csv-import",
+      "inputs": [
+        "portfolio.csv",
+        "ledger.csv"
+      ],
+      "no_script_html": false,
+      "outputs": [
+        "portfolio.json",
+        "ledger.json",
+        "import_report.json",
+        "import_report.md"
+      ],
+      "purpose": "Convert local portfolio and ledger CSV rows into validated JSON schemas.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
+    },
+    {
+      "command": "csv-export",
+      "demo_command": "portfolio-liquidity-runway-lab csv-export --packet dist/packet/liquidity_packet.json --out dist/csv-export",
+      "inputs": [
+        "liquidity_packet.json"
+      ],
+      "no_script_html": false,
+      "outputs": [
+        "assets.csv",
+        "runway.csv",
+        "warnings.csv",
+        "bucket_summaries.csv",
+        "export_manifest.json",
+        "export_manifest.md"
+      ],
+      "purpose": "Export packet assets, runway rows, warnings, and bucket summaries as deterministic CSV.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
+    },
+    {
+      "command": "input-lint",
+      "demo_command": "portfolio-liquidity-runway-lab input-lint --portfolio portfolio.json --ledger ledger.json --assumptions assumptions.json",
+      "inputs": [
+        "portfolio/ledger/assumptions JSON",
+        "portfolio/ledger CSV"
+      ],
+      "no_script_html": false,
+      "outputs": [
+        "stdout JSON",
+        "optional JSON file"
+      ],
+      "purpose": "Strict lint for JSON and CSV inputs with remediation and schema references.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
+    },
+    {
       "command": "fixture-doctor",
       "demo_command": "portfolio-liquidity-runway-lab fixture-doctor --out docs",
       "inputs": [
@@ -331,5 +381,5 @@
       "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
     }
   ],
-  "version": "0.6.0"
+  "version": "0.7.0"
 }

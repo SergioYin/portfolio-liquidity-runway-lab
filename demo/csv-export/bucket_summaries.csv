@@ -1,0 +1,5 @@
+tier,label,count,gross,stress_haircut_value
+same_day,Same day,2,50000.00,50000.00
+one_week,One week,1,28000.00,25760.00
+one_month,One month,1,22000.00,18700.00
+locked,Locked or gated,1,65000.00,39000.00

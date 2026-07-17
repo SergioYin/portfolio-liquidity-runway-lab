@@ -9,6 +9,7 @@
     "demo/batch-compare/batch_compare.html",
     "demo/casebook/casebook.html",
     "demo/command-matrix/command_matrix.html",
+    "demo/csv-export-packet/liquidity_packet.html",
     "demo/release-deck/release_deck.html",
     "demo/scenario-gallery/scenario_gallery.html",
     "demo/static-docs/index.html",

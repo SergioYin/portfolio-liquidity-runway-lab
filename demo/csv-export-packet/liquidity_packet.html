@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Portfolio Liquidity Runway Packet</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 2rem; color: #1d2329; background: #fbfbf8; }
+main { max-width: 980px; margin: 0 auto; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #c7cbd1; padding: 0.45rem; text-align: left; }
+th { background: #e8ecef; }
+blockquote { border-left: 4px solid #6b7280; margin-left: 0; padding-left: 1rem; color: #3f4650; }
+</style>
+</head>
+<body><main>
+<h1>Portfolio Liquidity Runway Packet: Synthetic household reserve portfolio</h1>
+<p>Scenario: `stress`</p>
+<blockquote>Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.</blockquote>
+<h2>Summary</h2>
+<ul>
+<li>Gross assets: $165,000.00</li>
+<li>Stress haircut assets: $133,460.00</li>
+<li>Effective monthly burn: $7,282.83</li>
+<li>Same-day reserve months: 4.51</li>
+<li>Same-day + one-week runway months: 10.4</li>
+<li>Thirty-day runway months: 12.97</li>
+</ul>
+<h2>Cash Buckets</h2>
+<table>
+<tr><th>Tier</th><th>Count</th><th>Gross</th><th>Stress value</th></tr>
+<tr><td>Same day</td><td>2</td><td>$50,000.00</td><td>$50,000.00</td></tr>
+<tr><td>One week</td><td>1</td><td>$28,000.00</td><td>$25,760.00</td></tr>
+<tr><td>One month</td><td>1</td><td>$22,000.00</td><td>$18,700.00</td></tr>
+<tr><td>Locked or gated</td><td>1</td><td>$65,000.00</td><td>$39,000.00</td></tr>
+</table>
+<h2>Scheduled Events</h2>
+<table>
+<tr><th>Month</th><th>Type</th><th>Label</th><th>Amount</th></tr>
+<tr><td>2</td><td>outflow</td><td>Insurance renewal</td><td>$1,800.00</td></tr>
+<tr><td>4</td><td>inflow</td><td>Contract receivable</td><td>$7,200.00</td></tr>
+<tr><td>7</td><td>outflow</td><td>Estimated tax placeholder</td><td>$5,500.00</td></tr>
+<tr><td>10</td><td>outflow</td><td>Home repair placeholder</td><td>$6,800.00</td></tr>
+</table>
+<h2>Monthly Runway</h2>
+<table>
+<tr><th>Month</th><th>Inflows</th><th>Outflows</th><th>Net burn</th><th>Liquid balance after</th></tr>
+<tr><td>1</td><td>$0.00</td><td>$0.00</td><td>$7,282.83</td><td>$68,477.17</td></tr>
+<tr><td>2</td><td>$0.00</td><td>$1,800.00</td><td>$9,082.83</td><td>$59,394.33</td></tr>
+<tr><td>3</td><td>$0.00</td><td>$0.00</td><td>$7,282.83</td><td>$52,111.50</td></tr>
+<tr><td>4</td><td>$7,200.00</td><td>$0.00</td><td>$82.83</td><td>$52,028.67</td></tr>
+<tr><td>5</td><td>$0.00</td><td>$0.00</td><td>$7,282.83</td><td>$44,745.83</td></tr>
+<tr><td>6</td><td>$0.00</td><td>$0.00</td><td>$7,282.83</td><td>$37,463.00</td></tr>
+<tr><td>7</td><td>$0.00</td><td>$5,500.00</td><td>$12,782.83</td><td>$24,680.17</td></tr>
+<tr><td>8</td><td>$0.00</td><td>$0.00</td><td>$7,282.83</td><td>$17,397.33</td></tr>
+<tr><td>9</td><td>$0.00</td><td>$0.00</td><td>$7,282.83</td><td>$10,114.50</td></tr>
+<tr><td>10</td><td>$0.00</td><td>$6,800.00</td><td>$14,082.83</td><td>$-3,968.33</td></tr>
+<tr><td>11</td><td>$0.00</td><td>$0.00</td><td>$7,282.83</td><td>$-11,251.17</td></tr>
+<tr><td>12</td><td>$0.00</td><td>$0.00</td><td>$7,282.83</td><td>$-18,534.00</td></tr>
+</table>
+<h2>Forced-Sale Warnings</h2>
+<ul>
+<li>Liquid balance turns negative in month 10; review whether one_month or locked holdings would be needed.</li>
+<li>Same-day reserve is 4.5 months, below the 6.0 month review threshold.</li>
+<li>Locked or gated assets exceed 35% of gross assets while burn is positive.</li>
+</ul>
+<h2>Review Prompts</h2>
+<ul>
+<li>Confirm each liquidity tier against account restrictions and settlement timing.</li>
+<li>Check that scheduled inflows and outflows are documented and still expected.</li>
+<li>Review whether fees, yields, and stress haircuts are assumptions rather than live quotes.</li>
+<li>Escalate to a qualified professional for tax, legal, investment, or brokerage decisions.</li>
+</ul>
+</main></body>
+</html>
