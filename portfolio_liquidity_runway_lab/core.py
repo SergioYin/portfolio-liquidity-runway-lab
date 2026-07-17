@@ -42,6 +42,29 @@ class PacketPaths:
     html_path: Path
 
 
+@dataclass(frozen=True)
+class ScenarioGalleryPaths:
+    out_dir: Path
+    json_path: Path
+    markdown_path: Path
+    html_path: Path
+
+
+IGNORED_RELEASE_PARTS = {
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+}
+
+
+def _is_ignored_release_path(path: Path) -> bool:
+    return any(part in IGNORED_RELEASE_PARTS or part.endswith(".egg-info") for part in path.parts)
+
+
 def bundled_example_path(name: str) -> Path:
     if not name.endswith(".json"):
         name = f"{name}.json"
@@ -376,6 +399,160 @@ blockquote { border-left: 4px solid #6b7280; margin-left: 0; padding-left: 1rem;
 """ + "\n".join(body_lines) + "\n</main></body>\n</html>\n"
 
 
+def _default_gallery_scenarios(assumptions: Mapping[str, Any]) -> List[str]:
+    scenarios = assumptions.get("scenarios", {})
+    if not isinstance(scenarios, dict):
+        raise ValueError("assumptions.scenarios must be an object")
+    preferred = ["base", "stress", "income_shock", "reserve_rebuild"]
+    selected = [name for name in preferred if name in scenarios]
+    if len(selected) < 3:
+        for name in sorted(str(key) for key in scenarios):
+            if name not in selected:
+                selected.append(name)
+            if len(selected) >= 3:
+                break
+    if len(selected) < 3:
+        raise ValueError("scenario gallery requires at least three scenarios in assumptions.scenarios")
+    return selected
+
+
+def build_scenario_gallery_data(
+    portfolio: Mapping[str, Any],
+    ledger: Mapping[str, Any],
+    assumptions: Mapping[str, Any],
+    scenario_names: Optional[Iterable[str]] = None,
+) -> Dict[str, Any]:
+    scenario_list = list(scenario_names) if scenario_names else _default_gallery_scenarios(assumptions)
+    if len(scenario_list) < 3:
+        raise ValueError("scenario gallery requires at least three scenario names")
+    packets = [analyze(portfolio, ledger, assumptions, name) for name in scenario_list]
+    rows = []
+    for packet in packets:
+        totals = packet["totals"]
+        rows.append(
+            {
+                "scenario": packet["scenario"],
+                "gross_assets": totals["gross_assets"],
+                "stress_haircut_assets": totals["stress_haircut_assets"],
+                "effective_monthly_burn": totals["effective_monthly_burn"],
+                "same_day_reserve_months": totals["same_day_reserve_months"],
+                "same_day_one_week_runway_months": totals["same_day_one_week_runway_months"],
+                "thirty_day_runway_months": totals["thirty_day_runway_months"],
+                "warning_count": len(packet["forced_sale_warnings"]),
+                "first_negative_month": next(
+                    (row["month"] for row in packet["monthly_runway"] if row["liquid_balance_after"] < 0),
+                    None,
+                ),
+            }
+        )
+    return {
+        "boundary": BOUNDARY_TEXT,
+        "portfolio_name": str(portfolio.get("name", "Synthetic portfolio")),
+        "currency": str(portfolio.get("currency", "USD")),
+        "scenario_names": scenario_list,
+        "summary": rows,
+        "scenarios": packets,
+    }
+
+
+def render_scenario_gallery_markdown(gallery: Mapping[str, Any]) -> str:
+    lines = [
+        f"# Scenario Gallery: {gallery['portfolio_name']}",
+        "",
+        f"> {gallery['boundary']}",
+        "",
+        "## Scenario Summary",
+        "",
+        "| Scenario | Haircut assets | Effective monthly burn | Same-day reserve months | 30-day runway months | Warnings | First negative month |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for row in gallery["summary"]:
+        first_negative = "" if row["first_negative_month"] is None else str(row["first_negative_month"])
+        lines.append(
+            f"| {row['scenario']} | {money(row['stress_haircut_assets'])} | {money(row['effective_monthly_burn'])} | "
+            f"{row['same_day_reserve_months']:.2f} | {row['thirty_day_runway_months']} | {row['warning_count']} | {first_negative} |"
+        )
+    for packet in gallery["scenarios"]:
+        totals = packet["totals"]
+        lines.extend(
+            [
+                "",
+                f"## {packet['scenario']}",
+                "",
+                f"- Gross assets: {money(totals['gross_assets'])}",
+                f"- Stress haircut assets: {money(totals['stress_haircut_assets'])}",
+                f"- Effective monthly burn: {money(totals['effective_monthly_burn'])}",
+                f"- Same-day reserve months: {totals['same_day_reserve_months']:.2f}",
+                f"- Same-day + one-week runway months: {totals['same_day_one_week_runway_months']}",
+                f"- Thirty-day runway months: {totals['thirty_day_runway_months']}",
+                "",
+                "Warnings:",
+            ]
+        )
+        warnings = packet["forced_sale_warnings"]
+        if warnings:
+            lines.extend(f"- {warning}" for warning in warnings)
+        else:
+            lines.append("- No forced-sale warnings were triggered by these assumptions.")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def render_scenario_gallery_html(gallery: Mapping[str, Any]) -> str:
+    summary_rows = []
+    for row in gallery["summary"]:
+        first_negative = "" if row["first_negative_month"] is None else str(row["first_negative_month"])
+        summary_rows.append(
+            "<tr>"
+            f"<td>{html.escape(str(row['scenario']))}</td>"
+            f"<td>{html.escape(money(row['stress_haircut_assets']))}</td>"
+            f"<td>{html.escape(money(row['effective_monthly_burn']))}</td>"
+            f"<td>{row['same_day_reserve_months']:.2f}</td>"
+            f"<td>{html.escape(str(row['thirty_day_runway_months']))}</td>"
+            f"<td>{row['warning_count']}</td>"
+            f"<td>{html.escape(first_negative)}</td>"
+            "</tr>"
+        )
+    scenario_sections = []
+    for packet in gallery["scenarios"]:
+        totals = packet["totals"]
+        warnings = packet["forced_sale_warnings"] or ["No forced-sale warnings were triggered by these assumptions."]
+        scenario_sections.append(
+            f"<section><h2>{html.escape(str(packet['scenario']))}</h2>"
+            "<dl>"
+            f"<dt>Gross assets</dt><dd>{html.escape(money(totals['gross_assets']))}</dd>"
+            f"<dt>Stress haircut assets</dt><dd>{html.escape(money(totals['stress_haircut_assets']))}</dd>"
+            f"<dt>Effective monthly burn</dt><dd>{html.escape(money(totals['effective_monthly_burn']))}</dd>"
+            f"<dt>Same-day reserve months</dt><dd>{totals['same_day_reserve_months']:.2f}</dd>"
+            f"<dt>Thirty-day runway months</dt><dd>{html.escape(str(totals['thirty_day_runway_months']))}</dd>"
+            "</dl>"
+            "<h3>Warnings</h3><ul>"
+            + "".join(f"<li>{html.escape(warning)}</li>" for warning in warnings)
+            + "</ul></section>"
+        )
+    return """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Portfolio Liquidity Scenario Gallery</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 2rem; color: #1d2329; background: #fbfbf8; }
+main { max-width: 1080px; margin: 0 auto; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0 2rem; }
+th, td { border: 1px solid #c7cbd1; padding: 0.45rem; text-align: left; }
+th { background: #e8ecef; }
+blockquote { border-left: 4px solid #6b7280; margin-left: 0; padding-left: 1rem; color: #3f4650; }
+section { border-top: 1px solid #c7cbd1; padding-top: 1rem; margin-top: 1rem; }
+dt { font-weight: 700; }
+dd { margin: 0 0 0.5rem 0; }
+</style>
+</head>
+<body><main>
+""" + f"<h1>Scenario Gallery: {html.escape(str(gallery['portfolio_name']))}</h1>\n" + f"<blockquote>{html.escape(str(gallery['boundary']))}</blockquote>\n" + """<table>
+<tr><th>Scenario</th><th>Haircut assets</th><th>Effective monthly burn</th><th>Same-day reserve months</th><th>30-day runway months</th><th>Warnings</th><th>First negative month</th></tr>
+""" + "\n".join(summary_rows) + "\n</table>\n" + "\n".join(scenario_sections) + "\n</main></body>\n</html>\n"
+
+
 def _bar(value: float, maximum: float, width: int = 24) -> str:
     filled = 0 if maximum <= 0 else int(round((value / maximum) * width))
     filled = max(0, min(width, filled))
@@ -457,6 +634,29 @@ def build_packet(
     return PacketPaths(out_dir, json_path, markdown_path, html_path)
 
 
+def build_scenario_gallery(
+    portfolio_path: Path,
+    ledger_path: Path,
+    assumptions_path: Path,
+    out_dir: Path,
+    scenario_names: Optional[Iterable[str]] = None,
+) -> ScenarioGalleryPaths:
+    gallery = build_scenario_gallery_data(
+        load_json(portfolio_path),
+        load_json(ledger_path),
+        load_json(assumptions_path),
+        scenario_names,
+    )
+    out_dir.mkdir(parents=True, exist_ok=True)
+    json_path = out_dir / "scenario_gallery.json"
+    markdown_path = out_dir / "scenario_gallery.md"
+    html_path = out_dir / "scenario_gallery.html"
+    dump_json(gallery, json_path)
+    markdown_path.write_text(render_scenario_gallery_markdown(gallery), encoding="utf-8")
+    html_path.write_text(render_scenario_gallery_html(gallery), encoding="utf-8")
+    return ScenarioGalleryPaths(out_dir, json_path, markdown_path, html_path)
+
+
 def build_visual_receipt(
     portfolio_path: Path,
     ledger_path: Path,
@@ -525,13 +725,11 @@ def review_ledger(ledger: Mapping[str, Any]) -> Dict[str, Any]:
 def public_scan(root: Path) -> Dict[str, Any]:
     findings: List[str] = []
     for path in sorted(root.rglob("*")):
+        if _is_ignored_release_path(path):
+            continue
         if path.is_dir():
             continue
-        if "__pycache__" in path.parts:
-            continue
         rel = path.relative_to(root).as_posix()
-        if rel.startswith(".git/"):
-            continue
         if rel.startswith(".github/workflows/"):
             findings.append(f"Forbidden workflow file: {rel}")
         if path.suffix.lower() in {".pyc", ".pyo", ".so", ".dll", ".dylib"}:
@@ -551,11 +749,11 @@ def public_scan(root: Path) -> Dict[str, Any]:
 def release_manifest(root: Path) -> Dict[str, Any]:
     files = []
     for path in sorted(root.rglob("*")):
-        if path.is_file() and ".git" not in path.parts and "__pycache__" not in path.parts:
+        if path.is_file() and not _is_ignored_release_path(path):
             files.append(path.relative_to(root).as_posix())
     return {
         "name": "portfolio-liquidity-runway-lab",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "boundary": BOUNDARY_TEXT,
         "files": files,
         "console_script": "portfolio-liquidity-runway-lab",
@@ -577,6 +775,7 @@ def maturity_report(root: Path) -> Dict[str, Any]:
         "cold_start_walkthrough": (root / "docs/cold_start_walkthrough.md").exists(),
         "release_readiness_review": (root / "docs/release_readiness_review.md").exists(),
         "release_manifest": (root / "docs/release_manifest.json").exists(),
+        "demo_scenario_gallery": (root / "demo/scenario-gallery/scenario_gallery.md").exists(),
         "demo_visual_receipt": (root / "demo/visual_receipt.md").exists(),
         "tests": (root / "tests").exists(),
         "agent_skill": (root / "skills/agent/portfolio-liquidity-runway-lab/SKILL.md").exists(),

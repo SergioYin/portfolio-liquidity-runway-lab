@@ -12,6 +12,7 @@ from . import __version__
 from .core import (
     BOUNDARY_TEXT,
     build_packet,
+    build_scenario_gallery,
     build_visual_receipt,
     bundled_example_path,
     compare_history,
@@ -81,6 +82,35 @@ def cmd_static_dashboard(args: argparse.Namespace) -> int:
     return 0
 
 
+def _split_scenarios(value: Optional[str]) -> Optional[list[str]]:
+    if not value:
+        return None
+    scenarios = [item.strip() for item in value.split(",") if item.strip()]
+    if len(scenarios) < 3:
+        raise ValueError("--scenarios must name at least three scenarios")
+    return scenarios
+
+
+def cmd_scenario_gallery(args: argparse.Namespace) -> int:
+    paths = build_scenario_gallery(
+        _example_or_path(args.portfolio, "portfolio"),
+        _example_or_path(args.ledger, "ledger"),
+        _example_or_path(args.assumptions, "assumptions"),
+        Path(args.out),
+        _split_scenarios(args.scenarios),
+    )
+    _print_json(
+        {
+            "status": "ok",
+            "boundary": BOUNDARY_TEXT,
+            "json": str(paths.json_path),
+            "markdown": str(paths.markdown_path),
+            "html": str(paths.html_path),
+        }
+    )
+    return 0
+
+
 def cmd_visual_receipt(args: argparse.Namespace) -> int:
     path = build_visual_receipt(
         _example_or_path(args.portfolio, "portfolio"),
@@ -116,11 +146,25 @@ def cmd_selfcheck(args: argparse.Namespace) -> int:
             tmp_path / "packet",
             "stress",
         )
+        gallery_paths = build_scenario_gallery(
+            bundled_example_path("portfolio"),
+            bundled_example_path("ledger"),
+            bundled_example_path("assumptions"),
+            tmp_path / "scenario-gallery",
+        )
+        gallery = load_json(gallery_paths.json_path)
         packet = load_json(paths.json_path)
         checks = {
             "json_artifact": paths.json_path.exists(),
             "markdown_artifact": paths.markdown_path.exists(),
             "html_artifact": paths.html_path.exists() and "<script" not in paths.html_path.read_text(encoding="utf-8").lower(),
+            "scenario_gallery": (
+                gallery_paths.json_path.exists()
+                and gallery_paths.markdown_path.exists()
+                and gallery_paths.html_path.exists()
+                and "<script" not in gallery_paths.html_path.read_text(encoding="utf-8").lower()
+                and gallery.get("scenario_names") == ["base", "stress", "income_shock", "reserve_rebuild"]
+            ),
             "visual_receipt": (
                 build_visual_receipt(
                     bundled_example_path("portfolio"),
@@ -196,6 +240,14 @@ def build_parser() -> argparse.ArgumentParser:
     add_common_inputs(p)
     p.add_argument("--out", default="dist/dashboard", help="Output directory.")
     p.set_defaults(func=cmd_static_dashboard)
+
+    p = sub.add_parser("scenario-gallery", help="Build JSON, Markdown, and no-JavaScript HTML scenario gallery artifacts.")
+    p.add_argument("--portfolio", help="Portfolio JSON path. Defaults to bundled synthetic example.")
+    p.add_argument("--ledger", help="Ledger JSON path. Defaults to bundled synthetic example.")
+    p.add_argument("--assumptions", help="Assumptions JSON path. Defaults to bundled synthetic example.")
+    p.add_argument("--scenarios", help="Comma-separated scenario names. Defaults to base, stress, income_shock, reserve_rebuild when present.")
+    p.add_argument("--out", default="dist/scenario-gallery", help="Output directory.")
+    p.set_defaults(func=cmd_scenario_gallery)
 
     p = sub.add_parser("visual-receipt", help="Write a compact deterministic Markdown receipt for packet review.")
     add_common_inputs(p)

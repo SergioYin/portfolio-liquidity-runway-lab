@@ -1,0 +1,897 @@
+{
+  "boundary": "Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.",
+  "currency": "USD",
+  "portfolio_name": "Synthetic household reserve portfolio",
+  "scenario_names": [
+    "base",
+    "stress",
+    "income_shock",
+    "reserve_rebuild"
+  ],
+  "scenarios": [
+    {
+      "assets": [
+        {
+          "annual_fee": 0.0,
+          "annual_yield": 18.0,
+          "gross": 18000.0,
+          "haircut_value": 18000.0,
+          "name": "Checking reserve",
+          "tier": "same_day"
+        },
+        {
+          "annual_fee": 48.0,
+          "annual_yield": 1120.0,
+          "gross": 32000.0,
+          "haircut_value": 32000.0,
+          "name": "Treasury money market",
+          "tier": "same_day"
+        },
+        {
+          "annual_fee": 28.0,
+          "annual_yield": 868.0,
+          "gross": 28000.0,
+          "haircut_value": 27440.0,
+          "name": "Short Treasury ETF placeholder",
+          "tier": "one_week"
+        },
+        {
+          "annual_fee": 0.0,
+          "annual_yield": 880.0,
+          "gross": 22000.0,
+          "haircut_value": 20900.0,
+          "name": "CD ladder placeholder",
+          "tier": "one_month"
+        },
+        {
+          "annual_fee": 780.0,
+          "annual_yield": 0.0,
+          "gross": 65000.0,
+          "haircut_value": 48750.0,
+          "name": "Private fund placeholder",
+          "tier": "locked"
+        }
+      ],
+      "boundary": "Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.",
+      "cash_buckets": {
+        "locked": {
+          "count": 1,
+          "gross": 65000.0,
+          "label": "Locked or gated",
+          "stress_haircut_value": 48750.0
+        },
+        "one_month": {
+          "count": 1,
+          "gross": 22000.0,
+          "label": "One month",
+          "stress_haircut_value": 20900.0
+        },
+        "one_week": {
+          "count": 1,
+          "gross": 28000.0,
+          "label": "One week",
+          "stress_haircut_value": 27440.0
+        },
+        "same_day": {
+          "count": 2,
+          "gross": 50000.0,
+          "label": "Same day",
+          "stress_haircut_value": 50000.0
+        }
+      },
+      "currency": "USD",
+      "forced_sale_warnings": [
+        "Same-day reserve is 5.3 months, below the 6.0 month review threshold.",
+        "Locked or gated assets exceed 35% of gross assets while burn is positive."
+      ],
+      "monthly_runway": [
+        {
+          "liquid_balance_after": 73409.17,
+          "month": 1,
+          "net_burn": 4030.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 67578.33,
+          "month": 2,
+          "net_burn": 5830.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 1800.0
+        },
+        {
+          "liquid_balance_after": 63547.5,
+          "month": 3,
+          "net_burn": 4030.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 66716.67,
+          "month": 4,
+          "net_burn": -3169.17,
+          "scheduled_inflows": 7200.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 62685.83,
+          "month": 5,
+          "net_burn": 4030.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 58655.0,
+          "month": 6,
+          "net_burn": 4030.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 49124.17,
+          "month": 7,
+          "net_burn": 9530.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 5500.0
+        },
+        {
+          "liquid_balance_after": 45093.33,
+          "month": 8,
+          "net_burn": 4030.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 41062.5,
+          "month": 9,
+          "net_burn": 4030.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 30231.67,
+          "month": 10,
+          "net_burn": 10830.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 6800.0
+        },
+        {
+          "liquid_balance_after": 26200.83,
+          "month": 11,
+          "net_burn": 4030.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 22170.0,
+          "month": 12,
+          "net_burn": 4030.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        }
+      ],
+      "portfolio_name": "Synthetic household reserve portfolio",
+      "review_prompts": [
+        "Confirm each liquidity tier against account restrictions and settlement timing.",
+        "Check that scheduled inflows and outflows are documented and still expected.",
+        "Review whether fees, yields, and stress haircuts are assumptions rather than live quotes.",
+        "Escalate to a qualified professional for tax, legal, investment, or brokerage decisions."
+      ],
+      "scenario": "base",
+      "scheduled_events": [
+        {
+          "amount": 1800.0,
+          "label": "Insurance renewal",
+          "month": 2,
+          "type": "outflow"
+        },
+        {
+          "amount": 7200.0,
+          "label": "Contract receivable",
+          "month": 4,
+          "type": "inflow"
+        },
+        {
+          "amount": 5500.0,
+          "label": "Estimated tax placeholder",
+          "month": 7,
+          "type": "outflow"
+        },
+        {
+          "amount": 6800.0,
+          "label": "Home repair placeholder",
+          "month": 10,
+          "type": "outflow"
+        }
+      ],
+      "totals": {
+        "annual_fee_assumption": 856.0,
+        "annual_yield_assumption": 2886.0,
+        "effective_monthly_burn": 4030.83,
+        "gross_assets": 165000.0,
+        "monthly_fee_assumption": 71.33,
+        "monthly_net_burn_before_yield_fee": 4200.0,
+        "monthly_yield_assumption": 240.5,
+        "same_day_one_week_runway_months": 19.21,
+        "same_day_reserve_months": 5.32,
+        "stress_haircut_assets": 147090.0,
+        "thirty_day_runway_months": 24.4
+      }
+    },
+    {
+      "assets": [
+        {
+          "annual_fee": 0.0,
+          "annual_yield": 18.0,
+          "gross": 18000.0,
+          "haircut_value": 18000.0,
+          "name": "Checking reserve",
+          "tier": "same_day"
+        },
+        {
+          "annual_fee": 48.0,
+          "annual_yield": 1120.0,
+          "gross": 32000.0,
+          "haircut_value": 32000.0,
+          "name": "Treasury money market",
+          "tier": "same_day"
+        },
+        {
+          "annual_fee": 28.0,
+          "annual_yield": 868.0,
+          "gross": 28000.0,
+          "haircut_value": 25760.0,
+          "name": "Short Treasury ETF placeholder",
+          "tier": "one_week"
+        },
+        {
+          "annual_fee": 0.0,
+          "annual_yield": 880.0,
+          "gross": 22000.0,
+          "haircut_value": 18700.0,
+          "name": "CD ladder placeholder",
+          "tier": "one_month"
+        },
+        {
+          "annual_fee": 780.0,
+          "annual_yield": 0.0,
+          "gross": 65000.0,
+          "haircut_value": 39000.0,
+          "name": "Private fund placeholder",
+          "tier": "locked"
+        }
+      ],
+      "boundary": "Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.",
+      "cash_buckets": {
+        "locked": {
+          "count": 1,
+          "gross": 65000.0,
+          "label": "Locked or gated",
+          "stress_haircut_value": 39000.0
+        },
+        "one_month": {
+          "count": 1,
+          "gross": 22000.0,
+          "label": "One month",
+          "stress_haircut_value": 18700.0
+        },
+        "one_week": {
+          "count": 1,
+          "gross": 28000.0,
+          "label": "One week",
+          "stress_haircut_value": 25760.0
+        },
+        "same_day": {
+          "count": 2,
+          "gross": 50000.0,
+          "label": "Same day",
+          "stress_haircut_value": 50000.0
+        }
+      },
+      "currency": "USD",
+      "forced_sale_warnings": [
+        "Liquid balance turns negative in month 10; review whether one_month or locked holdings would be needed.",
+        "Same-day reserve is 4.5 months, below the 6.0 month review threshold.",
+        "Locked or gated assets exceed 35% of gross assets while burn is positive."
+      ],
+      "monthly_runway": [
+        {
+          "liquid_balance_after": 68477.17,
+          "month": 1,
+          "net_burn": 7282.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 59394.33,
+          "month": 2,
+          "net_burn": 9082.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 1800.0
+        },
+        {
+          "liquid_balance_after": 52111.5,
+          "month": 3,
+          "net_burn": 7282.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 52028.67,
+          "month": 4,
+          "net_burn": 82.83,
+          "scheduled_inflows": 7200.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 44745.83,
+          "month": 5,
+          "net_burn": 7282.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 37463.0,
+          "month": 6,
+          "net_burn": 7282.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 24680.17,
+          "month": 7,
+          "net_burn": 12782.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 5500.0
+        },
+        {
+          "liquid_balance_after": 17397.33,
+          "month": 8,
+          "net_burn": 7282.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 10114.5,
+          "month": 9,
+          "net_burn": 7282.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": -3968.33,
+          "month": 10,
+          "net_burn": 14082.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 6800.0
+        },
+        {
+          "liquid_balance_after": -11251.17,
+          "month": 11,
+          "net_burn": 7282.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": -18534.0,
+          "month": 12,
+          "net_burn": 7282.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        }
+      ],
+      "portfolio_name": "Synthetic household reserve portfolio",
+      "review_prompts": [
+        "Confirm each liquidity tier against account restrictions and settlement timing.",
+        "Check that scheduled inflows and outflows are documented and still expected.",
+        "Review whether fees, yields, and stress haircuts are assumptions rather than live quotes.",
+        "Escalate to a qualified professional for tax, legal, investment, or brokerage decisions."
+      ],
+      "scenario": "stress",
+      "scheduled_events": [
+        {
+          "amount": 1800.0,
+          "label": "Insurance renewal",
+          "month": 2,
+          "type": "outflow"
+        },
+        {
+          "amount": 7200.0,
+          "label": "Contract receivable",
+          "month": 4,
+          "type": "inflow"
+        },
+        {
+          "amount": 5500.0,
+          "label": "Estimated tax placeholder",
+          "month": 7,
+          "type": "outflow"
+        },
+        {
+          "amount": 6800.0,
+          "label": "Home repair placeholder",
+          "month": 10,
+          "type": "outflow"
+        }
+      ],
+      "totals": {
+        "annual_fee_assumption": 856.0,
+        "annual_yield_assumption": 2886.0,
+        "effective_monthly_burn": 7282.83,
+        "gross_assets": 165000.0,
+        "monthly_fee_assumption": 71.33,
+        "monthly_net_burn_before_yield_fee": 7452.0,
+        "monthly_yield_assumption": 240.5,
+        "same_day_one_week_runway_months": 10.4,
+        "same_day_reserve_months": 4.51,
+        "stress_haircut_assets": 133460.0,
+        "thirty_day_runway_months": 12.97
+      }
+    },
+    {
+      "assets": [
+        {
+          "annual_fee": 0.0,
+          "annual_yield": 18.0,
+          "gross": 18000.0,
+          "haircut_value": 18000.0,
+          "name": "Checking reserve",
+          "tier": "same_day"
+        },
+        {
+          "annual_fee": 48.0,
+          "annual_yield": 1120.0,
+          "gross": 32000.0,
+          "haircut_value": 32000.0,
+          "name": "Treasury money market",
+          "tier": "same_day"
+        },
+        {
+          "annual_fee": 28.0,
+          "annual_yield": 868.0,
+          "gross": 28000.0,
+          "haircut_value": 26600.0,
+          "name": "Short Treasury ETF placeholder",
+          "tier": "one_week"
+        },
+        {
+          "annual_fee": 0.0,
+          "annual_yield": 880.0,
+          "gross": 22000.0,
+          "haircut_value": 19360.0,
+          "name": "CD ladder placeholder",
+          "tier": "one_month"
+        },
+        {
+          "annual_fee": 780.0,
+          "annual_yield": 0.0,
+          "gross": 65000.0,
+          "haircut_value": 42250.0,
+          "name": "Private fund placeholder",
+          "tier": "locked"
+        }
+      ],
+      "boundary": "Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.",
+      "cash_buckets": {
+        "locked": {
+          "count": 1,
+          "gross": 65000.0,
+          "label": "Locked or gated",
+          "stress_haircut_value": 42250.0
+        },
+        "one_month": {
+          "count": 1,
+          "gross": 22000.0,
+          "label": "One month",
+          "stress_haircut_value": 19360.0
+        },
+        "one_week": {
+          "count": 1,
+          "gross": 28000.0,
+          "label": "One week",
+          "stress_haircut_value": 26600.0
+        },
+        "same_day": {
+          "count": 2,
+          "gross": 50000.0,
+          "label": "Same day",
+          "stress_haircut_value": 50000.0
+        }
+      },
+      "currency": "USD",
+      "forced_sale_warnings": [
+        "Liquid balance turns negative in month 10; review whether one_month or locked holdings would be needed.",
+        "Same-day reserve is 5.1 months, below the 6.0 month review threshold.",
+        "Locked or gated assets exceed 35% of gross assets while burn is positive."
+      ],
+      "monthly_runway": [
+        {
+          "liquid_balance_after": 69239.17,
+          "month": 1,
+          "net_burn": 7360.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 60078.33,
+          "month": 2,
+          "net_burn": 9160.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 1800.0
+        },
+        {
+          "liquid_balance_after": 52717.5,
+          "month": 3,
+          "net_burn": 7360.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 52556.67,
+          "month": 4,
+          "net_burn": 160.83,
+          "scheduled_inflows": 7200.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 45195.83,
+          "month": 5,
+          "net_burn": 7360.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 37835.0,
+          "month": 6,
+          "net_burn": 7360.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 24974.17,
+          "month": 7,
+          "net_burn": 12860.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 5500.0
+        },
+        {
+          "liquid_balance_after": 17613.33,
+          "month": 8,
+          "net_burn": 7360.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 10252.5,
+          "month": 9,
+          "net_burn": 7360.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": -3908.33,
+          "month": 10,
+          "net_burn": 14160.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 6800.0
+        },
+        {
+          "liquid_balance_after": -11269.17,
+          "month": 11,
+          "net_burn": 7360.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": -18630.0,
+          "month": 12,
+          "net_burn": 7360.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        }
+      ],
+      "portfolio_name": "Synthetic household reserve portfolio",
+      "review_prompts": [
+        "Confirm each liquidity tier against account restrictions and settlement timing.",
+        "Check that scheduled inflows and outflows are documented and still expected.",
+        "Review whether fees, yields, and stress haircuts are assumptions rather than live quotes.",
+        "Escalate to a qualified professional for tax, legal, investment, or brokerage decisions."
+      ],
+      "scenario": "income_shock",
+      "scheduled_events": [
+        {
+          "amount": 1800.0,
+          "label": "Insurance renewal",
+          "month": 2,
+          "type": "outflow"
+        },
+        {
+          "amount": 7200.0,
+          "label": "Contract receivable",
+          "month": 4,
+          "type": "inflow"
+        },
+        {
+          "amount": 5500.0,
+          "label": "Estimated tax placeholder",
+          "month": 7,
+          "type": "outflow"
+        },
+        {
+          "amount": 6800.0,
+          "label": "Home repair placeholder",
+          "month": 10,
+          "type": "outflow"
+        }
+      ],
+      "totals": {
+        "annual_fee_assumption": 856.0,
+        "annual_yield_assumption": 2886.0,
+        "effective_monthly_burn": 7360.83,
+        "gross_assets": 165000.0,
+        "monthly_fee_assumption": 71.33,
+        "monthly_net_burn_before_yield_fee": 7530.0,
+        "monthly_yield_assumption": 240.5,
+        "same_day_one_week_runway_months": 10.41,
+        "same_day_reserve_months": 5.07,
+        "stress_haircut_assets": 138210.0,
+        "thirty_day_runway_months": 13.04
+      }
+    },
+    {
+      "assets": [
+        {
+          "annual_fee": 0.0,
+          "annual_yield": 18.0,
+          "gross": 18000.0,
+          "haircut_value": 18000.0,
+          "name": "Checking reserve",
+          "tier": "same_day"
+        },
+        {
+          "annual_fee": 48.0,
+          "annual_yield": 1120.0,
+          "gross": 32000.0,
+          "haircut_value": 32000.0,
+          "name": "Treasury money market",
+          "tier": "same_day"
+        },
+        {
+          "annual_fee": 28.0,
+          "annual_yield": 868.0,
+          "gross": 28000.0,
+          "haircut_value": 27440.0,
+          "name": "Short Treasury ETF placeholder",
+          "tier": "one_week"
+        },
+        {
+          "annual_fee": 0.0,
+          "annual_yield": 880.0,
+          "gross": 22000.0,
+          "haircut_value": 21120.0,
+          "name": "CD ladder placeholder",
+          "tier": "one_month"
+        },
+        {
+          "annual_fee": 780.0,
+          "annual_yield": 0.0,
+          "gross": 65000.0,
+          "haircut_value": 50700.0,
+          "name": "Private fund placeholder",
+          "tier": "locked"
+        }
+      ],
+      "boundary": "Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.",
+      "cash_buckets": {
+        "locked": {
+          "count": 1,
+          "gross": 65000.0,
+          "label": "Locked or gated",
+          "stress_haircut_value": 50700.0
+        },
+        "one_month": {
+          "count": 1,
+          "gross": 22000.0,
+          "label": "One month",
+          "stress_haircut_value": 21120.0
+        },
+        "one_week": {
+          "count": 1,
+          "gross": 28000.0,
+          "label": "One week",
+          "stress_haircut_value": 27440.0
+        },
+        "same_day": {
+          "count": 2,
+          "gross": 50000.0,
+          "label": "Same day",
+          "stress_haircut_value": 50000.0
+        }
+      },
+      "currency": "USD",
+      "forced_sale_warnings": [
+        "Same-day reserve is 5.8 months, below the 6.0 month review threshold.",
+        "Locked or gated assets exceed 35% of gross assets while burn is positive."
+      ],
+      "monthly_runway": [
+        {
+          "liquid_balance_after": 74577.17,
+          "month": 1,
+          "net_burn": 2862.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 69914.33,
+          "month": 2,
+          "net_burn": 4662.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 1800.0
+        },
+        {
+          "liquid_balance_after": 67051.5,
+          "month": 3,
+          "net_burn": 2862.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 71388.67,
+          "month": 4,
+          "net_burn": -4337.17,
+          "scheduled_inflows": 7200.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 68525.83,
+          "month": 5,
+          "net_burn": 2862.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 65663.0,
+          "month": 6,
+          "net_burn": 2862.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 57300.17,
+          "month": 7,
+          "net_burn": 8362.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 5500.0
+        },
+        {
+          "liquid_balance_after": 54437.33,
+          "month": 8,
+          "net_burn": 2862.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 51574.5,
+          "month": 9,
+          "net_burn": 2862.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 41911.67,
+          "month": 10,
+          "net_burn": 9662.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 6800.0
+        },
+        {
+          "liquid_balance_after": 39048.83,
+          "month": 11,
+          "net_burn": 2862.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        },
+        {
+          "liquid_balance_after": 36186.0,
+          "month": 12,
+          "net_burn": 2862.83,
+          "scheduled_inflows": 0.0,
+          "scheduled_outflows": 0.0
+        }
+      ],
+      "portfolio_name": "Synthetic household reserve portfolio",
+      "review_prompts": [
+        "Confirm each liquidity tier against account restrictions and settlement timing.",
+        "Check that scheduled inflows and outflows are documented and still expected.",
+        "Review whether fees, yields, and stress haircuts are assumptions rather than live quotes.",
+        "Escalate to a qualified professional for tax, legal, investment, or brokerage decisions."
+      ],
+      "scenario": "reserve_rebuild",
+      "scheduled_events": [
+        {
+          "amount": 1800.0,
+          "label": "Insurance renewal",
+          "month": 2,
+          "type": "outflow"
+        },
+        {
+          "amount": 7200.0,
+          "label": "Contract receivable",
+          "month": 4,
+          "type": "inflow"
+        },
+        {
+          "amount": 5500.0,
+          "label": "Estimated tax placeholder",
+          "month": 7,
+          "type": "outflow"
+        },
+        {
+          "amount": 6800.0,
+          "label": "Home repair placeholder",
+          "month": 10,
+          "type": "outflow"
+        }
+      ],
+      "totals": {
+        "annual_fee_assumption": 856.0,
+        "annual_yield_assumption": 2886.0,
+        "effective_monthly_burn": 2862.83,
+        "gross_assets": 165000.0,
+        "monthly_fee_assumption": 71.33,
+        "monthly_net_burn_before_yield_fee": 3032.0,
+        "monthly_yield_assumption": 240.5,
+        "same_day_one_week_runway_months": 27.05,
+        "same_day_reserve_months": 5.78,
+        "stress_haircut_assets": 149260.0,
+        "thirty_day_runway_months": 34.43
+      }
+    }
+  ],
+  "summary": [
+    {
+      "effective_monthly_burn": 4030.83,
+      "first_negative_month": null,
+      "gross_assets": 165000.0,
+      "same_day_one_week_runway_months": 19.21,
+      "same_day_reserve_months": 5.32,
+      "scenario": "base",
+      "stress_haircut_assets": 147090.0,
+      "thirty_day_runway_months": 24.4,
+      "warning_count": 2
+    },
+    {
+      "effective_monthly_burn": 7282.83,
+      "first_negative_month": 10,
+      "gross_assets": 165000.0,
+      "same_day_one_week_runway_months": 10.4,
+      "same_day_reserve_months": 4.51,
+      "scenario": "stress",
+      "stress_haircut_assets": 133460.0,
+      "thirty_day_runway_months": 12.97,
+      "warning_count": 3
+    },
+    {
+      "effective_monthly_burn": 7360.83,
+      "first_negative_month": 10,
+      "gross_assets": 165000.0,
+      "same_day_one_week_runway_months": 10.41,
+      "same_day_reserve_months": 5.07,
+      "scenario": "income_shock",
+      "stress_haircut_assets": 138210.0,
+      "thirty_day_runway_months": 13.04,
+      "warning_count": 3
+    },
+    {
+      "effective_monthly_burn": 2862.83,
+      "first_negative_month": null,
+      "gross_assets": 165000.0,
+      "same_day_one_week_runway_months": 27.05,
+      "same_day_reserve_months": 5.78,
+      "scenario": "reserve_rebuild",
+      "stress_haircut_assets": 149260.0,
+      "thirty_day_runway_months": 34.43,
+      "warning_count": 2
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "boundary": "Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.",
+  "checks": {
+    "agent_skill": true,
+    "cold_start_walkthrough": true,
+    "demo_scenario_gallery": true,
+    "demo_visual_receipt": true,
+    "license": true,
+    "no_github_workflows": true,
+    "pyproject": true,
+    "readme": true,
+    "readme_boundary": true,
+    "readme_quickstart": true,
+    "release_manifest": true,
+    "release_readiness_review": true,
+    "tests": true
+  },
+  "score": 13
+}

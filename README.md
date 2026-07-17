@@ -13,6 +13,7 @@ From an empty working directory after installation:
 ```bash
 portfolio-liquidity-runway-lab quickstart-check --out liquidity-demo
 portfolio-liquidity-runway-lab build-packet --out liquidity-demo/packet --scenario stress
+portfolio-liquidity-runway-lab scenario-gallery --out liquidity-demo/scenario-gallery
 portfolio-liquidity-runway-lab visual-receipt --out liquidity-demo/visual_receipt.md --scenario stress
 ```
 
@@ -22,13 +23,17 @@ Example outputs:
 - `liquidity-demo/packet/liquidity_packet.json`
 - `liquidity-demo/packet/liquidity_packet.md`
 - `liquidity-demo/packet/liquidity_packet.html`
+- `liquidity-demo/scenario-gallery/scenario_gallery.json`
+- `liquidity-demo/scenario-gallery/scenario_gallery.md`
+- `liquidity-demo/scenario-gallery/scenario_gallery.html`
 - `liquidity-demo/visual_receipt.md`
 
-The packet contains liquidity buckets, stress-haircut values, monthly runway rows, forced-sale warnings, and review prompts. The visual receipt is a compact Markdown showcase that links the packet artifacts, boundary text, liquidity bucket bars, and regeneration commands. Open `liquidity-demo/packet/liquidity_packet.html`, inspect `demo/visual_receipt.md`, or run supporting checks:
+The packet contains liquidity buckets, stress-haircut values, monthly runway rows, forced-sale warnings, and review prompts. The scenario gallery compares bundled `base`, `stress`, `income_shock`, and `reserve_rebuild` scenarios across deterministic JSON, Markdown, and no-JavaScript HTML artifacts. The visual receipt is a compact Markdown showcase that links the packet artifacts, boundary text, liquidity bucket bars, and regeneration commands. Open `liquidity-demo/packet/liquidity_packet.html`, inspect `liquidity-demo/scenario-gallery/scenario_gallery.html`, inspect `demo/visual_receipt.md`, or run supporting checks:
 
 ```bash
 portfolio-liquidity-runway-lab compare-history
 portfolio-liquidity-runway-lab review-ledger
+portfolio-liquidity-runway-lab scenario-gallery
 portfolio-liquidity-runway-lab selfcheck
 portfolio-liquidity-runway-lab public-scan
 portfolio-liquidity-runway-lab maturity-report
@@ -47,6 +52,7 @@ python -m portfolio_liquidity_runway_lab selfcheck
 - `compare-history`: compare reserve-month and burn snapshots.
 - `review-ledger`: produce ledger flags and review prompts.
 - `static-dashboard`: build the static HTML dashboard artifact.
+- `scenario-gallery`: build deterministic JSON, Markdown, and no-JavaScript HTML gallery artifacts for at least three named scenarios.
 - `visual-receipt`: write a compact deterministic Markdown receipt for packet review.
 - `quickstart-check`: copy packaged synthetic examples and build a packet.
 - `selfcheck`: run a smoke test against packaged examples.

@@ -22,6 +22,26 @@
         "one_month": 0.15,
         "locked": 0.40
       }
+    },
+    "income_shock": {
+      "expense_multiplier": 1.05,
+      "income_multiplier": 0.45,
+      "liquidity_haircuts": {
+        "same_day": 0.0,
+        "one_week": 0.05,
+        "one_month": 0.12,
+        "locked": 0.35
+      }
+    },
+    "reserve_rebuild": {
+      "expense_multiplier": 0.92,
+      "income_multiplier": 1.08,
+      "liquidity_haircuts": {
+        "same_day": 0.0,
+        "one_week": 0.02,
+        "one_month": 0.04,
+        "locked": 0.22
+      }
     }
   }
 }

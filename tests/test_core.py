@@ -3,7 +3,15 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from portfolio_liquidity_runway_lab.core import analyze, build_packet, bundled_example_path, load_json, maturity_report, release_manifest
+from portfolio_liquidity_runway_lab.core import (
+    analyze,
+    build_packet,
+    build_scenario_gallery,
+    bundled_example_path,
+    load_json,
+    maturity_report,
+    release_manifest,
+)
 
 
 class CoreTests(unittest.TestCase):
@@ -36,12 +44,43 @@ class CoreTests(unittest.TestCase):
             self.assertIn("<!doctype html>", html)
             self.assertNotIn("<script", html.lower())
 
+    def test_scenario_gallery_writes_static_deterministic_artifacts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "gallery"
+            paths = build_scenario_gallery(
+                bundled_example_path("portfolio"),
+                bundled_example_path("ledger"),
+                bundled_example_path("assumptions"),
+                out,
+            )
+            first_json = paths.json_path.read_text(encoding="utf-8")
+            first_markdown = paths.markdown_path.read_text(encoding="utf-8")
+            first_html = paths.html_path.read_text(encoding="utf-8")
+            payload = json.loads(first_json)
+            self.assertEqual(payload["scenario_names"], ["base", "stress", "income_shock", "reserve_rebuild"])
+            self.assertEqual([row["scenario"] for row in payload["summary"]], payload["scenario_names"])
+            self.assertIn("# Scenario Gallery:", first_markdown)
+            self.assertIn("income_shock", first_markdown)
+            self.assertIn("<!doctype html>", first_html)
+            self.assertNotIn("<script", first_html.lower())
+
+            build_scenario_gallery(
+                bundled_example_path("portfolio"),
+                bundled_example_path("ledger"),
+                bundled_example_path("assumptions"),
+                out,
+            )
+            self.assertEqual(first_json, paths.json_path.read_text(encoding="utf-8"))
+            self.assertEqual(first_markdown, paths.markdown_path.read_text(encoding="utf-8"))
+            self.assertEqual(first_html, paths.html_path.read_text(encoding="utf-8"))
+
     def test_readme_and_maturity_report_cover_public_release_expectations(self):
         repo_root = Path(__file__).resolve().parents[1]
         readme = (repo_root / "README.md").read_text(encoding="utf-8").lower()
         self.assertLess(readme.index("quickstart"), readme.index("## commands"))
         self.assertIn("example outputs", readme)
         self.assertIn("visual-receipt", readme)
+        self.assertIn("scenario-gallery", readme)
         self.assertIn("does not fetch live data", readme)
         self.assertIn("does not provide tax, legal, investment, buy, sell, or hold advice", readme)
 
@@ -56,7 +95,9 @@ class CoreTests(unittest.TestCase):
         self.assertIn("docs/cold_start_walkthrough.md", manifest["files"])
         self.assertIn("docs/release_readiness_review.md", manifest["files"])
         self.assertIn("demo/visual_receipt.md", manifest["files"])
+        self.assertIn("demo/scenario-gallery/scenario_gallery.md", manifest["files"])
         self.assertIn("README.md", manifest["files"])
+        self.assertEqual(manifest["version"], "0.2.0")
 
 
 if __name__ == "__main__":

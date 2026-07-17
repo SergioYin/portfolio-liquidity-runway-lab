@@ -28,6 +28,7 @@ mkdir -p /tmp/plrl-demo
 cd /tmp/plrl-demo
 portfolio-liquidity-runway-lab quickstart-check --out liquidity-demo
 portfolio-liquidity-runway-lab build-packet --out liquidity-demo/packet --scenario stress
+portfolio-liquidity-runway-lab scenario-gallery --out liquidity-demo/scenario-gallery
 portfolio-liquidity-runway-lab visual-receipt --out liquidity-demo/visual_receipt.md --scenario stress
 ```
 
@@ -41,6 +42,9 @@ liquidity-demo/history.json
 liquidity-demo/packet/liquidity_packet.json
 liquidity-demo/packet/liquidity_packet.md
 liquidity-demo/packet/liquidity_packet.html
+liquidity-demo/scenario-gallery/scenario_gallery.json
+liquidity-demo/scenario-gallery/scenario_gallery.md
+liquidity-demo/scenario-gallery/scenario_gallery.html
 liquidity-demo/visual_receipt.md
 ```
 
@@ -50,10 +54,11 @@ liquidity-demo/visual_receipt.md
 portfolio-liquidity-runway-lab compare-history --history liquidity-demo/history.json
 portfolio-liquidity-runway-lab review-ledger --ledger liquidity-demo/ledger.json
 portfolio-liquidity-runway-lab static-dashboard --out liquidity-demo/dashboard --scenario stress
+portfolio-liquidity-runway-lab scenario-gallery --out liquidity-demo/scenario-gallery
 portfolio-liquidity-runway-lab visual-receipt --out liquidity-demo/visual_receipt.md --scenario stress
 ```
 
-The JSON, Markdown, and visual receipt artifacts should be deterministic for the same inputs. The HTML artifact is static and contains no JavaScript.
+The packet, gallery, and visual receipt artifacts should be deterministic for the same inputs. HTML artifacts are static and contain no JavaScript.
 
 ## Public Readiness Checks
 
@@ -64,6 +69,7 @@ python -m unittest discover -s tests
 python -m portfolio_liquidity_runway_lab selfcheck
 python -m portfolio_liquidity_runway_lab public-scan
 python -m portfolio_liquidity_runway_lab maturity-report
+python -m portfolio_liquidity_runway_lab scenario-gallery --out demo/scenario-gallery
 python -m portfolio_liquidity_runway_lab release-manifest --out docs/release_manifest.json
 ```
 

@@ -60,6 +60,35 @@ class CliTests(unittest.TestCase):
             self.assertEqual(second.returncode, 0, second.stderr)
             self.assertEqual(receipt, out.read_text(encoding="utf-8"))
 
+    def test_scenario_gallery_command_writes_static_deterministic_gallery(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "gallery"
+            result = self.run_cli("scenario-gallery", "--out", str(out))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "ok")
+            gallery_json = out / "scenario_gallery.json"
+            gallery_md = out / "scenario_gallery.md"
+            gallery_html = out / "scenario_gallery.html"
+            self.assertTrue(gallery_json.exists())
+            self.assertTrue(gallery_md.exists())
+            self.assertTrue(gallery_html.exists())
+            first = {
+                "json": gallery_json.read_text(encoding="utf-8"),
+                "markdown": gallery_md.read_text(encoding="utf-8"),
+                "html": gallery_html.read_text(encoding="utf-8"),
+            }
+            data = json.loads(first["json"])
+            self.assertEqual(data["scenario_names"], ["base", "stress", "income_shock", "reserve_rebuild"])
+            self.assertIn("reserve_rebuild", first["markdown"])
+            self.assertNotIn("<script", first["html"].lower())
+
+            second = self.run_cli("scenario-gallery", "--out", str(out))
+            self.assertEqual(second.returncode, 0, second.stderr)
+            self.assertEqual(first["json"], gallery_json.read_text(encoding="utf-8"))
+            self.assertEqual(first["markdown"], gallery_md.read_text(encoding="utf-8"))
+            self.assertEqual(first["html"], gallery_html.read_text(encoding="utf-8"))
+
     def test_public_scan_passes_repo_without_ai_metadata(self):
         repo_root = Path(__file__).resolve().parents[1]
         result = self.run_cli("public-scan", "--root", str(repo_root))
