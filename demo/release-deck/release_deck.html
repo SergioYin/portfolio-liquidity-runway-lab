@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Portfolio Liquidity Runway Lab v0.7.0 Release Deck</title>
+<title>Portfolio Liquidity Runway Lab v0.8.0 Release Deck</title>
 <style>
 body { font-family: Arial, sans-serif; margin: 2rem; color: #1d2329; background: #fbfbf8; }
 main { max-width: 1120px; margin: 0 auto; }
@@ -15,13 +15,14 @@ code { background: #eef0f2; padding: 0.1rem 0.25rem; }
 </style>
 </head>
 <body><main>
-<h1>Portfolio Liquidity Runway Lab v0.7.0 Release Deck</h1>
+<h1>Portfolio Liquidity Runway Lab v0.8.0 Release Deck</h1>
 <blockquote>Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.</blockquote>
 <h2>Product Value</h2>
 <ul>
 <li>Builds deterministic local liquidity runway packets from JSON and CSV inputs.</li>
 <li>Imports portfolio and ledger CSV rows into validated JSON schemas, then exports packet analysis back to reviewable CSV.</li>
 <li>Packages scenario, audit, batch comparison, casebook, schema, command, and replay evidence.</li>
+<li>Adds deterministic checksums, offline evidence bundles, and starter template packs for reproducible review.</li>
 <li>Keeps outputs static and reviewable with no runtime dependencies and no JavaScript in generated HTML demos.</li>
 </ul>
 <h2>Commands</h2>
@@ -42,6 +43,9 @@ code { background: #eef0f2; padding: 0.1rem 0.25rem; }
 <tr><td>csv-import</td><td>Convert local portfolio and ledger CSV rows into validated JSON schemas.</td></tr>
 <tr><td>csv-export</td><td>Export packet assets, runway rows, warnings, and bucket summaries as deterministic CSV.</td></tr>
 <tr><td>input-lint</td><td>Strict lint for JSON and CSV inputs with remediation and schema references.</td></tr>
+<tr><td>bundle-checksums</td><td>Write deterministic SHA256SUMS and JSON/Markdown manifests for release files.</td></tr>
+<tr><td>evidence-bundle</td><td>Copy selected review evidence into a deterministic offline bundle.</td></tr>
+<tr><td>template-pack</td><td>Export clean CSV and JSON starter templates for offline user portfolios.</td></tr>
 <tr><td>fixture-doctor</td><td>Run all workflows against isolated copied fixtures.</td></tr>
 <tr><td>docs-export</td><td>Export compact static documentation bundle.</td></tr>
 <tr><td>command-matrix</td><td>Export the full deterministic command catalog.</td></tr>
@@ -56,9 +60,9 @@ code { background: #eef0f2; padding: 0.1rem 0.25rem; }
 <h2>Evidence</h2>
 <ul>
 <li>Release check: `fail`</li>
-<li>Maturity score: `32/32`</li>
-<li>Cataloged artifacts: `187`</li>
-<li>No-script HTML files: `26`</li>
+<li>Maturity score: `32/38`</li>
+<li>Cataloged artifacts: `69`</li>
+<li>No-script HTML files: `10`</li>
 </ul>
 <h2>Risks</h2>
 <ul>
@@ -68,8 +72,8 @@ code { background: #eef0f2; padding: 0.1rem 0.25rem; }
 </ul>
 <h2>Next Roadmap</h2>
 <ul>
-<li>Expand fixture doctor coverage for malformed batch directories and scenario edge cases.</li>
-<li>Add signed release bundle checksums for downstream archival workflows.</li>
+<li>Expand fixture doctor coverage for malformed archive bundles and scenario edge cases.</li>
+<li>Add optional detached signature support for checksum manifests.</li>
 <li>Broaden CSV templates for multi-currency review workflows without adding live integrations.</li>
 </ul>
 </main></body>

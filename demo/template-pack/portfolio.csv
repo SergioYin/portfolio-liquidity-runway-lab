@@ -1,0 +1,5 @@
+annual_fee_rate,annual_yield_rate,liquidity_tier,name,value
+0.0,0.01,same_day,Operating cash,25000.0
+0.001,0.025,one_week,Short settlement fund,15000.0
+0.002,0.035,one_month,Term reserve,20000.0
+0.0,0.0,locked,Restricted holding,10000.0

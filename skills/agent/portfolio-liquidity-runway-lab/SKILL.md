@@ -29,21 +29,27 @@ Use this skill when a user needs static local portfolio liquidity runway artifac
    `portfolio-liquidity-runway-lab csv-export --packet dist/packet/liquidity_packet.json --out dist/csv-export`
 13. Lint JSON and CSV inputs before generating packets:
    `portfolio-liquidity-runway-lab input-lint --portfolio portfolio.json --ledger ledger.json --assumptions assumptions.json --portfolio-csv portfolio.csv --ledger-csv ledger.csv`
-14. Run fixture diagnostics against bundled examples:
+14. Write reproducible release checksums:
+   `portfolio-liquidity-runway-lab bundle-checksums --root . --out docs/bundle-checksums`
+15. Copy review evidence into an offline bundle:
+   `portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle`
+16. Export starter templates for a new offline user:
+   `portfolio-liquidity-runway-lab template-pack --out docs/template-pack`
+17. Run fixture diagnostics against bundled examples:
    `portfolio-liquidity-runway-lab fixture-doctor --out docs`
-15. Export static no-JavaScript documentation:
+18. Export static no-JavaScript documentation:
    `portfolio-liquidity-runway-lab docs-export --out docs/static-docs`
-16. Export the full command catalog:
+19. Export the full command catalog:
    `portfolio-liquidity-runway-lab command-matrix --out docs/command-matrix`
-17. Build the one-page release deck:
+20. Build the one-page release deck:
    `portfolio-liquidity-runway-lab release-deck --root . --out docs/release-deck`
-18. Replay committed demos before release:
+21. Replay committed demos before release:
    `portfolio-liquidity-runway-lab golden-replay --root . --out docs/golden-replay`
-19. Run the release validator before packaging:
+22. Run the release validator before packaging:
    `portfolio-liquidity-runway-lab release-check --out docs`
-20. For stress review, pass `--scenario stress` or another scenario defined in the assumptions JSON. For gallery, batch, and casebook review, pass `--scenarios base,stress,income_shock` or rely on bundled defaults.
-21. Use `review-ledger`, `compare-history`, `static-dashboard`, `maturity-report`, `release-manifest`, and `public-scan` for supporting checks.
+23. For stress review, pass `--scenario stress` or another scenario defined in the assumptions JSON. For gallery, batch, and casebook review, pass `--scenarios base,stress,income_shock` or rely on bundled defaults.
+24. Use `review-ledger`, `compare-history`, `static-dashboard`, `maturity-report`, `release-manifest`, and `public-scan` for supporting checks.
 
 ## Output Expectations
 
-Artifacts are deterministic JSON, CSV, Markdown, no-JavaScript HTML, scenario galleries, assumption audits, CSV import reports, CSV export manifests, input lint findings, batch comparisons, release-owner casebooks, schema guides, fixture diagnostics, static documentation bundles, command catalogs, golden replay summaries, release decks, artifact catalogs, release checks, and optional visual receipt Markdown. Review warnings are prompts to inspect assumptions, liquidity tiers, scheduled events, fees, yields, and forced-sale risks; they are not transaction instructions.
+Artifacts are deterministic JSON, CSV, Markdown, no-JavaScript HTML, scenario galleries, assumption audits, CSV import reports, CSV export manifests, input lint findings, checksum manifests, evidence bundles, template packs, batch comparisons, release-owner casebooks, schema guides, fixture diagnostics, static documentation bundles, command catalogs, golden replay summaries, release decks, artifact catalogs, release checks, and optional visual receipt Markdown. Review warnings are prompts to inspect assumptions, liquidity tiers, scheduled events, fees, yields, and forced-sale risks; they are not transaction instructions.

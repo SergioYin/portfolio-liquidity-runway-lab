@@ -1,0 +1,4 @@
+amount,label,month,monthly_expenses,monthly_income,record_type,type
+,,,9500.0,8000.0,settings,
+6000.0,Quarterly tax estimate,3,,,event,outflow
+5000.0,Expected receivable,6,,,event,inflow

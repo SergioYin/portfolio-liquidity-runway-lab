@@ -1,0 +1,37 @@
+{
+  "boundary": "Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.",
+  "file_count": 6,
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "8bcb436d843ae5e549d95547a1df871a26c8256beabfa32d9c3d6ad3f703309e",
+      "size_bytes": 1113
+    },
+    {
+      "path": "assumptions.json",
+      "sha256": "191e595ebcda82de7bebd3e1cfc13f9370addef65016972a9c23ba5a8f81b565",
+      "size_bytes": 788
+    },
+    {
+      "path": "ledger.csv",
+      "sha256": "eee2ff69cda70a91887c27c33b0b444f6dd8eb5ec1be82775e59f6e94393a33b",
+      "size_bytes": 191
+    },
+    {
+      "path": "ledger.json",
+      "sha256": "7c9babc7780b063fe055790926ce1ce7fcbba7b2bbb8909602aefca815cce5c8",
+      "size_bytes": 325
+    },
+    {
+      "path": "portfolio.csv",
+      "sha256": "93ad9b10eb37c71fa0454c1abccd3fc65b05331aa5d037374702c3f6b1af50c4",
+      "size_bytes": 242
+    },
+    {
+      "path": "portfolio.json",
+      "sha256": "d2c2ac60aa365961100026c5496bee8d4ff3d92a0f3f4514cdb429b0b16b3cd7",
+      "size_bytes": 762
+    }
+  ],
+  "version": "0.8.0"
+}

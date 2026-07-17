@@ -293,6 +293,66 @@ class CliTests(unittest.TestCase):
             self.assertEqual(payload["status"], "fail")
             self.assertIn("remediation", result.stdout)
 
+    def test_bundle_checksums_writes_deterministic_manifests(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "docs").mkdir()
+            (root / "demo").mkdir()
+            (root / "README.md").write_text("readme\n", encoding="utf-8")
+            (root / "docs" / "note.md").write_text("note\n", encoding="utf-8")
+            (root / "demo" / "packet.json").write_text("{}\n", encoding="utf-8")
+            out = root / "docs" / "bundle-checksums"
+            result = self.run_cli("bundle-checksums", "--root", str(root), "--paths", "README.md,docs,demo", "--out", str(out))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "ok")
+            sums = (out / "SHA256SUMS.txt").read_text(encoding="utf-8")
+            manifest = json.loads((out / "bundle_manifest.json").read_text(encoding="utf-8"))
+            self.assertIn("README.md", sums)
+            self.assertTrue(all(not item["path"].startswith("docs/bundle-checksums/") for item in manifest["files"]))
+
+            second = self.run_cli("bundle-checksums", "--root", str(root), "--paths", "README.md,docs,demo", "--out", str(out))
+            self.assertEqual(second.returncode, 0, second.stderr)
+            self.assertEqual(sums, (out / "SHA256SUMS.txt").read_text(encoding="utf-8"))
+
+    def test_evidence_bundle_writes_no_script_indexes_and_checksums(self):
+        repo_root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "evidence"
+            result = self.run_cli("evidence-bundle", "--root", str(repo_root), "--out", str(out))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "ok")
+            html = (out / "index.html").read_text(encoding="utf-8")
+            manifest = json.loads((out / "evidence_manifest.json").read_text(encoding="utf-8"))
+            self.assertNotIn("<script", html.lower())
+            self.assertTrue((out / "SHA256SUMS.txt").exists())
+            self.assertTrue(any(item["bundle_path"] == "boundary_risks.md" for item in manifest["artifacts"]))
+
+    def test_template_pack_outputs_lintable_offline_starters(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "templates"
+            result = self.run_cli("template-pack", "--out", str(out))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "ok")
+            self.assertTrue((out / "portfolio.csv").exists())
+            self.assertTrue((out / "assumptions.json").exists())
+            lint = self.run_cli(
+                "input-lint",
+                "--portfolio",
+                str(out / "portfolio.json"),
+                "--ledger",
+                str(out / "ledger.json"),
+                "--assumptions",
+                str(out / "assumptions.json"),
+                "--portfolio-csv",
+                str(out / "portfolio.csv"),
+                "--ledger-csv",
+                str(out / "ledger.csv"),
+            )
+            self.assertEqual(lint.returncode, 0, lint.stderr)
+
     def test_fixture_doctor_command_reports_success_and_failure(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "doctor"

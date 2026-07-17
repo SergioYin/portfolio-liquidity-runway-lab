@@ -239,6 +239,61 @@
       "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
     },
     {
+      "command": "bundle-checksums",
+      "demo_command": "portfolio-liquidity-runway-lab bundle-checksums --root . --out docs/bundle-checksums",
+      "inputs": [
+        "repo root",
+        "docs",
+        "demos",
+        "optional dist wheel/sdist"
+      ],
+      "no_script_html": false,
+      "outputs": [
+        "SHA256SUMS.txt",
+        "bundle_manifest.json",
+        "bundle_manifest.md"
+      ],
+      "purpose": "Write deterministic SHA256SUMS and JSON/Markdown manifests for release files.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
+    },
+    {
+      "command": "evidence-bundle",
+      "demo_command": "portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle",
+      "inputs": [
+        "repo docs and demo evidence"
+      ],
+      "no_script_html": true,
+      "outputs": [
+        "index.md",
+        "index.html",
+        "SHA256SUMS.txt",
+        "evidence_manifest.json",
+        "boundary_risks.md",
+        "command_replay.md"
+      ],
+      "purpose": "Copy selected review evidence into a deterministic offline bundle.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
+    },
+    {
+      "command": "template-pack",
+      "demo_command": "portfolio-liquidity-runway-lab template-pack --out docs/template-pack",
+      "inputs": [
+        "built-in starter templates"
+      ],
+      "no_script_html": false,
+      "outputs": [
+        "README.md",
+        "template_manifest.json",
+        "portfolio.csv",
+        "ledger.csv",
+        "portfolio.json",
+        "ledger.json",
+        "assumptions.json"
+      ],
+      "purpose": "Export clean CSV and JSON starter templates for offline user portfolios.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
+    },
+    {
       "command": "fixture-doctor",
       "demo_command": "portfolio-liquidity-runway-lab fixture-doctor --out docs",
       "inputs": [
@@ -381,5 +436,5 @@
       "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
     }
   ],
-  "version": "0.7.0"
+  "version": "0.8.0"
 }

@@ -154,7 +154,31 @@ class CsvExportPaths:
     manifest_markdown_path: Path
 
 
-PROJECT_VERSION = "0.7.0"
+@dataclass(frozen=True)
+class BundleChecksumPaths:
+    out_dir: Path
+    sums_path: Path
+    manifest_json_path: Path
+    manifest_markdown_path: Path
+
+
+@dataclass(frozen=True)
+class EvidenceBundlePaths:
+    out_dir: Path
+    index_markdown_path: Path
+    index_html_path: Path
+    checksums_path: Path
+    manifest_json_path: Path
+
+
+@dataclass(frozen=True)
+class TemplatePackPaths:
+    out_dir: Path
+    readme_path: Path
+    manifest_json_path: Path
+
+
+PROJECT_VERSION = "0.8.0"
 
 IGNORED_RELEASE_PARTS = {
     ".git",
@@ -189,6 +213,22 @@ EXPECTED_RELEASE_FILES = (
     "docs/maturity_report.json",
     "docs/artifact_catalog.json",
     "docs/artifact_catalog.md",
+    "docs/bundle-checksums/SHA256SUMS.txt",
+    "docs/bundle-checksums/bundle_manifest.json",
+    "docs/bundle-checksums/bundle_manifest.md",
+    "docs/evidence-bundle/index.md",
+    "docs/evidence-bundle/index.html",
+    "docs/evidence-bundle/SHA256SUMS.txt",
+    "docs/evidence-bundle/evidence_manifest.json",
+    "docs/evidence-bundle/boundary_risks.md",
+    "docs/evidence-bundle/command_replay.md",
+    "docs/template-pack/README.md",
+    "docs/template-pack/template_manifest.json",
+    "docs/template-pack/portfolio.csv",
+    "docs/template-pack/ledger.csv",
+    "docs/template-pack/portfolio.json",
+    "docs/template-pack/ledger.json",
+    "docs/template-pack/assumptions.json",
     "docs/schema_guide.json",
     "docs/schema_guide.md",
     "docs/fixture_doctor.json",
@@ -242,6 +282,22 @@ EXPECTED_RELEASE_FILES = (
     "demo/csv-export/bucket_summaries.csv",
     "demo/csv-export/export_manifest.json",
     "demo/csv-export/export_manifest.md",
+    "demo/bundle-checksums/SHA256SUMS.txt",
+    "demo/bundle-checksums/bundle_manifest.json",
+    "demo/bundle-checksums/bundle_manifest.md",
+    "demo/evidence-bundle/index.md",
+    "demo/evidence-bundle/index.html",
+    "demo/evidence-bundle/SHA256SUMS.txt",
+    "demo/evidence-bundle/evidence_manifest.json",
+    "demo/evidence-bundle/boundary_risks.md",
+    "demo/evidence-bundle/command_replay.md",
+    "demo/template-pack/README.md",
+    "demo/template-pack/template_manifest.json",
+    "demo/template-pack/portfolio.csv",
+    "demo/template-pack/ledger.csv",
+    "demo/template-pack/portfolio.json",
+    "demo/template-pack/ledger.json",
+    "demo/template-pack/assumptions.json",
     "demo/static-docs/index.html",
     "demo/static-docs/index.md",
     "demo/static-docs/command_matrix.md",
@@ -1703,6 +1759,11 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _deterministic_text_file(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+
+
 def _contains_script_tag(path: Path) -> bool:
     try:
         return "<script" in path.read_text(encoding="utf-8").lower()
@@ -2057,6 +2118,11 @@ def schema_guide() -> Dict[str, Any]:
         {"artifact": "import_report.json", "command": "csv-import", "top_level_fields": ["boundary", "status", "inputs", "outputs", "row_counts", "schema_refs", "findings"]},
         {"artifact": "export_manifest.json", "command": "csv-export", "top_level_fields": ["boundary", "status", "packet", "portfolio_name", "scenario", "files"]},
         {"artifact": "input-lint stdout JSON", "command": "input-lint", "top_level_fields": ["boundary", "status", "results", "finding_counts"]},
+        {"artifact": "SHA256SUMS.txt", "command": "bundle-checksums", "top_level_fields": ["sha256 path lines"]},
+        {"artifact": "bundle_manifest.json", "command": "bundle-checksums", "top_level_fields": ["boundary", "version", "root", "file_count", "files"]},
+        {"artifact": "evidence-bundle/index.html", "command": "evidence-bundle", "top_level_fields": ["no JavaScript static evidence index"]},
+        {"artifact": "evidence_manifest.json", "command": "evidence-bundle", "top_level_fields": ["boundary", "version", "root", "artifact_count", "artifacts"]},
+        {"artifact": "template_manifest.json", "command": "template-pack", "top_level_fields": ["boundary", "version", "file_count", "files"]},
     ]
     command_matrix = command_matrix_data()
     return {
@@ -2140,6 +2206,9 @@ def command_matrix_data() -> List[Dict[str, Any]]:
         ("csv-import", "Convert local portfolio and ledger CSV rows into validated JSON schemas.", ["portfolio.csv", "ledger.csv"], ["portfolio.json", "ledger.json", "import_report.json", "import_report.md"], "portfolio-liquidity-runway-lab csv-import --out dist/csv-import", False),
         ("csv-export", "Export packet assets, runway rows, warnings, and bucket summaries as deterministic CSV.", ["liquidity_packet.json"], ["assets.csv", "runway.csv", "warnings.csv", "bucket_summaries.csv", "export_manifest.json", "export_manifest.md"], "portfolio-liquidity-runway-lab csv-export --packet dist/packet/liquidity_packet.json --out dist/csv-export", False),
         ("input-lint", "Strict lint for JSON and CSV inputs with remediation and schema references.", ["portfolio/ledger/assumptions JSON", "portfolio/ledger CSV"], ["stdout JSON", "optional JSON file"], "portfolio-liquidity-runway-lab input-lint --portfolio portfolio.json --ledger ledger.json --assumptions assumptions.json", False),
+        ("bundle-checksums", "Write deterministic SHA256SUMS and JSON/Markdown manifests for release files.", ["repo root", "docs", "demos", "optional dist wheel/sdist"], ["SHA256SUMS.txt", "bundle_manifest.json", "bundle_manifest.md"], "portfolio-liquidity-runway-lab bundle-checksums --root . --out docs/bundle-checksums", False),
+        ("evidence-bundle", "Copy selected review evidence into a deterministic offline bundle.", ["repo docs and demo evidence"], ["index.md", "index.html", "SHA256SUMS.txt", "evidence_manifest.json", "boundary_risks.md", "command_replay.md"], "portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle", True),
+        ("template-pack", "Export clean CSV and JSON starter templates for offline user portfolios.", ["built-in starter templates"], ["README.md", "template_manifest.json", "portfolio.csv", "ledger.csv", "portfolio.json", "ledger.json", "assumptions.json"], "portfolio-liquidity-runway-lab template-pack --out docs/template-pack", False),
         ("fixture-doctor", "Run all workflows against isolated copied fixtures.", ["bundled or supplied examples"], ["fixture_doctor.json", "fixture_doctor.md"], "portfolio-liquidity-runway-lab fixture-doctor --out docs", True),
         ("docs-export", "Export compact static documentation bundle.", ["README and generated release evidence"], ["static-docs/index.html", "static-docs/index.md", "static-docs/*.md"], "portfolio-liquidity-runway-lab docs-export --out docs/static-docs", True),
         ("command-matrix", "Export the full deterministic command catalog.", ["built-in command metadata"], ["command_matrix.json", "command_matrix.md", "command_matrix.html"], "portfolio-liquidity-runway-lab command-matrix --out docs/command-matrix", True),
@@ -2203,6 +2272,9 @@ def fixture_doctor(work_dir: Path, examples_dir: Optional[Path] = None) -> Dict[
         {"command": "csv-import", "argv": ["csv-import", "--portfolio-csv", copied["portfolio.csv"], "--ledger-csv", copied["ledger.csv"], "--out", (work_dir / "csv-import").as_posix()]},
         {"command": "csv-export", "argv": ["csv-export", "--packet", (work_dir / "packet" / "liquidity_packet.json").as_posix(), "--out", (work_dir / "csv-export").as_posix()]},
         {"command": "input-lint", "argv": ["input-lint", "--portfolio", copied["portfolio.json"], "--ledger", copied["ledger.json"], "--assumptions", copied["assumptions.json"], "--portfolio-csv", copied["portfolio.csv"], "--ledger-csv", copied["ledger.csv"]]},
+        {"command": "bundle-checksums", "argv": ["bundle-checksums", "--root", work_dir.as_posix(), "--out", (work_dir / "bundle-checksums").as_posix()]},
+        {"command": "evidence-bundle", "argv": ["evidence-bundle", "--root", work_dir.as_posix(), "--out", (work_dir / "evidence-bundle").as_posix()]},
+        {"command": "template-pack", "argv": ["template-pack", "--out", (work_dir / "template-pack").as_posix()]},
         {"command": "docs-export", "argv": ["docs-export", "--root", work_dir.as_posix(), "--out", (work_dir / "static-docs").as_posix()]},
         {"command": "command-matrix", "argv": ["command-matrix", "--out", (work_dir / "command-matrix").as_posix()]},
         {"command": "release-deck", "argv": ["release-deck", "--root", work_dir.as_posix(), "--out", (work_dir / "release-deck").as_posix()]},
@@ -2287,6 +2359,18 @@ def fixture_doctor(work_dir: Path, examples_dir: Optional[Path] = None) -> Dict[
                 )
                 output_paths = ["stdout JSON"]
                 passed = result["status"] == "pass"
+            elif command == "bundle-checksums":
+                paths = build_bundle_checksums(work_dir, work_dir / "bundle-checksums", ["examples", "packet", "scenario-gallery", "assumption-audit", "batch-compare", "casebook", "schema-export", "csv-import", "csv-export"])
+                output_paths = [paths.sums_path.as_posix(), paths.manifest_json_path.as_posix(), paths.manifest_markdown_path.as_posix()]
+                passed = paths.sums_path.exists() and load_json(paths.manifest_json_path)["file_count"] > 0
+            elif command == "evidence-bundle":
+                paths = build_evidence_bundle(work_dir, work_dir / "evidence-bundle")
+                output_paths = [paths.index_markdown_path.as_posix(), paths.index_html_path.as_posix(), paths.checksums_path.as_posix(), paths.manifest_json_path.as_posix()]
+                passed = paths.index_html_path.exists() and not _contains_script_tag(paths.index_html_path)
+            elif command == "template-pack":
+                paths = build_template_pack(work_dir / "template-pack")
+                output_paths = [paths.readme_path.as_posix(), paths.manifest_json_path.as_posix()]
+                passed = (work_dir / "template-pack" / "portfolio.csv").exists() and load_json(paths.manifest_json_path)["file_count"] >= 6
             elif command == "docs-export":
                 paths = build_docs_export(work_dir, work_dir / "static-docs")
                 output_paths = [paths.index_html_path.as_posix(), paths.index_markdown_path.as_posix()]
@@ -2513,6 +2597,9 @@ def render_release_evidence_markdown(root: Path) -> str:
         "docs/artifact_catalog.json",
         "docs/schema_guide.json",
         "docs/fixture_doctor.json",
+        "docs/bundle-checksums/bundle_manifest.json",
+        "docs/evidence-bundle/evidence_manifest.json",
+        "docs/template-pack/template_manifest.json",
     ]
     lines = ["# Release Evidence", "", "| Artifact | Present |", "| --- | --- |"]
     for rel in evidence:
@@ -2563,6 +2650,412 @@ def build_docs_export(root: Path, out_dir: Path) -> DocsExportPaths:
     index_html_path = out_dir / "index.html"
     index_html_path.write_text(render_docs_index_html(index_md), encoding="utf-8")
     return DocsExportPaths(out_dir, index_html_path, out_dir / "index.md")
+
+
+def _release_candidate_files(root: Path, include_paths: Iterable[str], exclude_dir: Optional[Path] = None) -> List[Path]:
+    files: List[Path] = []
+    exclude_resolved = exclude_dir.resolve() if exclude_dir else None
+    seen = set()
+    for part in include_paths:
+        base = root / part
+        if not base.exists():
+            continue
+        candidates = [base] if base.is_file() else sorted(base.rglob("*"))
+        for path in candidates:
+            if not path.is_file():
+                continue
+            if exclude_resolved and exclude_resolved in path.resolve().parents:
+                continue
+            rel_path = path.relative_to(root)
+            if _is_ignored_release_path(rel_path):
+                continue
+            rel = rel_path.as_posix()
+            if rel in seen:
+                continue
+            seen.add(rel)
+            files.append(path)
+    for dist_path in sorted((root / "dist").glob("*")) if (root / "dist").exists() else []:
+        if dist_path.is_file() and (dist_path.suffix in {".whl", ".gz", ".zip"} or ".tar." in dist_path.name):
+            rel = dist_path.relative_to(root).as_posix()
+            if rel not in seen:
+                seen.add(rel)
+                files.append(dist_path)
+    return sorted(files, key=lambda item: item.relative_to(root).as_posix())
+
+
+def bundle_checksums(root: Path, include_paths: Iterable[str], exclude_dir: Optional[Path] = None) -> Dict[str, Any]:
+    files = _release_candidate_files(root, include_paths, exclude_dir)
+    entries = [
+        {
+            "path": path.relative_to(root).as_posix(),
+            "size_bytes": path.stat().st_size,
+            "sha256": _sha256_file(path),
+        }
+        for path in files
+    ]
+    return {
+        "boundary": BOUNDARY_TEXT,
+        "version": PROJECT_VERSION,
+        "root": root.as_posix(),
+        "file_count": len(entries),
+        "files": entries,
+    }
+
+
+def render_sha256sums(manifest: Mapping[str, Any]) -> str:
+    return "".join(f"{item['sha256']}  {item['path']}\n" for item in manifest["files"])
+
+
+def render_bundle_manifest_markdown(manifest: Mapping[str, Any]) -> str:
+    lines = [
+        "# Bundle Checksums",
+        "",
+        f"> {manifest['boundary']}",
+        "",
+        f"Version: `{manifest['version']}`",
+        f"File count: {manifest['file_count']}",
+        "",
+        "| Path | Size bytes | SHA256 |",
+        "| --- | ---: | --- |",
+    ]
+    for item in manifest["files"]:
+        lines.append(f"| `{item['path']}` | {item['size_bytes']} | `{item['sha256']}` |")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def build_bundle_checksums(root: Path, out_dir: Path, include_paths: Iterable[str] = ("README.md", "LICENSE", "MANIFEST.in", "pyproject.toml", "portfolio_liquidity_runway_lab", "docs", "demo", "skills", "tests")) -> BundleChecksumPaths:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    manifest = bundle_checksums(root, include_paths, out_dir)
+    sums_path = out_dir / "SHA256SUMS.txt"
+    json_path = out_dir / "bundle_manifest.json"
+    markdown_path = out_dir / "bundle_manifest.md"
+    _deterministic_text_file(sums_path, render_sha256sums(manifest))
+    dump_json(manifest, json_path)
+    _deterministic_text_file(markdown_path, render_bundle_manifest_markdown(manifest))
+    return BundleChecksumPaths(out_dir, sums_path, json_path, markdown_path)
+
+
+EVIDENCE_SOURCE_FILES = (
+    "README.md",
+    "docs/cold_start_walkthrough.md",
+    "docs/release_readiness_review.md",
+    "docs/release_manifest.json",
+    "docs/maturity_report.json",
+    "docs/release_check.json",
+    "docs/release_check.md",
+    "docs/artifact_catalog.json",
+    "docs/artifact_catalog.md",
+    "docs/schema_guide.md",
+    "docs/command-matrix/command_matrix.md",
+    "docs/golden-replay/golden_replay.md",
+    "docs/release-deck/release_deck.md",
+    "demo/visual_receipt.md",
+    "demo/casebook/casebook.md",
+    "demo/scenario-gallery/scenario_gallery.md",
+    "demo/assumption-audit/assumption_audit.md",
+    "demo/batch-compare/batch_compare.md",
+    "demo/csv-import/import_report.md",
+    "demo/csv-export/export_manifest.md",
+    "demo/static-docs/index.md",
+    "demo/command-matrix/command_matrix.md",
+    "demo/golden-replay/golden_replay.md",
+    "demo/release-deck/release_deck.md",
+)
+
+
+def _evidence_boundary_page() -> str:
+    return "\n".join(
+        [
+            "# Boundary And Risks",
+            "",
+            BOUNDARY_TEXT,
+            "",
+            "## Review Boundary",
+            "",
+            "- Inputs are local synthetic or user-supplied files.",
+            "- Outputs are deterministic review artifacts, not instructions to transact.",
+            "- Reviewers must verify liquidity tiers, scheduled events, fees, yields, and scenario assumptions against source records.",
+            "",
+            "## Residual Risks",
+            "",
+            "- Stale user inputs can make a packet misleading even when all checks pass.",
+            "- Static scenarios do not model every market, tax, legal, custody, or operational constraint.",
+            "- Public scan and release check are release aids, not complete security or compliance audits.",
+            "",
+        ]
+    )
+
+
+def _evidence_replay_notes() -> str:
+    lines = [
+        "# Command Replay Notes",
+        "",
+        "Run from the repository root to refresh the review evidence:",
+        "",
+        "```bash",
+        "python -m portfolio_liquidity_runway_lab selfcheck",
+        "python -m portfolio_liquidity_runway_lab scenario-gallery --out demo/scenario-gallery",
+        "python -m portfolio_liquidity_runway_lab assumption-audit --portfolio portfolio_liquidity_runway_lab/examples/portfolio_concentrated.json --out demo/assumption-audit",
+        "python -m portfolio_liquidity_runway_lab batch-compare --portfolios-dir demo/batch-inputs --scenarios base,stress --out demo/batch-compare",
+        "python -m portfolio_liquidity_runway_lab casebook --portfolios-dir demo/batch-inputs --scenario stress --scenarios base,stress,income_shock --out demo/casebook",
+        "python -m portfolio_liquidity_runway_lab schema-export --out docs",
+        "python -m portfolio_liquidity_runway_lab command-matrix --out docs/command-matrix",
+        "python -m portfolio_liquidity_runway_lab golden-replay --root . --out docs/golden-replay",
+        "python -m portfolio_liquidity_runway_lab release-deck --root . --out docs/release-deck",
+        "python -m portfolio_liquidity_runway_lab artifact-catalog --out docs",
+        "python -m portfolio_liquidity_runway_lab bundle-checksums --root . --out docs/bundle-checksums",
+        "python -m portfolio_liquidity_runway_lab evidence-bundle --root . --out docs/evidence-bundle",
+        "python -m portfolio_liquidity_runway_lab template-pack --out docs/template-pack",
+        "python -m portfolio_liquidity_runway_lab release-check --out docs",
+        "```",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def render_evidence_index_markdown(manifest: Mapping[str, Any]) -> str:
+    lines = [
+        "# Evidence Bundle",
+        "",
+        f"> {manifest['boundary']}",
+        "",
+        f"Version: `{manifest['version']}`",
+        f"Copied artifacts: {manifest['artifact_count']}",
+        "",
+        "## Bundle Files",
+        "",
+        "- `index.md`",
+        "- `index.html`",
+        "- `SHA256SUMS.txt`",
+        "- `evidence_manifest.json`",
+        "- `boundary_risks.md`",
+        "- `command_replay.md`",
+        "",
+        "## Copied Evidence",
+        "",
+        "| Source | Bundle path | SHA256 |",
+        "| --- | --- | --- |",
+    ]
+    for item in manifest["artifacts"]:
+        lines.append(f"| `{item['source_path']}` | `{item['bundle_path']}` | `{item['sha256']}` |")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def render_evidence_index_html(index_markdown: str) -> str:
+    body = []
+    in_table = False
+    in_list = False
+    for line in index_markdown.splitlines():
+        if line.startswith("# "):
+            body.append(f"<h1>{html.escape(line[2:])}</h1>")
+        elif line.startswith("## "):
+            if in_table:
+                body.append("</table>")
+                in_table = False
+            if in_list:
+                body.append("</ul>")
+                in_list = False
+            body.append(f"<h2>{html.escape(line[3:])}</h2>")
+        elif line.startswith("> "):
+            body.append(f"<blockquote>{html.escape(line[2:])}</blockquote>")
+        elif line.startswith("- "):
+            if not in_list:
+                body.append("<ul>")
+                in_list = True
+            body.append(f"<li>{html.escape(line[2:])}</li>")
+        elif line.startswith("| ") and not line.startswith("| ---"):
+            if not in_table:
+                body.append("<table>")
+                in_table = True
+            cells = [cell.strip().strip("`") for cell in line.strip("|").split("|")]
+            tag = "th" if cells and cells[0] == "Source" else "td"
+            body.append("<tr>" + "".join(f"<{tag}>{html.escape(cell)}</{tag}>" for cell in cells) + f"</tr>")
+        elif line.startswith("| ---"):
+            continue
+        elif line.strip():
+            body.append(f"<p>{html.escape(line)}</p>")
+    if in_table:
+        body.append("</table>")
+    if in_list:
+        body.append("</ul>")
+    return _html_shell("Evidence Bundle", "\n".join(body))
+
+
+def build_evidence_bundle(root: Path, out_dir: Path, source_files: Iterable[str] = EVIDENCE_SOURCE_FILES) -> EvidenceBundlePaths:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    artifacts = []
+    for rel in source_files:
+        source = root / rel
+        if not source.is_file():
+            continue
+        bundle_path = Path("files") / rel
+        destination = out_dir / bundle_path
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, destination)
+        artifacts.append(
+            {
+                "source_path": rel,
+                "bundle_path": bundle_path.as_posix(),
+                "size_bytes": destination.stat().st_size,
+                "sha256": _sha256_file(destination),
+            }
+        )
+    artifacts.sort(key=lambda item: item["source_path"])
+    boundary_path = out_dir / "boundary_risks.md"
+    replay_path = out_dir / "command_replay.md"
+    _deterministic_text_file(boundary_path, _evidence_boundary_page())
+    _deterministic_text_file(replay_path, _evidence_replay_notes())
+    for path in (boundary_path, replay_path):
+        artifacts.append(
+            {
+                "source_path": "generated",
+                "bundle_path": path.relative_to(out_dir).as_posix(),
+                "size_bytes": path.stat().st_size,
+                "sha256": _sha256_file(path),
+            }
+        )
+    artifacts.sort(key=lambda item: item["bundle_path"])
+    manifest = {
+        "boundary": BOUNDARY_TEXT,
+        "version": PROJECT_VERSION,
+        "root": root.as_posix(),
+        "artifact_count": len(artifacts),
+        "artifacts": artifacts,
+    }
+    index_md = render_evidence_index_markdown(manifest)
+    index_md_path = out_dir / "index.md"
+    index_html_path = out_dir / "index.html"
+    checksums_path = out_dir / "SHA256SUMS.txt"
+    manifest_json_path = out_dir / "evidence_manifest.json"
+    _deterministic_text_file(index_md_path, index_md)
+    _deterministic_text_file(index_html_path, render_evidence_index_html(index_md))
+    _deterministic_text_file(checksums_path, "".join(f"{item['sha256']}  {item['bundle_path']}\n" for item in artifacts))
+    dump_json(manifest, manifest_json_path)
+    return EvidenceBundlePaths(out_dir, index_md_path, index_html_path, checksums_path, manifest_json_path)
+
+
+def _template_portfolio() -> Dict[str, Any]:
+    return {
+        "name": "Offline starter portfolio",
+        "currency": "USD",
+        "assets": [
+            {"name": "Operating cash", "value": 25000.0, "liquidity_tier": "same_day", "annual_yield_rate": 0.01, "annual_fee_rate": 0.0},
+            {"name": "Short settlement fund", "value": 15000.0, "liquidity_tier": "one_week", "annual_yield_rate": 0.025, "annual_fee_rate": 0.001},
+            {"name": "Term reserve", "value": 20000.0, "liquidity_tier": "one_month", "annual_yield_rate": 0.035, "annual_fee_rate": 0.002},
+            {"name": "Restricted holding", "value": 10000.0, "liquidity_tier": "locked", "annual_yield_rate": 0.0, "annual_fee_rate": 0.0},
+        ],
+    }
+
+
+def _template_ledger() -> Dict[str, Any]:
+    return {
+        "monthly_income": 8000.0,
+        "monthly_expenses": 9500.0,
+        "scheduled_events": [
+            {"month": 3, "type": "outflow", "label": "Quarterly tax estimate", "amount": 6000.0},
+            {"month": 6, "type": "inflow", "label": "Expected receivable", "amount": 5000.0},
+        ],
+    }
+
+
+def _template_assumptions() -> Dict[str, Any]:
+    return {
+        "months": 12,
+        "target_reserve_months": 6,
+        "default_scenario": "base",
+        "scenarios": {
+            "base": {
+                "expense_multiplier": 1.0,
+                "income_multiplier": 1.0,
+                "liquidity_haircuts": {"same_day": 0.0, "one_week": 0.02, "one_month": 0.05, "locked": 0.25},
+            },
+            "stress": {
+                "expense_multiplier": 1.15,
+                "income_multiplier": 0.75,
+                "liquidity_haircuts": {"same_day": 0.0, "one_week": 0.05, "one_month": 0.12, "locked": 0.45},
+            },
+            "income_shock": {
+                "expense_multiplier": 1.0,
+                "income_multiplier": 0.25,
+                "liquidity_haircuts": {"same_day": 0.0, "one_week": 0.03, "one_month": 0.08, "locked": 0.35},
+            },
+        },
+    }
+
+
+def _write_template_csvs(out_dir: Path) -> None:
+    portfolio_rows = [
+        {"name": item["name"], "value": item["value"], "liquidity_tier": item["liquidity_tier"], "annual_yield_rate": item["annual_yield_rate"], "annual_fee_rate": item["annual_fee_rate"]}
+        for item in _template_portfolio()["assets"]
+    ]
+    ledger = _template_ledger()
+    ledger_rows = [
+        {"record_type": "settings", "monthly_income": ledger["monthly_income"], "monthly_expenses": ledger["monthly_expenses"], "month": "", "type": "", "label": "", "amount": ""}
+    ]
+    for event in ledger["scheduled_events"]:
+        ledger_rows.append(
+            {
+                "record_type": "event",
+                "monthly_income": "",
+                "monthly_expenses": "",
+                "month": event["month"],
+                "type": event["type"],
+                "label": event["label"],
+                "amount": event["amount"],
+            }
+        )
+    write_csv(portfolio_rows, out_dir / "portfolio.csv")
+    write_csv(ledger_rows, out_dir / "ledger.csv")
+
+
+def render_template_readme(manifest: Mapping[str, Any]) -> str:
+    return "\n".join(
+        [
+            "# Offline Starter Template Pack",
+            "",
+            f"> {manifest['boundary']}",
+            "",
+            "Use these files as clean local starters. Replace every value with your own offline records before review.",
+            "",
+            "## Files",
+            "",
+            "- `portfolio.csv` and `ledger.csv`: spreadsheet-friendly starters for `csv-import`.",
+            "- `portfolio.json`, `ledger.json`, and `assumptions.json`: direct JSON starters for packet commands.",
+            "- `template_manifest.json`: deterministic file inventory and hashes.",
+            "",
+            "## Replay",
+            "",
+            "```bash",
+            "portfolio-liquidity-runway-lab input-lint --portfolio portfolio.json --ledger ledger.json --assumptions assumptions.json --portfolio-csv portfolio.csv --ledger-csv ledger.csv",
+            "portfolio-liquidity-runway-lab build-packet --portfolio portfolio.json --ledger ledger.json --assumptions assumptions.json --scenario stress --out packet",
+            "portfolio-liquidity-runway-lab csv-import --portfolio-csv portfolio.csv --ledger-csv ledger.csv --out csv-import",
+            "```",
+            "",
+        ]
+    )
+
+
+def build_template_pack(out_dir: Path) -> TemplatePackPaths:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    dump_json(_template_portfolio(), out_dir / "portfolio.json")
+    dump_json(_template_ledger(), out_dir / "ledger.json")
+    dump_json(_template_assumptions(), out_dir / "assumptions.json")
+    _write_template_csvs(out_dir)
+    files = []
+    for path in sorted(out_dir.glob("*")):
+        if path.is_file() and path.name not in {"README.md", "template_manifest.json"}:
+            files.append({"path": path.name, "size_bytes": path.stat().st_size, "sha256": _sha256_file(path)})
+    manifest = {"boundary": BOUNDARY_TEXT, "version": PROJECT_VERSION, "file_count": len(files), "files": files}
+    readme_path = out_dir / "README.md"
+    manifest_path = out_dir / "template_manifest.json"
+    _deterministic_text_file(readme_path, render_template_readme(manifest))
+    files.append({"path": "README.md", "size_bytes": readme_path.stat().st_size, "sha256": _sha256_file(readme_path)})
+    files.sort(key=lambda item: item["path"])
+    manifest = {"boundary": BOUNDARY_TEXT, "version": PROJECT_VERSION, "file_count": len(files), "files": files}
+    dump_json(manifest, manifest_path)
+    return TemplatePackPaths(out_dir, readme_path, manifest_path)
 
 
 def _prepare_demo_portfolios(root: Path, target: Path) -> Path:
@@ -2712,11 +3205,12 @@ def release_deck(root: Path) -> Dict[str, Any]:
     return {
         "boundary": BOUNDARY_TEXT,
         "version": PROJECT_VERSION,
-        "title": "Portfolio Liquidity Runway Lab v0.7.0 Release Deck",
+        "title": "Portfolio Liquidity Runway Lab v0.8.0 Release Deck",
         "product_value": [
             "Builds deterministic local liquidity runway packets from JSON and CSV inputs.",
             "Imports portfolio and ledger CSV rows into validated JSON schemas, then exports packet analysis back to reviewable CSV.",
             "Packages scenario, audit, batch comparison, casebook, schema, command, and replay evidence.",
+            "Adds deterministic checksums, offline evidence bundles, and starter template packs for reproducible review.",
             "Keeps outputs static and reviewable with no runtime dependencies and no JavaScript in generated HTML demos.",
         ],
         "commands": [{"command": item["command"], "purpose": item["purpose"]} for item in matrix],
@@ -2733,8 +3227,8 @@ def release_deck(root: Path) -> Dict[str, Any]:
             "No live integrations means users must update inputs manually before each review.",
         ],
         "next_roadmap": [
-            "Expand fixture doctor coverage for malformed batch directories and scenario edge cases.",
-            "Add signed release bundle checksums for downstream archival workflows.",
+            "Expand fixture doctor coverage for malformed archive bundles and scenario edge cases.",
+            "Add optional detached signature support for checksum manifests.",
             "Broaden CSV templates for multi-currency review workflows without adding live integrations.",
         ],
     }
@@ -2864,7 +3358,13 @@ def _regeneration_command_for(rel: str) -> str:
     if rel.startswith("demo/csv-import/"):
         return "portfolio-liquidity-runway-lab csv-import --out demo/csv-import"
     if rel.startswith("demo/csv-export/"):
-        return "portfolio-liquidity-runway-lab csv-export --packet demo/casebook/packet/liquidity_packet.json --out demo/csv-export"
+        return "portfolio-liquidity-runway-lab csv-export --packet demo/csv-export-packet/liquidity_packet.json --out demo/csv-export"
+    if rel.startswith("demo/bundle-checksums/") or rel.startswith("docs/bundle-checksums/"):
+        return "portfolio-liquidity-runway-lab bundle-checksums --root . --out docs/bundle-checksums"
+    if rel.startswith("demo/evidence-bundle/") or rel.startswith("docs/evidence-bundle/"):
+        return "portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle"
+    if rel.startswith("demo/template-pack/") or rel.startswith("docs/template-pack/"):
+        return "portfolio-liquidity-runway-lab template-pack --out docs/template-pack"
     if rel.startswith("demo/fixture-doctor/") or rel.startswith("docs/fixture_doctor."):
         return "portfolio-liquidity-runway-lab fixture-doctor --out demo/fixture-doctor"
     if rel.startswith("demo/static-docs/") or rel.startswith("docs/static-docs/"):
@@ -3093,6 +3593,9 @@ def maturity_report(root: Path) -> Dict[str, Any]:
         "demo_schema_export": (root / "demo/schema-export/schema_guide.md").exists(),
         "demo_csv_import": (root / "demo/csv-import/import_report.md").exists(),
         "demo_csv_export": (root / "demo/csv-export/export_manifest.md").exists(),
+        "demo_bundle_checksums": (root / "demo/bundle-checksums/SHA256SUMS.txt").exists(),
+        "demo_evidence_bundle": (root / "demo/evidence-bundle/index.html").exists(),
+        "demo_template_pack": (root / "demo/template-pack/template_manifest.json").exists(),
         "demo_fixture_doctor": (root / "demo/fixture-doctor/fixture_doctor.md").exists(),
         "demo_static_docs": (root / "demo/static-docs/index.html").exists(),
         "demo_command_matrix": (root / "demo/command-matrix/command_matrix.html").exists(),
@@ -3101,6 +3604,9 @@ def maturity_report(root: Path) -> Dict[str, Any]:
         "command_matrix": (root / "docs/command-matrix/command_matrix.html").exists(),
         "golden_replay": (root / "docs/golden-replay/golden_replay.md").exists(),
         "release_deck": (root / "docs/release-deck/release_deck.html").exists(),
+        "bundle_checksums": (root / "docs/bundle-checksums/SHA256SUMS.txt").exists() and (root / "docs/bundle-checksums/bundle_manifest.json").exists(),
+        "evidence_bundle": (root / "docs/evidence-bundle/index.html").exists() and (root / "docs/evidence-bundle/SHA256SUMS.txt").exists(),
+        "template_pack": (root / "docs/template-pack/README.md").exists() and (root / "docs/template-pack/template_manifest.json").exists(),
         "demo_visual_receipt": (root / "demo/visual_receipt.md").exists(),
         "tests": (root / "tests").exists(),
         "agent_skill": (root / "skills/agent/portfolio-liquidity-runway-lab/SKILL.md").exists(),

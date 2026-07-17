@@ -15,9 +15,11 @@ from .core import (
     build_assumption_audit,
     build_artifact_catalog,
     build_batch_compare,
+    build_bundle_checksums,
     build_casebook,
     build_command_matrix,
     build_docs_export,
+    build_evidence_bundle,
     build_fixture_doctor,
     build_golden_replay,
     build_packet,
@@ -25,6 +27,7 @@ from .core import (
     build_release_check,
     build_schema_export,
     build_scenario_gallery,
+    build_template_pack,
     build_visual_receipt,
     build_csv_export,
     build_csv_import,
@@ -334,6 +337,59 @@ def cmd_input_lint(args: argparse.Namespace) -> int:
     return 0 if result["status"] == "pass" else 1
 
 
+def cmd_bundle_checksums(args: argparse.Namespace) -> int:
+    selected = [item.strip() for item in args.paths.split(",") if item.strip()] if args.paths else [
+        "README.md",
+        "LICENSE",
+        "MANIFEST.in",
+        "pyproject.toml",
+        "portfolio_liquidity_runway_lab",
+        "docs",
+        "demo",
+        "skills",
+        "tests",
+    ]
+    paths = build_bundle_checksums(Path(args.root), Path(args.out), selected)
+    _print_json(
+        {
+            "status": "ok",
+            "boundary": BOUNDARY_TEXT,
+            "sha256sums": str(paths.sums_path),
+            "json": str(paths.manifest_json_path),
+            "markdown": str(paths.manifest_markdown_path),
+        }
+    )
+    return 0
+
+
+def cmd_evidence_bundle(args: argparse.Namespace) -> int:
+    paths = build_evidence_bundle(Path(args.root), Path(args.out))
+    _print_json(
+        {
+            "status": "ok",
+            "boundary": BOUNDARY_TEXT,
+            "index": str(paths.index_markdown_path),
+            "html": str(paths.index_html_path),
+            "sha256sums": str(paths.checksums_path),
+            "manifest": str(paths.manifest_json_path),
+        }
+    )
+    return 0
+
+
+def cmd_template_pack(args: argparse.Namespace) -> int:
+    paths = build_template_pack(Path(args.out))
+    _print_json(
+        {
+            "status": "ok",
+            "boundary": BOUNDARY_TEXT,
+            "readme": str(paths.readme_path),
+            "manifest": str(paths.manifest_json_path),
+        }
+    )
+    return 0
+
+
 def cmd_fixture_doctor(args: argparse.Namespace) -> int:
     paths = build_fixture_doctor(
         Path(args.out),
@@ -450,6 +506,13 @@ def cmd_selfcheck(args: argparse.Namespace) -> int:
             "USD",
         )
         csv_export_paths = build_csv_export(paths.json_path, tmp_path / "csv-export")
+        checksum_paths = build_bundle_checksums(
+            tmp_path,
+            tmp_path / "bundle-checksums",
+            ["packet", "scenario-gallery", "csv-import", "csv-export"],
+        )
+        evidence_paths = build_evidence_bundle(tmp_path, tmp_path / "evidence-bundle")
+        template_paths = build_template_pack(tmp_path / "template-pack")
         lint_result = input_lint(
             [
                 (bundled_example_path("portfolio"), "portfolio_json"),
@@ -544,6 +607,20 @@ def cmd_selfcheck(args: argparse.Namespace) -> int:
                 csv_export_paths.assets_csv_path.exists()
                 and csv_export_paths.runway_csv_path.exists()
                 and load_json(csv_export_paths.manifest_json_path).get("status") == "pass"
+            ),
+            "bundle_checksums": (
+                checksum_paths.sums_path.exists()
+                and load_json(checksum_paths.manifest_json_path).get("file_count", 0) >= 8
+            ),
+            "evidence_bundle": (
+                evidence_paths.index_html_path.exists()
+                and "<script" not in evidence_paths.index_html_path.read_text(encoding="utf-8").lower()
+                and load_json(evidence_paths.manifest_json_path).get("artifact_count", 0) >= 2
+            ),
+            "template_pack": (
+                template_paths.readme_path.exists()
+                and (template_paths.out_dir / "portfolio.csv").exists()
+                and load_json(template_paths.manifest_json_path).get("file_count", 0) >= 6
             ),
             "input_lint": lint_result["status"] == "pass",
             "forced_sale_warnings": bool(packet.get("forced_sale_warnings")),
@@ -686,6 +763,21 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--kind", choices=["portfolio_json", "ledger_json", "assumptions_json", "portfolio_csv", "ledger_csv"], help="Kind for --input.")
     p.add_argument("--out", help="Optional JSON output path.")
     p.set_defaults(func=cmd_input_lint)
+
+    p = sub.add_parser("bundle-checksums", help="Write deterministic SHA256SUMS plus JSON and Markdown release manifests.")
+    p.add_argument("--root", default=".", help="Repository root.")
+    p.add_argument("--paths", help="Comma-separated root-relative paths to include. Defaults to release files, docs, demos, skills, tests, and dist packages.")
+    p.add_argument("--out", default="dist/bundle-checksums", help="Output directory.")
+    p.set_defaults(func=cmd_bundle_checksums)
+
+    p = sub.add_parser("evidence-bundle", help="Copy selected docs and demos into a deterministic offline review bundle.")
+    p.add_argument("--root", default=".", help="Repository root.")
+    p.add_argument("--out", default="dist/evidence-bundle", help="Output directory.")
+    p.set_defaults(func=cmd_evidence_bundle)
+
+    p = sub.add_parser("template-pack", help="Export clean CSV and JSON starter templates for offline user inputs.")
+    p.add_argument("--out", default="dist/template-pack", help="Output directory.")
+    p.set_defaults(func=cmd_template_pack)
 
     p = sub.add_parser("fixture-doctor", help="Copy examples to a work dir and validate all CLI capabilities against them.")
     p.add_argument("--out", default="dist/fixture-doctor", help="Output directory for fixture_doctor.json and fixture_doctor.md.")

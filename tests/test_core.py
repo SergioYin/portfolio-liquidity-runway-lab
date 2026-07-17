@@ -489,6 +489,9 @@ class CoreTests(unittest.TestCase):
         self.assertIn("command-matrix", readme)
         self.assertIn("golden-replay", readme)
         self.assertIn("release-deck", readme)
+        self.assertIn("bundle-checksums", readme)
+        self.assertIn("evidence-bundle", readme)
+        self.assertIn("template-pack", readme)
         self.assertIn("scenario-gallery", readme)
         self.assertIn("assumption-audit", readme)
         self.assertIn("batch-compare", readme)
@@ -513,12 +516,15 @@ class CoreTests(unittest.TestCase):
         self.assertIn("docs/command-matrix/command_matrix.json", manifest["files"])
         self.assertIn("docs/golden-replay/golden_replay.json", manifest["files"])
         self.assertIn("docs/release-deck/release_deck.html", manifest["files"])
+        self.assertIn("docs/bundle-checksums/SHA256SUMS.txt", manifest["files"])
+        self.assertIn("docs/evidence-bundle/index.html", manifest["files"])
+        self.assertIn("docs/template-pack/template_manifest.json", manifest["files"])
         self.assertIn("demo/casebook/casebook.md", manifest["files"])
         self.assertIn("demo/scenario-gallery/scenario_gallery.md", manifest["files"])
         self.assertIn("demo/assumption-audit/assumption_audit.md", manifest["files"])
         self.assertIn("demo/batch-compare/batch_compare.html", manifest["files"])
         self.assertIn("README.md", manifest["files"])
-        self.assertEqual(manifest["version"], "0.7.0")
+        self.assertEqual(manifest["version"], "0.8.0")
 
 
 if __name__ == "__main__":
