@@ -436,5 +436,5 @@
       "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
     }
   ],
-  "version": "0.10.0"
+  "version": "0.10.1"
 }

@@ -2,7 +2,7 @@
 
 > Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.
 
-Version: `0.10.0`
+Version: `0.10.1`
 Status: `pass`
 Compared artifacts: 17
 Passed: 17
@@ -21,9 +21,9 @@ Failed: 0
 | `demo/casebook/casebook.json` | `pass` | `f80ca2c5bf9c9707702edd9be3839ab740846723fc3dcde6f5e8ad09f153a550` | `f80ca2c5bf9c9707702edd9be3839ab740846723fc3dcde6f5e8ad09f153a550` | 8552 | 8552 |
 | `demo/casebook/casebook.md` | `pass` | `336450c4f9fb126d57490f308a760ce101935859b987923457f47578d8038929` | `336450c4f9fb126d57490f308a760ce101935859b987923457f47578d8038929` | 2560 | 2560 |
 | `demo/casebook/casebook.html` | `pass` | `c5f76e545b6dafa4606876def80df936d1aa7c4c0d196387a7dfa23cf56c3630` | `c5f76e545b6dafa4606876def80df936d1aa7c4c0d196387a7dfa23cf56c3630` | 4122 | 4122 |
-| `demo/schema-export/schema_guide.json` | `pass` | `a3d7519c031477863e1e315016b1cb2fc1f3b6c5d3e5e43e188954ebc1eb50bb` | `a3d7519c031477863e1e315016b1cb2fc1f3b6c5d3e5e43e188954ebc1eb50bb` | 30876 | 30876 |
-| `demo/schema-export/schema_guide.md` | `pass` | `b229ae80dab114750c325088e7ec9863ce03f41f83cadb21ca4220b44e98a21e` | `b229ae80dab114750c325088e7ec9863ce03f41f83cadb21ca4220b44e98a21e` | 11292 | 11292 |
+| `demo/schema-export/schema_guide.json` | `pass` | `7b1c669581d8a9c588984d1f4bb9c91ce43b11e5c89245a300314ecd87f5750b` | `7b1c669581d8a9c588984d1f4bb9c91ce43b11e5c89245a300314ecd87f5750b` | 30876 | 30876 |
+| `demo/schema-export/schema_guide.md` | `pass` | `52c15f00daffb5dd3700ba7f96177d49ec1d78c96f9496d355f7b832328009df` | `52c15f00daffb5dd3700ba7f96177d49ec1d78c96f9496d355f7b832328009df` | 11292 | 11292 |
 | `demo/visual_receipt.md` | `pass` | `8fa00d398cbc628f4a314ead5e739384f0561f6b599b5abc86f2642c14259d1f` | `8fa00d398cbc628f4a314ead5e739384f0561f6b599b5abc86f2642c14259d1f` | 1463 | 1463 |
-| `demo/command-matrix/command_matrix.json` | `pass` | `ae9f4eb6b5f351d7c2271e76b757a423db2602f584071e5c461ab61efe3ed6b7` | `ae9f4eb6b5f351d7c2271e76b757a423db2602f584071e5c461ab61efe3ed6b7` | 15883 | 15883 |
-| `demo/command-matrix/command_matrix.md` | `pass` | `7582715613a6e44abeb728c40e2fac9d3201eadc80ec5d877ed263941446aebb` | `7582715613a6e44abeb728c40e2fac9d3201eadc80ec5d877ed263941446aebb` | 10172 | 10172 |
-| `demo/command-matrix/command_matrix.html` | `pass` | `e619aaa4f3869e801a99a52aed48a5a8ffd857340d6686f9c85b489ab717f43d` | `e619aaa4f3869e801a99a52aed48a5a8ffd857340d6686f9c85b489ab717f43d` | 12973 | 12973 |
+| `demo/command-matrix/command_matrix.json` | `pass` | `a936bd2a7d4a62be1369d07f2d99c73841fadf56bb9cdfff165c5f1df6711dea` | `a936bd2a7d4a62be1369d07f2d99c73841fadf56bb9cdfff165c5f1df6711dea` | 15883 | 15883 |
+| `demo/command-matrix/command_matrix.md` | `pass` | `460e7255e832f3dd4540e61f8262849452f7b92da9cebe42109a64343d2142a2` | `460e7255e832f3dd4540e61f8262849452f7b92da9cebe42109a64343d2142a2` | 10172 | 10172 |
+| `demo/command-matrix/command_matrix.html` | `pass` | `acfc64b79f9eb9b1ce143b38f89be2e1de6ebce7d0d2b53413486417ab08fcca` | `acfc64b79f9eb9b1ce143b38f89be2e1de6ebce7d0d2b53413486417ab08fcca` | 12973 | 12973 |

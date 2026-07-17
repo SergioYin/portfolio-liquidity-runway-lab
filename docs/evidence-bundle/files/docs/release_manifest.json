@@ -136,6 +136,7 @@
     "docs/golden-replay/golden_replay.json",
     "docs/golden-replay/golden_replay.md",
     "docs/maturity_report.json",
+    "docs/release-audits/archive_gate_audit_v0100.md",
     "docs/release-audits/archive_gate_audit_v090.md",
     "docs/release-audits/cold_start_audit_v080.md",
     "docs/release-audits/promotion_audit_v080.md",
@@ -179,5 +180,5 @@
   ],
   "name": "portfolio-liquidity-runway-lab",
   "runtime_dependencies": [],
-  "version": "0.10.0"
+  "version": "0.10.1"
 }

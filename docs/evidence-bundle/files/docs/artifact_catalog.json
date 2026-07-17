@@ -1,5 +1,5 @@
 {
-  "artifact_count": 153,
+  "artifact_count": 154,
   "artifacts": [
     {
       "path": "demo/assumption-audit/assumption_audit.json",
@@ -46,20 +46,20 @@
     {
       "path": "demo/bundle-checksums/SHA256SUMS.txt",
       "regeneration_command": "portfolio-liquidity-runway-lab bundle-checksums --root . --out docs/bundle-checksums",
-      "sha256": "7af0c20091fc1d9ec2562c6b36babce7c353c1e4d48556682f309fa647d9a0d7",
-      "size_bytes": 18470
+      "sha256": "309b80c451c78cd9c21d1dc081407c240f5bbd05ca3e8dafddfb5ed3a584aa8d",
+      "size_bytes": 18342
     },
     {
       "path": "demo/bundle-checksums/bundle_manifest.json",
       "regeneration_command": "portfolio-liquidity-runway-lab bundle-checksums --root . --out docs/bundle-checksums",
-      "sha256": "8456f6ccaaf2f2e8491375422cf0c3a131dacfeec6e51d9d9b91bbb25e9b8d8b",
-      "size_bytes": 31361
+      "sha256": "cfa45dc254f029a19596eda733b3b74b652bd6bf091d949f91b78251b12ef654",
+      "size_bytes": 31158
     },
     {
       "path": "demo/bundle-checksums/bundle_manifest.md",
       "regeneration_command": "portfolio-liquidity-runway-lab bundle-checksums --root . --out docs/bundle-checksums",
-      "sha256": "a1e2d216620c776b1473f0f2b020d128eab6d2f8f257138b6a8db6bbf08482b2",
-      "size_bytes": 21571
+      "sha256": "6a358c1f5f751f9f2186beb7ea702175d5e278a7cf6bf369b6c26c31f5695807",
+      "size_bytes": 21425
     },
     {
       "path": "demo/casebook/casebook.html",
@@ -82,19 +82,19 @@
     {
       "path": "demo/command-matrix/command_matrix.html",
       "regeneration_command": "portfolio-liquidity-runway-lab command-matrix --out demo/command-matrix",
-      "sha256": "e619aaa4f3869e801a99a52aed48a5a8ffd857340d6686f9c85b489ab717f43d",
+      "sha256": "acfc64b79f9eb9b1ce143b38f89be2e1de6ebce7d0d2b53413486417ab08fcca",
       "size_bytes": 12973
     },
     {
       "path": "demo/command-matrix/command_matrix.json",
       "regeneration_command": "portfolio-liquidity-runway-lab command-matrix --out demo/command-matrix",
-      "sha256": "ae9f4eb6b5f351d7c2271e76b757a423db2602f584071e5c461ab61efe3ed6b7",
+      "sha256": "a936bd2a7d4a62be1369d07f2d99c73841fadf56bb9cdfff165c5f1df6711dea",
       "size_bytes": 15883
     },
     {
       "path": "demo/command-matrix/command_matrix.md",
       "regeneration_command": "portfolio-liquidity-runway-lab command-matrix --out demo/command-matrix",
-      "sha256": "7582715613a6e44abeb728c40e2fac9d3201eadc80ec5d877ed263941446aebb",
+      "sha256": "460e7255e832f3dd4540e61f8262849452f7b92da9cebe42109a64343d2142a2",
       "size_bytes": 10172
     },
     {
@@ -178,7 +178,7 @@
     {
       "path": "demo/evidence-bundle/SHA256SUMS.txt",
       "regeneration_command": "portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle",
-      "sha256": "0665d7cc84340a50366f3157e38506898d99c13870d5cd126bb6f4601cdb42b2",
+      "sha256": "b850551c7ae8b2fa088b630d4720d6e62eb530dd932b9814da1017a34e7c6a65",
       "size_bytes": 2621
     },
     {
@@ -196,7 +196,7 @@
     {
       "path": "demo/evidence-bundle/evidence_manifest.json",
       "regeneration_command": "portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle",
-      "sha256": "4068ae6734fc4ad4e164556940b56fba3260625225ad94cf02260b92444b6675",
+      "sha256": "0c18c4cb45e47236157d7c5b583401cfe0ccf67d88f35cfb0aabc729b9005611",
       "size_bytes": 6415
     },
     {
@@ -274,13 +274,13 @@
     {
       "path": "demo/evidence-bundle/files/docs/artifact_catalog.json",
       "regeneration_command": "portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle",
-      "sha256": "9f26363c620d7a04b1a5d9a4e74a425c99d1bbf618b16b711aed21a7a9035a55",
+      "sha256": "ac051bfdc76d4a75c9269620f591372a6f3aebfe9cc22a712ae91cbc0b0b63d9",
       "size_bytes": 44434
     },
     {
       "path": "demo/evidence-bundle/files/docs/artifact_catalog.md",
       "regeneration_command": "portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle",
-      "sha256": "64ac75e5f3026fd4c240232c6e8fae41f28578c2c83d82e17da698503b37580b",
+      "sha256": "2603e37e0781454f1bd553c02f1fcf05e176d96de5ca573dbb8709714e37d143",
       "size_bytes": 31320
     },
     {
@@ -292,8 +292,8 @@
     {
       "path": "demo/evidence-bundle/files/docs/command-matrix/command_matrix.md",
       "regeneration_command": "portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle",
-      "sha256": "de94fb1246b20d8a6fea1e0f5ba5525475822f2d5288bc236f45504f671e71f0",
-      "size_bytes": 10171
+      "sha256": "7582715613a6e44abeb728c40e2fac9d3201eadc80ec5d877ed263941446aebb",
+      "size_bytes": 10172
     },
     {
       "path": "demo/evidence-bundle/files/docs/golden-replay/golden_replay.md",
@@ -340,19 +340,19 @@
     {
       "path": "demo/evidence-bundle/files/docs/schema_guide.md",
       "regeneration_command": "portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle",
-      "sha256": "bbdcac737fc6601214f083e05aba6f918380615d9850c98a615d4a0716fecc71",
-      "size_bytes": 11291
+      "sha256": "b229ae80dab114750c325088e7ec9863ce03f41f83cadb21ca4220b44e98a21e",
+      "size_bytes": 11292
     },
     {
       "path": "demo/evidence-bundle/index.html",
       "regeneration_command": "portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle",
-      "sha256": "7ccd172497d4edea6d5b83a92a948b3c95b81039863416d69b74719c63dbe0eb",
+      "sha256": "76647657791ce4c12b6082bfa1a85391df743ee5eac72e255553782bdb18d400",
       "size_bytes": 5581
     },
     {
       "path": "demo/evidence-bundle/index.md",
       "regeneration_command": "portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle",
-      "sha256": "20fb0af705fd69f009b02adee480b1a0c74bb4083feb81a9b464924e4b2f59d7",
+      "sha256": "a13889f24085879a9ff133d2131011685cce749c2f1f64ac3ed69aec52c10f34",
       "size_bytes": 4216
     },
     {
@@ -370,13 +370,13 @@
     {
       "path": "demo/golden-replay/golden_replay.json",
       "regeneration_command": "portfolio-liquidity-runway-lab golden-replay --out demo/golden-replay",
-      "sha256": "88ca70c1e901ff80ee97986227c5ef802d3755f8650edaa7c20a3ca5f479218d",
+      "sha256": "b2887ff2c7953dce3730726b0d1396d895c6426f3ea4c77bc32eab1326a601b6",
       "size_bytes": 8676
     },
     {
       "path": "demo/golden-replay/golden_replay.md",
       "regeneration_command": "portfolio-liquidity-runway-lab golden-replay --out demo/golden-replay",
-      "sha256": "423b24837be938a5abd62c0001c8a3d230470e4806b499153a26244a0285ad4e",
+      "sha256": "c112622cc66f13ccf3b4f2a1b0729980682489bae5a506dbcb497209065d6a4f",
       "size_bytes": 3946
     },
     {
@@ -412,13 +412,13 @@
     {
       "path": "demo/schema-export/schema_guide.json",
       "regeneration_command": "portfolio-liquidity-runway-lab schema-export --out demo/schema-export",
-      "sha256": "a3d7519c031477863e1e315016b1cb2fc1f3b6c5d3e5e43e188954ebc1eb50bb",
+      "sha256": "7b1c669581d8a9c588984d1f4bb9c91ce43b11e5c89245a300314ecd87f5750b",
       "size_bytes": 30876
     },
     {
       "path": "demo/schema-export/schema_guide.md",
       "regeneration_command": "portfolio-liquidity-runway-lab schema-export --out demo/schema-export",
-      "sha256": "b229ae80dab114750c325088e7ec9863ce03f41f83cadb21ca4220b44e98a21e",
+      "sha256": "52c15f00daffb5dd3700ba7f96177d49ec1d78c96f9496d355f7b832328009df",
       "size_bytes": 11292
     },
     {
@@ -430,7 +430,7 @@
     {
       "path": "demo/static-docs/command_matrix.md",
       "regeneration_command": "portfolio-liquidity-runway-lab docs-export --out demo/static-docs",
-      "sha256": "7582715613a6e44abeb728c40e2fac9d3201eadc80ec5d877ed263941446aebb",
+      "sha256": "460e7255e832f3dd4540e61f8262849452f7b92da9cebe42109a64343d2142a2",
       "size_bytes": 10172
     },
     {
@@ -496,7 +496,7 @@
     {
       "path": "demo/template-pack/template_manifest.json",
       "regeneration_command": "portfolio-liquidity-runway-lab template-pack --out docs/template-pack",
-      "sha256": "9284dc28ad15cfe2fb0c5ad45f76d475ead06b22fa07e55e68544417b1cf74db",
+      "sha256": "2aab47a442120e9ce37952bfd7bf4af3cd16a0fa050dc4eba0d66f03cc887837",
       "size_bytes": 1227
     },
     {
@@ -508,20 +508,20 @@
     {
       "path": "docs/bundle-checksums/SHA256SUMS.txt",
       "regeneration_command": "portfolio-liquidity-runway-lab bundle-checksums --root . --out docs/bundle-checksums",
-      "sha256": "1c984ced8bf3290531d5cac5cd308fa0563b00f4d57d99ef66bfc0a6c33ba64d",
-      "size_bytes": 18470
+      "sha256": "f06d48d1fa3500d9996949581123331f99a4f34ece5475c8c157317cf898dc88",
+      "size_bytes": 18342
     },
     {
       "path": "docs/bundle-checksums/bundle_manifest.json",
       "regeneration_command": "portfolio-liquidity-runway-lab bundle-checksums --root . --out docs/bundle-checksums",
-      "sha256": "420926a9fc20b164860b3a01f496f45d0e83f9d4b6272e3d3cf02b2be8b3f18f",
-      "size_bytes": 31361
+      "sha256": "d97862b955fbe88a73e36d8d8d0dd707351c84b6359196aaf54628e015523c90",
+      "size_bytes": 31158
     },
     {
       "path": "docs/bundle-checksums/bundle_manifest.md",
       "regeneration_command": "portfolio-liquidity-runway-lab bundle-checksums --root . --out docs/bundle-checksums",
-      "sha256": "e2f4b801f61d8cea4c6f120c1e420fa4f06b3450b1ef91d2f69a2b0f86841843",
-      "size_bytes": 21571
+      "sha256": "af7edde49946fda8c87d6cee3a6c8ec1301101ed644f56e08f00ae2ad90515c6",
+      "size_bytes": 21425
     },
     {
       "path": "docs/cold_start_walkthrough.md",
@@ -532,19 +532,19 @@
     {
       "path": "docs/command-matrix/command_matrix.html",
       "regeneration_command": "portfolio-liquidity-runway-lab command-matrix --out demo/command-matrix",
-      "sha256": "e619aaa4f3869e801a99a52aed48a5a8ffd857340d6686f9c85b489ab717f43d",
+      "sha256": "acfc64b79f9eb9b1ce143b38f89be2e1de6ebce7d0d2b53413486417ab08fcca",
       "size_bytes": 12973
     },
     {
       "path": "docs/command-matrix/command_matrix.json",
       "regeneration_command": "portfolio-liquidity-runway-lab command-matrix --out demo/command-matrix",
-      "sha256": "ae9f4eb6b5f351d7c2271e76b757a423db2602f584071e5c461ab61efe3ed6b7",
+      "sha256": "a936bd2a7d4a62be1369d07f2d99c73841fadf56bb9cdfff165c5f1df6711dea",
       "size_bytes": 15883
     },
     {
       "path": "docs/command-matrix/command_matrix.md",
       "regeneration_command": "portfolio-liquidity-runway-lab command-matrix --out demo/command-matrix",
-      "sha256": "7582715613a6e44abeb728c40e2fac9d3201eadc80ec5d877ed263941446aebb",
+      "sha256": "460e7255e832f3dd4540e61f8262849452f7b92da9cebe42109a64343d2142a2",
       "size_bytes": 10172
     },
     {
@@ -562,7 +562,7 @@
     {
       "path": "docs/evidence-bundle/SHA256SUMS.txt",
       "regeneration_command": "portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle",
-      "sha256": "0665d7cc84340a50366f3157e38506898d99c13870d5cd126bb6f4601cdb42b2",
+      "sha256": "b850551c7ae8b2fa088b630d4720d6e62eb530dd932b9814da1017a34e7c6a65",
       "size_bytes": 2621
     },
     {
@@ -580,7 +580,7 @@
     {
       "path": "docs/evidence-bundle/evidence_manifest.json",
       "regeneration_command": "portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle",
-      "sha256": "4068ae6734fc4ad4e164556940b56fba3260625225ad94cf02260b92444b6675",
+      "sha256": "0c18c4cb45e47236157d7c5b583401cfe0ccf67d88f35cfb0aabc729b9005611",
       "size_bytes": 6415
     },
     {
@@ -658,13 +658,13 @@
     {
       "path": "docs/evidence-bundle/files/docs/artifact_catalog.json",
       "regeneration_command": "portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle",
-      "sha256": "9f26363c620d7a04b1a5d9a4e74a425c99d1bbf618b16b711aed21a7a9035a55",
+      "sha256": "ac051bfdc76d4a75c9269620f591372a6f3aebfe9cc22a712ae91cbc0b0b63d9",
       "size_bytes": 44434
     },
     {
       "path": "docs/evidence-bundle/files/docs/artifact_catalog.md",
       "regeneration_command": "portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle",
-      "sha256": "64ac75e5f3026fd4c240232c6e8fae41f28578c2c83d82e17da698503b37580b",
+      "sha256": "2603e37e0781454f1bd553c02f1fcf05e176d96de5ca573dbb8709714e37d143",
       "size_bytes": 31320
     },
     {
@@ -676,8 +676,8 @@
     {
       "path": "docs/evidence-bundle/files/docs/command-matrix/command_matrix.md",
       "regeneration_command": "portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle",
-      "sha256": "de94fb1246b20d8a6fea1e0f5ba5525475822f2d5288bc236f45504f671e71f0",
-      "size_bytes": 10171
+      "sha256": "7582715613a6e44abeb728c40e2fac9d3201eadc80ec5d877ed263941446aebb",
+      "size_bytes": 10172
     },
     {
       "path": "docs/evidence-bundle/files/docs/golden-replay/golden_replay.md",
@@ -724,19 +724,19 @@
     {
       "path": "docs/evidence-bundle/files/docs/schema_guide.md",
       "regeneration_command": "portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle",
-      "sha256": "bbdcac737fc6601214f083e05aba6f918380615d9850c98a615d4a0716fecc71",
-      "size_bytes": 11291
+      "sha256": "b229ae80dab114750c325088e7ec9863ce03f41f83cadb21ca4220b44e98a21e",
+      "size_bytes": 11292
     },
     {
       "path": "docs/evidence-bundle/index.html",
       "regeneration_command": "portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle",
-      "sha256": "7ccd172497d4edea6d5b83a92a948b3c95b81039863416d69b74719c63dbe0eb",
+      "sha256": "76647657791ce4c12b6082bfa1a85391df743ee5eac72e255553782bdb18d400",
       "size_bytes": 5581
     },
     {
       "path": "docs/evidence-bundle/index.md",
       "regeneration_command": "portfolio-liquidity-runway-lab evidence-bundle --root . --out docs/evidence-bundle",
-      "sha256": "20fb0af705fd69f009b02adee480b1a0c74bb4083feb81a9b464924e4b2f59d7",
+      "sha256": "a13889f24085879a9ff133d2131011685cce749c2f1f64ac3ed69aec52c10f34",
       "size_bytes": 4216
     },
     {
@@ -754,13 +754,13 @@
     {
       "path": "docs/golden-replay/golden_replay.json",
       "regeneration_command": "portfolio-liquidity-runway-lab golden-replay --out demo/golden-replay",
-      "sha256": "88ca70c1e901ff80ee97986227c5ef802d3755f8650edaa7c20a3ca5f479218d",
+      "sha256": "b2887ff2c7953dce3730726b0d1396d895c6426f3ea4c77bc32eab1326a601b6",
       "size_bytes": 8676
     },
     {
       "path": "docs/golden-replay/golden_replay.md",
       "regeneration_command": "portfolio-liquidity-runway-lab golden-replay --out demo/golden-replay",
-      "sha256": "423b24837be938a5abd62c0001c8a3d230470e4806b499153a26244a0285ad4e",
+      "sha256": "c112622cc66f13ccf3b4f2a1b0729980682489bae5a506dbcb497209065d6a4f",
       "size_bytes": 3946
     },
     {
@@ -768,6 +768,12 @@
       "regeneration_command": "portfolio-liquidity-runway-lab maturity-report --out docs/maturity_report.json",
       "sha256": "7273580b6f0b8db2b3e7f11edad3d6f4d32d2a56b4ce6c214bc1f911205d8939",
       "size_bytes": 1413
+    },
+    {
+      "path": "docs/release-audits/archive_gate_audit_v0100.md",
+      "regeneration_command": "manual edit",
+      "sha256": "ce26d50fdecaafc9ef4da1af182019a32fa8ff14dfe451c71d551d0a19655d78",
+      "size_bytes": 13171
     },
     {
       "path": "docs/release-audits/archive_gate_audit_v090.md",
@@ -820,25 +826,25 @@
     {
       "path": "docs/release_manifest.json",
       "regeneration_command": "portfolio-liquidity-runway-lab release-manifest --out docs/release_manifest.json",
-      "sha256": "80e9c1dda54448f659fbb185e8dad559268c938afed042a55b1bbb5a730bee22",
-      "size_bytes": 8786
+      "sha256": "8d3376c8ba33c828b1119013632665d4f0fd7836d848a6dc636a028258a9a594",
+      "size_bytes": 8841
     },
     {
       "path": "docs/release_readiness_review.md",
       "regeneration_command": "manual edit",
-      "sha256": "c9408e50f42fc82cf60fd7dc8578fdcfd3b9ae8c51dd209ff981f252b9caf4dc",
+      "sha256": "6876046f420d664cc7d3ac01e1632789453ca06f004e41ef5316acd38137411e",
       "size_bytes": 10389
     },
     {
       "path": "docs/schema_guide.json",
       "regeneration_command": "portfolio-liquidity-runway-lab schema-export --out demo/schema-export",
-      "sha256": "a3d7519c031477863e1e315016b1cb2fc1f3b6c5d3e5e43e188954ebc1eb50bb",
+      "sha256": "7b1c669581d8a9c588984d1f4bb9c91ce43b11e5c89245a300314ecd87f5750b",
       "size_bytes": 30876
     },
     {
       "path": "docs/schema_guide.md",
       "regeneration_command": "portfolio-liquidity-runway-lab schema-export --out demo/schema-export",
-      "sha256": "b229ae80dab114750c325088e7ec9863ce03f41f83cadb21ca4220b44e98a21e",
+      "sha256": "52c15f00daffb5dd3700ba7f96177d49ec1d78c96f9496d355f7b832328009df",
       "size_bytes": 11292
     },
     {
@@ -850,7 +856,7 @@
     {
       "path": "docs/static-docs/command_matrix.md",
       "regeneration_command": "portfolio-liquidity-runway-lab docs-export --out demo/static-docs",
-      "sha256": "7582715613a6e44abeb728c40e2fac9d3201eadc80ec5d877ed263941446aebb",
+      "sha256": "460e7255e832f3dd4540e61f8262849452f7b92da9cebe42109a64343d2142a2",
       "size_bytes": 10172
     },
     {
@@ -916,7 +922,7 @@
     {
       "path": "docs/template-pack/template_manifest.json",
       "regeneration_command": "portfolio-liquidity-runway-lab template-pack --out docs/template-pack",
-      "sha256": "9284dc28ad15cfe2fb0c5ad45f76d475ead06b22fa07e55e68544417b1cf74db",
+      "sha256": "2aab47a442120e9ce37952bfd7bf4af3cd16a0fa050dc4eba0d66f03cc887837",
       "size_bytes": 1227
     }
   ],

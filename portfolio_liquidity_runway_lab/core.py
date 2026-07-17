@@ -213,7 +213,7 @@ class TemplatePackPaths:
     manifest_json_path: Path
 
 
-PROJECT_VERSION = "0.10.0"
+PROJECT_VERSION = "0.10.1"
 
 IGNORED_RELEASE_PARTS = {
     ".git",
@@ -2747,12 +2747,10 @@ def _release_candidate_files(root: Path, include_paths: Iterable[str], exclude_d
                 continue
             seen.add(rel)
             files.append(path)
-    for dist_path in sorted((root / "dist").glob("*")) if (root / "dist").exists() else []:
-        if dist_path.is_file() and (dist_path.suffix in {".whl", ".gz", ".zip"} or ".tar." in dist_path.name):
-            rel = dist_path.relative_to(root).as_posix()
-            if rel not in seen:
-                seen.add(rel)
-                files.append(dist_path)
+    # Distribution archives are deliberately excluded from in-archive bundle manifests.
+    # A source distribution cannot carry a stable checksum for itself once the
+    # manifest is embedded, so release-asset checksums are verified separately
+    # by the release audit and GitHub release asset digests.
     return sorted(files, key=lambda item: item.relative_to(root).as_posix())
 
 

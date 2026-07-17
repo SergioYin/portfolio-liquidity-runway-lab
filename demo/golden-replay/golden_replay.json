@@ -125,10 +125,10 @@
     },
     {
       "committed_exists": true,
-      "committed_sha256": "a3d7519c031477863e1e315016b1cb2fc1f3b6c5d3e5e43e188954ebc1eb50bb",
+      "committed_sha256": "7b1c669581d8a9c588984d1f4bb9c91ce43b11e5c89245a300314ecd87f5750b",
       "generated_exists": true,
       "generated_path": "replay/demo/schema-export/schema_guide.json",
-      "generated_sha256": "a3d7519c031477863e1e315016b1cb2fc1f3b6c5d3e5e43e188954ebc1eb50bb",
+      "generated_sha256": "7b1c669581d8a9c588984d1f4bb9c91ce43b11e5c89245a300314ecd87f5750b",
       "path": "demo/schema-export/schema_guide.json",
       "size_bytes_committed": 30876,
       "size_bytes_generated": 30876,
@@ -136,10 +136,10 @@
     },
     {
       "committed_exists": true,
-      "committed_sha256": "b229ae80dab114750c325088e7ec9863ce03f41f83cadb21ca4220b44e98a21e",
+      "committed_sha256": "52c15f00daffb5dd3700ba7f96177d49ec1d78c96f9496d355f7b832328009df",
       "generated_exists": true,
       "generated_path": "replay/demo/schema-export/schema_guide.md",
-      "generated_sha256": "b229ae80dab114750c325088e7ec9863ce03f41f83cadb21ca4220b44e98a21e",
+      "generated_sha256": "52c15f00daffb5dd3700ba7f96177d49ec1d78c96f9496d355f7b832328009df",
       "path": "demo/schema-export/schema_guide.md",
       "size_bytes_committed": 11292,
       "size_bytes_generated": 11292,
@@ -158,10 +158,10 @@
     },
     {
       "committed_exists": true,
-      "committed_sha256": "ae9f4eb6b5f351d7c2271e76b757a423db2602f584071e5c461ab61efe3ed6b7",
+      "committed_sha256": "a936bd2a7d4a62be1369d07f2d99c73841fadf56bb9cdfff165c5f1df6711dea",
       "generated_exists": true,
       "generated_path": "replay/demo/command-matrix/command_matrix.json",
-      "generated_sha256": "ae9f4eb6b5f351d7c2271e76b757a423db2602f584071e5c461ab61efe3ed6b7",
+      "generated_sha256": "a936bd2a7d4a62be1369d07f2d99c73841fadf56bb9cdfff165c5f1df6711dea",
       "path": "demo/command-matrix/command_matrix.json",
       "size_bytes_committed": 15883,
       "size_bytes_generated": 15883,
@@ -169,10 +169,10 @@
     },
     {
       "committed_exists": true,
-      "committed_sha256": "7582715613a6e44abeb728c40e2fac9d3201eadc80ec5d877ed263941446aebb",
+      "committed_sha256": "460e7255e832f3dd4540e61f8262849452f7b92da9cebe42109a64343d2142a2",
       "generated_exists": true,
       "generated_path": "replay/demo/command-matrix/command_matrix.md",
-      "generated_sha256": "7582715613a6e44abeb728c40e2fac9d3201eadc80ec5d877ed263941446aebb",
+      "generated_sha256": "460e7255e832f3dd4540e61f8262849452f7b92da9cebe42109a64343d2142a2",
       "path": "demo/command-matrix/command_matrix.md",
       "size_bytes_committed": 10172,
       "size_bytes_generated": 10172,
@@ -180,10 +180,10 @@
     },
     {
       "committed_exists": true,
-      "committed_sha256": "e619aaa4f3869e801a99a52aed48a5a8ffd857340d6686f9c85b489ab717f43d",
+      "committed_sha256": "acfc64b79f9eb9b1ce143b38f89be2e1de6ebce7d0d2b53413486417ab08fcca",
       "generated_exists": true,
       "generated_path": "replay/demo/command-matrix/command_matrix.html",
-      "generated_sha256": "e619aaa4f3869e801a99a52aed48a5a8ffd857340d6686f9c85b489ab717f43d",
+      "generated_sha256": "acfc64b79f9eb9b1ce143b38f89be2e1de6ebce7d0d2b53413486417ab08fcca",
       "path": "demo/command-matrix/command_matrix.html",
       "size_bytes_committed": 12973,
       "size_bytes_generated": 12973,
@@ -195,5 +195,5 @@
   "replay_dir": "temporary",
   "root": ".",
   "status": "pass",
-  "version": "0.10.0"
+  "version": "0.10.1"
 }
