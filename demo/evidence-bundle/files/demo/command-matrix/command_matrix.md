@@ -2,7 +2,7 @@
 
 > Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.
 
-Version: `0.9.0`
+Version: `0.10.0`
 
 | Command | Purpose | Inputs | Outputs | Demo command | Risk boundary | Static no-JS HTML |
 | --- | --- | --- | --- | --- | --- | --- |

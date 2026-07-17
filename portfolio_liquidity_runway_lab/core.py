@@ -213,7 +213,7 @@ class TemplatePackPaths:
     manifest_json_path: Path
 
 
-PROJECT_VERSION = "0.9.0"
+PROJECT_VERSION = "0.10.0"
 
 IGNORED_RELEASE_PARTS = {
     ".git",

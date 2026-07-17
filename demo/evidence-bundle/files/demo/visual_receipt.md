@@ -14,7 +14,7 @@ Boundary: Educational static analysis only. This tool uses local synthetic or us
 
 ```bash
 portfolio-liquidity-runway-lab build-packet --out dist/packet --scenario stress
-portfolio-liquidity-runway-lab visual-receipt --out demo/visual_receipt.md --scenario stress
+portfolio-liquidity-runway-lab visual-receipt --out visual_receipt.md --scenario stress
 ```
 
 ## Snapshot

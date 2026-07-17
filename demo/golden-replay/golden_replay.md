@@ -2,7 +2,7 @@
 
 > Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.
 
-Version: `0.7.0`
+Version: `0.10.0`
 Status: `pass`
 Compared artifacts: 17
 Passed: 17
@@ -18,12 +18,12 @@ Failed: 0
 | `demo/batch-compare/batch_compare.json` | `pass` | `d98fc81a35efa817991cf79353730c3772d574a43cd7870dac70f0e67c525ee0` | `d98fc81a35efa817991cf79353730c3772d574a43cd7870dac70f0e67c525ee0` | 3100 | 3100 |
 | `demo/batch-compare/batch_compare.md` | `pass` | `686c5ca0c78e8513aefad14289252f27c3cf68855f583093542d6695d12ee09d` | `686c5ca0c78e8513aefad14289252f27c3cf68855f583093542d6695d12ee09d` | 1824 | 1824 |
 | `demo/batch-compare/batch_compare.html` | `pass` | `1f4bc2e96fe3d1fc5cdfcdea143396e486964c81bc10630a60ff0a55e20bab66` | `1f4bc2e96fe3d1fc5cdfcdea143396e486964c81bc10630a60ff0a55e20bab66` | 2913 | 2913 |
-| `demo/casebook/casebook.json` | `pass` | `401a2996126e05632c27e46ec8648ea7049d6617427f52e261a14fab53cab27d` | `401a2996126e05632c27e46ec8648ea7049d6617427f52e261a14fab53cab27d` | 8768 | 8768 |
+| `demo/casebook/casebook.json` | `pass` | `f80ca2c5bf9c9707702edd9be3839ab740846723fc3dcde6f5e8ad09f153a550` | `f80ca2c5bf9c9707702edd9be3839ab740846723fc3dcde6f5e8ad09f153a550` | 8552 | 8552 |
 | `demo/casebook/casebook.md` | `pass` | `336450c4f9fb126d57490f308a760ce101935859b987923457f47578d8038929` | `336450c4f9fb126d57490f308a760ce101935859b987923457f47578d8038929` | 2560 | 2560 |
 | `demo/casebook/casebook.html` | `pass` | `c5f76e545b6dafa4606876def80df936d1aa7c4c0d196387a7dfa23cf56c3630` | `c5f76e545b6dafa4606876def80df936d1aa7c4c0d196387a7dfa23cf56c3630` | 4122 | 4122 |
-| `demo/schema-export/schema_guide.json` | `pass` | `0a0ec56b28dc58dded7b0cba1bf479e56205af7483955f23d25eecca1b78c0de` | `0a0ec56b28dc58dded7b0cba1bf479e56205af7483955f23d25eecca1b78c0de` | 27960 | 27960 |
-| `demo/schema-export/schema_guide.md` | `pass` | `7a7c2573011461264b13f983f5b3167fd1599b8541144f9289b6423478969ce6` | `7a7c2573011461264b13f983f5b3167fd1599b8541144f9289b6423478969ce6` | 10356 | 10356 |
-| `demo/visual_receipt.md` | `pass` | `2d1d63d6dacda005448092c5cc8569a024b8b2e73eb1f0ac6d43c7a73646988c` | `2d1d63d6dacda005448092c5cc8569a024b8b2e73eb1f0ac6d43c7a73646988c` | 1468 | 1468 |
-| `demo/command-matrix/command_matrix.json` | `pass` | `336e2aee071e361c48d554c80c99acfd08162a3a5dcea4f1536a7024f4f1ebd9` | `336e2aee071e361c48d554c80c99acfd08162a3a5dcea4f1536a7024f4f1ebd9` | 13951 | 13951 |
-| `demo/command-matrix/command_matrix.md` | `pass` | `470dfcd1b0f95dc9a5edc6df4e71554365337e11768ca29b9acd102f29c968c1` | `470dfcd1b0f95dc9a5edc6df4e71554365337e11768ca29b9acd102f29c968c1` | 8949 | 8949 |
-| `demo/command-matrix/command_matrix.html` | `pass` | `909e8583dc5a6d2d85a1bf91df03ea3ee716f722b48290d9ac6f21fda9405546` | `909e8583dc5a6d2d85a1bf91df03ea3ee716f722b48290d9ac6f21fda9405546` | 11534 | 11534 |
+| `demo/schema-export/schema_guide.json` | `pass` | `a3d7519c031477863e1e315016b1cb2fc1f3b6c5d3e5e43e188954ebc1eb50bb` | `a3d7519c031477863e1e315016b1cb2fc1f3b6c5d3e5e43e188954ebc1eb50bb` | 30876 | 30876 |
+| `demo/schema-export/schema_guide.md` | `pass` | `b229ae80dab114750c325088e7ec9863ce03f41f83cadb21ca4220b44e98a21e` | `b229ae80dab114750c325088e7ec9863ce03f41f83cadb21ca4220b44e98a21e` | 11292 | 11292 |
+| `demo/visual_receipt.md` | `pass` | `8fa00d398cbc628f4a314ead5e739384f0561f6b599b5abc86f2642c14259d1f` | `8fa00d398cbc628f4a314ead5e739384f0561f6b599b5abc86f2642c14259d1f` | 1463 | 1463 |
+| `demo/command-matrix/command_matrix.json` | `pass` | `ae9f4eb6b5f351d7c2271e76b757a423db2602f584071e5c461ab61efe3ed6b7` | `ae9f4eb6b5f351d7c2271e76b757a423db2602f584071e5c461ab61efe3ed6b7` | 15883 | 15883 |
+| `demo/command-matrix/command_matrix.md` | `pass` | `7582715613a6e44abeb728c40e2fac9d3201eadc80ec5d877ed263941446aebb` | `7582715613a6e44abeb728c40e2fac9d3201eadc80ec5d877ed263941446aebb` | 10172 | 10172 |
+| `demo/command-matrix/command_matrix.html` | `pass` | `e619aaa4f3869e801a99a52aed48a5a8ffd857340d6686f9c85b489ab717f43d` | `e619aaa4f3869e801a99a52aed48a5a8ffd857340d6686f9c85b489ab717f43d` | 12973 | 12973 |

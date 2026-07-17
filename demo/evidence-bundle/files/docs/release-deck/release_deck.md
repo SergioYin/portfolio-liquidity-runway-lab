@@ -1,4 +1,4 @@
-# Portfolio Liquidity Runway Lab v0.9.0 Release Deck
+# Portfolio Liquidity Runway Lab v0.10.0 Release Deck
 
 > Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.
 
@@ -47,7 +47,7 @@
 
 - Release check: `pass`
 - Maturity score: `38/38`
-- Cataloged artifacts: `152`
+- Cataloged artifacts: `153`
 - No-script HTML files: `12`
 
 ## Risks

@@ -39,8 +39,8 @@
     },
     {
       "bundle_path": "files/demo/command-matrix/command_matrix.md",
-      "sha256": "de94fb1246b20d8a6fea1e0f5ba5525475822f2d5288bc236f45504f671e71f0",
-      "size_bytes": 10171,
+      "sha256": "7582715613a6e44abeb728c40e2fac9d3201eadc80ec5d877ed263941446aebb",
+      "size_bytes": 10172,
       "source_path": "demo/command-matrix/command_matrix.md"
     },
     {
@@ -57,14 +57,14 @@
     },
     {
       "bundle_path": "files/demo/golden-replay/golden_replay.md",
-      "sha256": "c7559cc02aaba66483aa698bc2e6de2337e323a1b2d05c63bf590382435f1bb1",
-      "size_bytes": 3943,
+      "sha256": "423b24837be938a5abd62c0001c8a3d230470e4806b499153a26244a0285ad4e",
+      "size_bytes": 3946,
       "source_path": "demo/golden-replay/golden_replay.md"
     },
     {
       "bundle_path": "files/demo/release-deck/release_deck.md",
-      "sha256": "c7ddeceb0d6cd0ff672feb0d90e78def6165e4fbd97d283a99ea2f577603a290",
-      "size_bytes": 3764,
+      "sha256": "af6ca19567f93721f9fb4455b864ed6c54c17462d98b83f07044e791ab6a1e5e",
+      "size_bytes": 3765,
       "source_path": "demo/release-deck/release_deck.md"
     },
     {
@@ -81,20 +81,20 @@
     },
     {
       "bundle_path": "files/demo/visual_receipt.md",
-      "sha256": "2d1d63d6dacda005448092c5cc8569a024b8b2e73eb1f0ac6d43c7a73646988c",
-      "size_bytes": 1468,
+      "sha256": "8fa00d398cbc628f4a314ead5e739384f0561f6b599b5abc86f2642c14259d1f",
+      "size_bytes": 1463,
       "source_path": "demo/visual_receipt.md"
     },
     {
       "bundle_path": "files/docs/artifact_catalog.json",
-      "sha256": "349e2e52ee1d9e4ae866c1235cf337904b8ed12504a7a14aeae6dccdb70d3ac5",
-      "size_bytes": 43504,
+      "sha256": "ac051bfdc76d4a75c9269620f591372a6f3aebfe9cc22a712ae91cbc0b0b63d9",
+      "size_bytes": 44434,
       "source_path": "docs/artifact_catalog.json"
     },
     {
       "bundle_path": "files/docs/artifact_catalog.md",
-      "sha256": "a396d178d53b97de23fc29809d04844da5d6472fce3032fb4a3dfe3818c7a2c2",
-      "size_bytes": 30734,
+      "sha256": "2603e37e0781454f1bd553c02f1fcf05e176d96de5ca573dbb8709714e37d143",
+      "size_bytes": 31320,
       "source_path": "docs/artifact_catalog.md"
     },
     {
@@ -105,14 +105,14 @@
     },
     {
       "bundle_path": "files/docs/command-matrix/command_matrix.md",
-      "sha256": "de94fb1246b20d8a6fea1e0f5ba5525475822f2d5288bc236f45504f671e71f0",
-      "size_bytes": 10171,
+      "sha256": "7582715613a6e44abeb728c40e2fac9d3201eadc80ec5d877ed263941446aebb",
+      "size_bytes": 10172,
       "source_path": "docs/command-matrix/command_matrix.md"
     },
     {
       "bundle_path": "files/docs/golden-replay/golden_replay.md",
-      "sha256": "e48ff4675bc89b49b591b4021b0e3ab40b8fd836206239cbf31a4c469385b460",
-      "size_bytes": 3945,
+      "sha256": "423b24837be938a5abd62c0001c8a3d230470e4806b499153a26244a0285ad4e",
+      "size_bytes": 3946,
       "source_path": "docs/golden-replay/golden_replay.md"
     },
     {
@@ -123,8 +123,8 @@
     },
     {
       "bundle_path": "files/docs/release-deck/release_deck.md",
-      "sha256": "c7ddeceb0d6cd0ff672feb0d90e78def6165e4fbd97d283a99ea2f577603a290",
-      "size_bytes": 3764,
+      "sha256": "af6ca19567f93721f9fb4455b864ed6c54c17462d98b83f07044e791ab6a1e5e",
+      "size_bytes": 3765,
       "source_path": "docs/release-deck/release_deck.md"
     },
     {
@@ -141,24 +141,24 @@
     },
     {
       "bundle_path": "files/docs/release_manifest.json",
-      "sha256": "760fa68d81d1f508ff9ba11405ac7708f824f2001a18adff0b3a82ddc38267d7",
-      "size_bytes": 16716,
+      "sha256": "80e9c1dda54448f659fbb185e8dad559268c938afed042a55b1bbb5a730bee22",
+      "size_bytes": 8786,
       "source_path": "docs/release_manifest.json"
     },
     {
       "bundle_path": "files/docs/release_readiness_review.md",
-      "sha256": "a472c75a0e27d0485165aab8b252a673a1b564c0520b64288f0c480f9db8374d",
-      "size_bytes": 10388,
+      "sha256": "c9408e50f42fc82cf60fd7dc8578fdcfd3b9ae8c51dd209ff981f252b9caf4dc",
+      "size_bytes": 10389,
       "source_path": "docs/release_readiness_review.md"
     },
     {
       "bundle_path": "files/docs/schema_guide.md",
-      "sha256": "bbdcac737fc6601214f083e05aba6f918380615d9850c98a615d4a0716fecc71",
-      "size_bytes": 11291,
+      "sha256": "b229ae80dab114750c325088e7ec9863ce03f41f83cadb21ca4220b44e98a21e",
+      "size_bytes": 11292,
       "source_path": "docs/schema_guide.md"
     }
   ],
   "boundary": "Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.",
   "root": ".",
-  "version": "0.9.0"
+  "version": "0.10.0"
 }

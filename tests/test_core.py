@@ -448,7 +448,7 @@ class CoreTests(unittest.TestCase):
             first_html = paths.html_path.read_text(encoding="utf-8")
             self.assertIn("Product Value", first_md)
             self.assertIn("golden-replay", first_md)
-            self.assertIn("v0.9.0 Release Deck", first_md)
+            self.assertIn("v0.10.0 Release Deck", first_md)
             self.assertIn(f"Release check: `{release_check(root)['status']}`", first_md)
             self.assertIn("<!doctype html>", first_html)
             self.assertNotIn("<script", first_html.lower())
@@ -613,7 +613,7 @@ class CoreTests(unittest.TestCase):
         self.assertIn("demo/assumption-audit/assumption_audit.md", manifest["files"])
         self.assertIn("demo/batch-compare/batch_compare.html", manifest["files"])
         self.assertIn("README.md", manifest["files"])
-        self.assertEqual(manifest["version"], "0.9.0")
+        self.assertEqual(manifest["version"], "0.10.0")
 
 
 if __name__ == "__main__":
