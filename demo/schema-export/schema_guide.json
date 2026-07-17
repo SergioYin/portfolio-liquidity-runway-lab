@@ -3,6 +3,7 @@
   "command_matrix": [
     {
       "command": "build-packet",
+      "demo_command": "portfolio-liquidity-runway-lab build-packet --scenario stress --out dist/packet",
       "inputs": [
         "portfolio.json",
         "ledger.json",
@@ -13,10 +14,13 @@
         "liquidity_packet.json",
         "liquidity_packet.md",
         "liquidity_packet.html"
-      ]
+      ],
+      "purpose": "Build the core liquidity runway packet.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
     },
     {
       "command": "compare-history",
+      "demo_command": "portfolio-liquidity-runway-lab compare-history --out dist/history_compare.json",
       "inputs": [
         "history.json"
       ],
@@ -24,10 +28,13 @@
       "outputs": [
         "stdout JSON",
         "optional JSON file"
-      ]
+      ],
+      "purpose": "Compare reserve and burn snapshots over time.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
     },
     {
       "command": "review-ledger",
+      "demo_command": "portfolio-liquidity-runway-lab review-ledger --out dist/ledger_review.json",
       "inputs": [
         "ledger.json"
       ],
@@ -35,10 +42,13 @@
       "outputs": [
         "stdout JSON",
         "optional JSON file"
-      ]
+      ],
+      "purpose": "Flag ledger review prompts and unusual scheduled events.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
     },
     {
       "command": "static-dashboard",
+      "demo_command": "portfolio-liquidity-runway-lab static-dashboard --scenario stress --out dist/dashboard",
       "inputs": [
         "portfolio.json",
         "ledger.json",
@@ -46,11 +56,16 @@
       ],
       "no_script_html": true,
       "outputs": [
+        "liquidity_packet.json",
+        "liquidity_packet.md",
         "liquidity_packet.html"
-      ]
+      ],
+      "purpose": "Build the packet HTML dashboard without JavaScript.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
     },
     {
       "command": "scenario-gallery",
+      "demo_command": "portfolio-liquidity-runway-lab scenario-gallery --out dist/scenario-gallery",
       "inputs": [
         "portfolio.json",
         "ledger.json",
@@ -61,10 +76,13 @@
         "scenario_gallery.json",
         "scenario_gallery.md",
         "scenario_gallery.html"
-      ]
+      ],
+      "purpose": "Compare named scenarios side by side.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
     },
     {
       "command": "assumption-audit",
+      "demo_command": "portfolio-liquidity-runway-lab assumption-audit --portfolio portfolio_liquidity_runway_lab/examples/portfolio_concentrated.json --out dist/assumption-audit",
       "inputs": [
         "portfolio.json",
         "ledger.json",
@@ -74,10 +92,13 @@
       "outputs": [
         "assumption_audit.json",
         "assumption_audit.md"
-      ]
+      ],
+      "purpose": "Audit portfolio, ledger, and assumptions for review issues.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
     },
     {
       "command": "batch-compare",
+      "demo_command": "portfolio-liquidity-runway-lab batch-compare --portfolios-dir portfolios --scenarios base,stress --out dist/batch-compare",
       "inputs": [
         "portfolio directory",
         "ledger.json",
@@ -88,10 +109,13 @@
         "batch_compare.json",
         "batch_compare.md",
         "batch_compare.html"
-      ]
+      ],
+      "purpose": "Compare multiple portfolio JSON files under shared scenarios.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
     },
     {
       "command": "casebook",
+      "demo_command": "portfolio-liquidity-runway-lab casebook --scenario stress --scenarios base,stress,income_shock --out dist/casebook",
       "inputs": [
         "portfolio.json",
         "portfolio directory",
@@ -103,10 +127,13 @@
         "casebook.json",
         "casebook.md",
         "casebook.html"
-      ]
+      ],
+      "purpose": "Assemble packet, scenario, audit, and batch evidence for release owners.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
     },
     {
       "command": "artifact-catalog",
+      "demo_command": "portfolio-liquidity-runway-lab artifact-catalog --out docs",
       "inputs": [
         "repo or output root"
       ],
@@ -114,10 +141,13 @@
       "outputs": [
         "artifact_catalog.json",
         "artifact_catalog.md"
-      ]
+      ],
+      "purpose": "Inventory demo and doc artifacts with SHA256 hashes.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
     },
     {
       "command": "release-check",
+      "demo_command": "portfolio-liquidity-runway-lab release-check --out docs",
       "inputs": [
         "repo root"
       ],
@@ -125,10 +155,13 @@
       "outputs": [
         "release_check.json",
         "release_check.md"
-      ]
+      ],
+      "purpose": "Validate expected files, public scan, and no-script HTML.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
     },
     {
       "command": "visual-receipt",
+      "demo_command": "portfolio-liquidity-runway-lab visual-receipt --scenario stress --out demo/visual_receipt.md",
       "inputs": [
         "portfolio.json",
         "ledger.json",
@@ -137,64 +170,13 @@
       "no_script_html": false,
       "outputs": [
         "visual_receipt.md"
-      ]
-    },
-    {
-      "command": "quickstart-check",
-      "inputs": [
-        "bundled examples"
       ],
-      "no_script_html": true,
-      "outputs": [
-        "copied examples",
-        "packet artifacts"
-      ]
-    },
-    {
-      "command": "selfcheck",
-      "inputs": [
-        "bundled examples"
-      ],
-      "no_script_html": true,
-      "outputs": [
-        "stdout JSON"
-      ]
-    },
-    {
-      "command": "public-scan",
-      "inputs": [
-        "repo root"
-      ],
-      "no_script_html": false,
-      "outputs": [
-        "stdout JSON",
-        "optional JSON file"
-      ]
-    },
-    {
-      "command": "release-manifest",
-      "inputs": [
-        "repo root"
-      ],
-      "no_script_html": false,
-      "outputs": [
-        "stdout JSON",
-        "optional JSON file"
-      ]
-    },
-    {
-      "command": "maturity-report",
-      "inputs": [
-        "repo root"
-      ],
-      "no_script_html": false,
-      "outputs": [
-        "stdout JSON",
-        "optional JSON file"
-      ]
+      "purpose": "Write a compact Markdown review receipt.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
     },
     {
       "command": "schema-export",
+      "demo_command": "portfolio-liquidity-runway-lab schema-export --out docs",
       "inputs": [
         "built-in schema metadata"
       ],
@@ -202,10 +184,13 @@
       "outputs": [
         "schema_guide.json",
         "schema_guide.md"
-      ]
+      ],
+      "purpose": "Export input and artifact schema documentation.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
     },
     {
       "command": "fixture-doctor",
+      "demo_command": "portfolio-liquidity-runway-lab fixture-doctor --out docs",
       "inputs": [
         "bundled or supplied examples"
       ],
@@ -213,10 +198,13 @@
       "outputs": [
         "fixture_doctor.json",
         "fixture_doctor.md"
-      ]
+      ],
+      "purpose": "Run all workflows against isolated copied fixtures.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
     },
     {
       "command": "docs-export",
+      "demo_command": "portfolio-liquidity-runway-lab docs-export --out docs/static-docs",
       "inputs": [
         "README and generated release evidence"
       ],
@@ -225,7 +213,122 @@
         "static-docs/index.html",
         "static-docs/index.md",
         "static-docs/*.md"
-      ]
+      ],
+      "purpose": "Export compact static documentation bundle.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
+    },
+    {
+      "command": "command-matrix",
+      "demo_command": "portfolio-liquidity-runway-lab command-matrix --out docs/command-matrix",
+      "inputs": [
+        "built-in command metadata"
+      ],
+      "no_script_html": true,
+      "outputs": [
+        "command_matrix.json",
+        "command_matrix.md",
+        "command_matrix.html"
+      ],
+      "purpose": "Export the full deterministic command catalog.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
+    },
+    {
+      "command": "golden-replay",
+      "demo_command": "portfolio-liquidity-runway-lab golden-replay --root . --out docs/golden-replay",
+      "inputs": [
+        "repo root",
+        "committed demo artifacts"
+      ],
+      "no_script_html": false,
+      "outputs": [
+        "golden_replay.json",
+        "golden_replay.md"
+      ],
+      "purpose": "Regenerate committed demos into a temp directory and compare hashes/content.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
+    },
+    {
+      "command": "release-deck",
+      "demo_command": "portfolio-liquidity-runway-lab release-deck --root . --out docs/release-deck",
+      "inputs": [
+        "repo docs and demo evidence"
+      ],
+      "no_script_html": true,
+      "outputs": [
+        "release_deck.md",
+        "release_deck.html"
+      ],
+      "purpose": "Build a one-page promotion and release evidence deck.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
+    },
+    {
+      "command": "quickstart-check",
+      "demo_command": "portfolio-liquidity-runway-lab quickstart-check --out liquidity-demo",
+      "inputs": [
+        "bundled examples"
+      ],
+      "no_script_html": true,
+      "outputs": [
+        "copied examples",
+        "packet artifacts"
+      ],
+      "purpose": "Copy packaged examples and build a packet from an empty directory.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
+    },
+    {
+      "command": "selfcheck",
+      "demo_command": "portfolio-liquidity-runway-lab selfcheck",
+      "inputs": [
+        "bundled examples"
+      ],
+      "no_script_html": true,
+      "outputs": [
+        "stdout JSON"
+      ],
+      "purpose": "Run deterministic smoke checks against bundled examples.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
+    },
+    {
+      "command": "public-scan",
+      "demo_command": "portfolio-liquidity-runway-lab public-scan --root .",
+      "inputs": [
+        "repo root"
+      ],
+      "no_script_html": false,
+      "outputs": [
+        "stdout JSON",
+        "optional JSON file"
+      ],
+      "purpose": "Scan repo tree for public-release concerns.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
+    },
+    {
+      "command": "release-manifest",
+      "demo_command": "portfolio-liquidity-runway-lab release-manifest --out docs/release_manifest.json",
+      "inputs": [
+        "repo root"
+      ],
+      "no_script_html": false,
+      "outputs": [
+        "stdout JSON",
+        "optional JSON file"
+      ],
+      "purpose": "Emit deterministic release file inventory.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
+    },
+    {
+      "command": "maturity-report",
+      "demo_command": "portfolio-liquidity-runway-lab maturity-report --out docs/maturity_report.json",
+      "inputs": [
+        "repo root"
+      ],
+      "no_script_html": false,
+      "outputs": [
+        "stdout JSON",
+        "optional JSON file"
+      ],
+      "purpose": "Report basic repo maturity checks.",
+      "risk_boundary": "Local deterministic analysis; no live data, broker connection, order placement, or advice."
     }
   ],
   "input_files": [
@@ -612,5 +715,5 @@
       ]
     }
   ],
-  "version": "0.5.0"
+  "version": "0.6.0"
 }

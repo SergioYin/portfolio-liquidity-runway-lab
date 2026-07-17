@@ -290,6 +290,63 @@ class CliTests(unittest.TestCase):
             self.assertNotIn("<script", html.lower())
             self.assertIn("command_matrix.md", (out / "index.md").read_text(encoding="utf-8"))
 
+    def test_command_matrix_command_writes_catalog_artifacts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "matrix"
+            result = self.run_cli("command-matrix", "--out", str(out))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "ok")
+            data = json.loads((out / "command_matrix.json").read_text(encoding="utf-8"))
+            commands = {item["command"] for item in data["commands"]}
+            self.assertIn("golden-replay", commands)
+            self.assertIn("release-deck", commands)
+            html = (out / "command_matrix.html").read_text(encoding="utf-8")
+            self.assertNotIn("<script", html.lower())
+
+            second = self.run_cli("command-matrix", "--out", str(out))
+            self.assertEqual(second.returncode, 0, second.stderr)
+            self.assertEqual(data, json.loads((out / "command_matrix.json").read_text(encoding="utf-8")))
+
+    def test_release_deck_command_writes_no_script_static_deck(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "repo"
+            root.mkdir()
+            (root / "README.md").write_text("# Demo\n\nQuickstart. Does not fetch live data.\n", encoding="utf-8")
+            (root / "demo").mkdir()
+            (root / "docs").mkdir()
+            out = Path(tmp) / "deck"
+            result = self.run_cli("release-deck", "--root", str(root), "--out", str(out))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "ok")
+            markdown = (out / "release_deck.md").read_text(encoding="utf-8")
+            html = (out / "release_deck.html").read_text(encoding="utf-8")
+            self.assertIn("Product Value", markdown)
+            self.assertIn("Next Roadmap", markdown)
+            self.assertNotIn("<script", html.lower())
+
+    def test_golden_replay_command_reports_failure_for_changed_demo(self):
+        repo_root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "repo"
+            (root / "demo").mkdir(parents=True)
+            seed = Path(tmp) / "seed"
+            seed_result = self.run_cli("golden-replay", "--root", str(root), "--out", str(Path(tmp) / "seed-out"), "--replay-dir", str(seed))
+            self.assertEqual(seed_result.returncode, 1)
+            for path in (seed / "demo").rglob("*"):
+                if path.is_file():
+                    target = root / "demo" / path.relative_to(seed / "demo")
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_text(path.read_text(encoding="utf-8"), encoding="utf-8")
+            (root / "demo" / "visual_receipt.md").write_text("changed\n", encoding="utf-8")
+            result = self.run_cli("golden-replay", "--root", str(root), "--out", str(Path(tmp) / "golden"))
+            self.assertEqual(result.returncode, 1)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "fail")
+            report = json.loads((Path(tmp) / "golden" / "golden_replay.json").read_text(encoding="utf-8"))
+            self.assertTrue(any(item["path"] == "demo/visual_receipt.md" and item["status"] == "fail" for item in report["comparisons"]))
+
     def test_release_check_command_reports_no_script_failure(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

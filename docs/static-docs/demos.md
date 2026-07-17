@@ -10,8 +10,13 @@
 | `demo/casebook/casebook.html` |
 | `demo/casebook/casebook.json` |
 | `demo/casebook/casebook.md` |
+| `demo/command-matrix/command_matrix.html` |
+| `demo/command-matrix/command_matrix.json` |
+| `demo/command-matrix/command_matrix.md` |
 | `demo/fixture-doctor/fixture_doctor.json` |
 | `demo/fixture-doctor/fixture_doctor.md` |
+| `demo/release-deck/release_deck.html` |
+| `demo/release-deck/release_deck.md` |
 | `demo/scenario-gallery/scenario_gallery.html` |
 | `demo/scenario-gallery/scenario_gallery.json` |
 | `demo/scenario-gallery/scenario_gallery.md` |

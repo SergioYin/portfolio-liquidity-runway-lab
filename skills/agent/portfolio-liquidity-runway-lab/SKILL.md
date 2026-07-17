@@ -27,11 +27,17 @@ Use this skill when a user needs static local portfolio liquidity runway artifac
    `portfolio-liquidity-runway-lab fixture-doctor --out docs`
 12. Export static no-JavaScript documentation:
    `portfolio-liquidity-runway-lab docs-export --out docs/static-docs`
-13. Run the release validator before packaging:
+13. Export the full command catalog:
+   `portfolio-liquidity-runway-lab command-matrix --out docs/command-matrix`
+14. Build the one-page release deck:
+   `portfolio-liquidity-runway-lab release-deck --root . --out docs/release-deck`
+15. Replay committed demos before release:
+   `portfolio-liquidity-runway-lab golden-replay --root . --out docs/golden-replay`
+16. Run the release validator before packaging:
    `portfolio-liquidity-runway-lab release-check --out docs`
-14. For stress review, pass `--scenario stress` or another scenario defined in the assumptions JSON. For gallery, batch, and casebook review, pass `--scenarios base,stress,income_shock` or rely on bundled defaults.
-15. Use `review-ledger`, `compare-history`, `static-dashboard`, `maturity-report`, `release-manifest`, and `public-scan` for supporting checks.
+17. For stress review, pass `--scenario stress` or another scenario defined in the assumptions JSON. For gallery, batch, and casebook review, pass `--scenarios base,stress,income_shock` or rely on bundled defaults.
+18. Use `review-ledger`, `compare-history`, `static-dashboard`, `maturity-report`, `release-manifest`, and `public-scan` for supporting checks.
 
 ## Output Expectations
 
-Artifacts are deterministic JSON, Markdown, no-JavaScript HTML, scenario galleries, assumption audits, batch comparisons, release-owner casebooks, schema guides, fixture diagnostics, static documentation bundles, artifact catalogs, release checks, and optional visual receipt Markdown. Review warnings are prompts to inspect assumptions, liquidity tiers, scheduled events, fees, yields, and forced-sale risks; they are not transaction instructions.
+Artifacts are deterministic JSON, Markdown, no-JavaScript HTML, scenario galleries, assumption audits, batch comparisons, release-owner casebooks, schema guides, fixture diagnostics, static documentation bundles, command catalogs, golden replay summaries, release decks, artifact catalogs, release checks, and optional visual receipt Markdown. Review warnings are prompts to inspect assumptions, liquidity tiers, scheduled events, fees, yields, and forced-sale risks; they are not transaction instructions.

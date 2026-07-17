@@ -151,6 +151,24 @@
     },
     {
       "argv": [
+        "command-matrix",
+        "--out",
+        "dist/fixture-doctor-work/command-matrix"
+      ],
+      "command": "command-matrix"
+    },
+    {
+      "argv": [
+        "release-deck",
+        "--root",
+        "dist/fixture-doctor-work",
+        "--out",
+        "dist/fixture-doctor-work/release-deck"
+      ],
+      "command": "release-deck"
+    },
+    {
+      "argv": [
         "artifact-catalog",
         "--root",
         "dist/fixture-doctor-work",
@@ -423,6 +441,37 @@
       "outputs": [
         "dist/fixture-doctor-work/static-docs/index.html",
         "dist/fixture-doctor-work/static-docs/index.md"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
+        "command-matrix",
+        "--out",
+        "dist/fixture-doctor-work/command-matrix"
+      ],
+      "command": "command-matrix",
+      "message": "",
+      "outputs": [
+        "dist/fixture-doctor-work/command-matrix/command_matrix.json",
+        "dist/fixture-doctor-work/command-matrix/command_matrix.md",
+        "dist/fixture-doctor-work/command-matrix/command_matrix.html"
+      ],
+      "status": "pass"
+    },
+    {
+      "argv": [
+        "release-deck",
+        "--root",
+        "dist/fixture-doctor-work",
+        "--out",
+        "dist/fixture-doctor-work/release-deck"
+      ],
+      "command": "release-deck",
+      "message": "",
+      "outputs": [
+        "dist/fixture-doctor-work/release-deck/release_deck.md",
+        "dist/fixture-doctor-work/release-deck/release_deck.html"
       ],
       "status": "pass"
     },

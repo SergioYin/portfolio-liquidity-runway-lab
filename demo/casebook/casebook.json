@@ -115,7 +115,7 @@
     "assumptions": "/home/xjyin/workspace/token-lab/20260718-portfolio-liquidity-runway-lab/portfolio_liquidity_runway_lab/examples/assumptions.json",
     "ledger": "/home/xjyin/workspace/token-lab/20260718-portfolio-liquidity-runway-lab/portfolio_liquidity_runway_lab/examples/ledger.json",
     "portfolio": "/home/xjyin/workspace/token-lab/20260718-portfolio-liquidity-runway-lab/portfolio_liquidity_runway_lab/examples/portfolio.json",
-    "portfolios_dir": "/tmp/tmp.DDmpsVTuTa"
+    "portfolios_dir": "demo/batch-inputs"
   },
   "packet_summary": {
     "cash_buckets": {

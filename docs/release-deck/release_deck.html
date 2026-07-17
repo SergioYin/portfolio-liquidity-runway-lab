@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Portfolio Liquidity Runway Lab v0.6.0 Release Deck</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 2rem; color: #1d2329; background: #fbfbf8; }
+main { max-width: 1120px; margin: 0 auto; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0 2rem; }
+th, td { border: 1px solid #c7cbd1; padding: 0.45rem; text-align: left; vertical-align: top; }
+th { background: #e8ecef; }
+blockquote { border-left: 4px solid #6b7280; margin-left: 0; padding-left: 1rem; color: #3f4650; }
+section { border-top: 1px solid #c7cbd1; padding-top: 1rem; margin-top: 1rem; }
+code { background: #eef0f2; padding: 0.1rem 0.25rem; }
+</style>
+</head>
+<body><main>
+<h1>Portfolio Liquidity Runway Lab v0.6.0 Release Deck</h1>
+<blockquote>Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.</blockquote>
+<h2>Product Value</h2>
+<ul>
+<li>Builds deterministic local liquidity runway packets from JSON inputs.</li>
+<li>Packages scenario, audit, batch comparison, casebook, schema, command, and replay evidence.</li>
+<li>Keeps outputs static and reviewable with no runtime dependencies and no JavaScript in generated HTML demos.</li>
+</ul>
+<h2>Commands</h2>
+<p>| Command | Purpose |</p>
+<table>
+<tr><td>build-packet</td><td>Build the core liquidity runway packet.</td></tr>
+<tr><td>compare-history</td><td>Compare reserve and burn snapshots over time.</td></tr>
+<tr><td>review-ledger</td><td>Flag ledger review prompts and unusual scheduled events.</td></tr>
+<tr><td>static-dashboard</td><td>Build the packet HTML dashboard without JavaScript.</td></tr>
+<tr><td>scenario-gallery</td><td>Compare named scenarios side by side.</td></tr>
+<tr><td>assumption-audit</td><td>Audit portfolio, ledger, and assumptions for review issues.</td></tr>
+<tr><td>batch-compare</td><td>Compare multiple portfolio JSON files under shared scenarios.</td></tr>
+<tr><td>casebook</td><td>Assemble packet, scenario, audit, and batch evidence for release owners.</td></tr>
+<tr><td>artifact-catalog</td><td>Inventory demo and doc artifacts with SHA256 hashes.</td></tr>
+<tr><td>release-check</td><td>Validate expected files, public scan, and no-script HTML.</td></tr>
+<tr><td>visual-receipt</td><td>Write a compact Markdown review receipt.</td></tr>
+<tr><td>schema-export</td><td>Export input and artifact schema documentation.</td></tr>
+<tr><td>fixture-doctor</td><td>Run all workflows against isolated copied fixtures.</td></tr>
+<tr><td>docs-export</td><td>Export compact static documentation bundle.</td></tr>
+<tr><td>command-matrix</td><td>Export the full deterministic command catalog.</td></tr>
+<tr><td>golden-replay</td><td>Regenerate committed demos into a temp directory and compare hashes/content.</td></tr>
+<tr><td>release-deck</td><td>Build a one-page promotion and release evidence deck.</td></tr>
+<tr><td>quickstart-check</td><td>Copy packaged examples and build a packet from an empty directory.</td></tr>
+<tr><td>selfcheck</td><td>Run deterministic smoke checks against bundled examples.</td></tr>
+<tr><td>public-scan</td><td>Scan repo tree for public-release concerns.</td></tr>
+<tr><td>release-manifest</td><td>Emit deterministic release file inventory.</td></tr>
+<tr><td>maturity-report</td><td>Report basic repo maturity checks.</td></tr>
+</table>
+<h2>Evidence</h2>
+<ul>
+<li>Release check: `pass`</li>
+<li>Maturity score: `30/30`</li>
+<li>Cataloged artifacts: `55`</li>
+<li>No-script HTML files: `9`</li>
+</ul>
+<h2>Risks</h2>
+<ul>
+<li>Outputs depend on supplied local JSON quality and should be reviewed against source records.</li>
+<li>Static scenarios are assumptions, not predictions or transaction instructions.</li>
+<li>No live integrations means users must update inputs manually before each review.</li>
+</ul>
+<h2>Next Roadmap</h2>
+<ul>
+<li>Add optional CSV import/export adapters while preserving zero live-data behavior.</li>
+<li>Expand fixture doctor coverage for malformed batch directories and scenario edge cases.</li>
+<li>Add signed release bundle checksums for downstream archival workflows.</li>
+</ul>
+</main></body>
+</html>

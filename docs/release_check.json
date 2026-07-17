@@ -8,8 +8,12 @@
   "html_files": [
     "demo/batch-compare/batch_compare.html",
     "demo/casebook/casebook.html",
+    "demo/command-matrix/command_matrix.html",
+    "demo/release-deck/release_deck.html",
     "demo/scenario-gallery/scenario_gallery.html",
     "demo/static-docs/index.html",
+    "docs/command-matrix/command_matrix.html",
+    "docs/release-deck/release_deck.html",
     "docs/static-docs/index.html"
   ],
   "html_with_script_tags": [],

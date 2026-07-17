@@ -1,23 +1,30 @@
 # Command Matrix
 
-| Command | Inputs | Outputs | Static no-JS HTML |
-| --- | --- | --- | --- |
-| `build-packet` | portfolio.json, ledger.json, assumptions.json | liquidity_packet.json, liquidity_packet.md, liquidity_packet.html | true |
-| `compare-history` | history.json | stdout JSON, optional JSON file | false |
-| `review-ledger` | ledger.json | stdout JSON, optional JSON file | false |
-| `static-dashboard` | portfolio.json, ledger.json, assumptions.json | liquidity_packet.html | true |
-| `scenario-gallery` | portfolio.json, ledger.json, assumptions.json | scenario_gallery.json, scenario_gallery.md, scenario_gallery.html | true |
-| `assumption-audit` | portfolio.json, ledger.json, assumptions.json | assumption_audit.json, assumption_audit.md | false |
-| `batch-compare` | portfolio directory, ledger.json, assumptions.json | batch_compare.json, batch_compare.md, batch_compare.html | true |
-| `casebook` | portfolio.json, portfolio directory, ledger.json, assumptions.json | casebook.json, casebook.md, casebook.html | true |
-| `artifact-catalog` | repo or output root | artifact_catalog.json, artifact_catalog.md | false |
-| `release-check` | repo root | release_check.json, release_check.md | false |
-| `visual-receipt` | portfolio.json, ledger.json, assumptions.json | visual_receipt.md | false |
-| `quickstart-check` | bundled examples | copied examples, packet artifacts | true |
-| `selfcheck` | bundled examples | stdout JSON | true |
-| `public-scan` | repo root | stdout JSON, optional JSON file | false |
-| `release-manifest` | repo root | stdout JSON, optional JSON file | false |
-| `maturity-report` | repo root | stdout JSON, optional JSON file | false |
-| `schema-export` | built-in schema metadata | schema_guide.json, schema_guide.md | false |
-| `fixture-doctor` | bundled or supplied examples | fixture_doctor.json, fixture_doctor.md | true |
-| `docs-export` | README and generated release evidence | static-docs/index.html, static-docs/index.md, static-docs/*.md | true |
+> Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.
+
+Version: `0.6.0`
+
+| Command | Purpose | Inputs | Outputs | Demo command | Risk boundary | Static no-JS HTML |
+| --- | --- | --- | --- | --- | --- | --- |
+| `build-packet` | Build the core liquidity runway packet. | portfolio.json, ledger.json, assumptions.json | liquidity_packet.json, liquidity_packet.md, liquidity_packet.html | `portfolio-liquidity-runway-lab build-packet --scenario stress --out dist/packet` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | true |
+| `compare-history` | Compare reserve and burn snapshots over time. | history.json | stdout JSON, optional JSON file | `portfolio-liquidity-runway-lab compare-history --out dist/history_compare.json` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | false |
+| `review-ledger` | Flag ledger review prompts and unusual scheduled events. | ledger.json | stdout JSON, optional JSON file | `portfolio-liquidity-runway-lab review-ledger --out dist/ledger_review.json` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | false |
+| `static-dashboard` | Build the packet HTML dashboard without JavaScript. | portfolio.json, ledger.json, assumptions.json | liquidity_packet.json, liquidity_packet.md, liquidity_packet.html | `portfolio-liquidity-runway-lab static-dashboard --scenario stress --out dist/dashboard` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | true |
+| `scenario-gallery` | Compare named scenarios side by side. | portfolio.json, ledger.json, assumptions.json | scenario_gallery.json, scenario_gallery.md, scenario_gallery.html | `portfolio-liquidity-runway-lab scenario-gallery --out dist/scenario-gallery` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | true |
+| `assumption-audit` | Audit portfolio, ledger, and assumptions for review issues. | portfolio.json, ledger.json, assumptions.json | assumption_audit.json, assumption_audit.md | `portfolio-liquidity-runway-lab assumption-audit --portfolio portfolio_liquidity_runway_lab/examples/portfolio_concentrated.json --out dist/assumption-audit` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | false |
+| `batch-compare` | Compare multiple portfolio JSON files under shared scenarios. | portfolio directory, ledger.json, assumptions.json | batch_compare.json, batch_compare.md, batch_compare.html | `portfolio-liquidity-runway-lab batch-compare --portfolios-dir portfolios --scenarios base,stress --out dist/batch-compare` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | true |
+| `casebook` | Assemble packet, scenario, audit, and batch evidence for release owners. | portfolio.json, portfolio directory, ledger.json, assumptions.json | casebook.json, casebook.md, casebook.html | `portfolio-liquidity-runway-lab casebook --scenario stress --scenarios base,stress,income_shock --out dist/casebook` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | true |
+| `artifact-catalog` | Inventory demo and doc artifacts with SHA256 hashes. | repo or output root | artifact_catalog.json, artifact_catalog.md | `portfolio-liquidity-runway-lab artifact-catalog --out docs` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | false |
+| `release-check` | Validate expected files, public scan, and no-script HTML. | repo root | release_check.json, release_check.md | `portfolio-liquidity-runway-lab release-check --out docs` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | false |
+| `visual-receipt` | Write a compact Markdown review receipt. | portfolio.json, ledger.json, assumptions.json | visual_receipt.md | `portfolio-liquidity-runway-lab visual-receipt --scenario stress --out demo/visual_receipt.md` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | false |
+| `schema-export` | Export input and artifact schema documentation. | built-in schema metadata | schema_guide.json, schema_guide.md | `portfolio-liquidity-runway-lab schema-export --out docs` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | false |
+| `fixture-doctor` | Run all workflows against isolated copied fixtures. | bundled or supplied examples | fixture_doctor.json, fixture_doctor.md | `portfolio-liquidity-runway-lab fixture-doctor --out docs` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | true |
+| `docs-export` | Export compact static documentation bundle. | README and generated release evidence | static-docs/index.html, static-docs/index.md, static-docs/*.md | `portfolio-liquidity-runway-lab docs-export --out docs/static-docs` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | true |
+| `command-matrix` | Export the full deterministic command catalog. | built-in command metadata | command_matrix.json, command_matrix.md, command_matrix.html | `portfolio-liquidity-runway-lab command-matrix --out docs/command-matrix` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | true |
+| `golden-replay` | Regenerate committed demos into a temp directory and compare hashes/content. | repo root, committed demo artifacts | golden_replay.json, golden_replay.md | `portfolio-liquidity-runway-lab golden-replay --root . --out docs/golden-replay` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | false |
+| `release-deck` | Build a one-page promotion and release evidence deck. | repo docs and demo evidence | release_deck.md, release_deck.html | `portfolio-liquidity-runway-lab release-deck --root . --out docs/release-deck` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | true |
+| `quickstart-check` | Copy packaged examples and build a packet from an empty directory. | bundled examples | copied examples, packet artifacts | `portfolio-liquidity-runway-lab quickstart-check --out liquidity-demo` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | true |
+| `selfcheck` | Run deterministic smoke checks against bundled examples. | bundled examples | stdout JSON | `portfolio-liquidity-runway-lab selfcheck` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | true |
+| `public-scan` | Scan repo tree for public-release concerns. | repo root | stdout JSON, optional JSON file | `portfolio-liquidity-runway-lab public-scan --root .` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | false |
+| `release-manifest` | Emit deterministic release file inventory. | repo root | stdout JSON, optional JSON file | `portfolio-liquidity-runway-lab release-manifest --out docs/release_manifest.json` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | false |
+| `maturity-report` | Report basic repo maturity checks. | repo root | stdout JSON, optional JSON file | `portfolio-liquidity-runway-lab maturity-report --out docs/maturity_report.json` | Local deterministic analysis; no live data, broker connection, order placement, or advice. | false |

@@ -5,6 +5,7 @@ import hashlib
 import html
 import json
 import shutil
+import tempfile
 from dataclasses import dataclass
 from importlib import resources
 from pathlib import Path
@@ -111,6 +112,30 @@ class DocsExportPaths:
     index_markdown_path: Path
 
 
+@dataclass(frozen=True)
+class CommandMatrixPaths:
+    out_dir: Path
+    json_path: Path
+    markdown_path: Path
+    html_path: Path
+
+
+@dataclass(frozen=True)
+class GoldenReplayPaths:
+    out_dir: Path
+    json_path: Path
+    markdown_path: Path
+
+
+@dataclass(frozen=True)
+class ReleaseDeckPaths:
+    out_dir: Path
+    markdown_path: Path
+    html_path: Path
+
+
+PROJECT_VERSION = "0.6.0"
+
 IGNORED_RELEASE_PARTS = {
     ".git",
     ".mypy_cache",
@@ -145,6 +170,13 @@ EXPECTED_RELEASE_FILES = (
     "docs/schema_guide.md",
     "docs/fixture_doctor.json",
     "docs/fixture_doctor.md",
+    "docs/command-matrix/command_matrix.json",
+    "docs/command-matrix/command_matrix.md",
+    "docs/command-matrix/command_matrix.html",
+    "docs/golden-replay/golden_replay.json",
+    "docs/golden-replay/golden_replay.md",
+    "docs/release-deck/release_deck.md",
+    "docs/release-deck/release_deck.html",
     "docs/static-docs/index.html",
     "docs/static-docs/index.md",
     "docs/static-docs/command_matrix.md",
@@ -167,6 +199,13 @@ EXPECTED_RELEASE_FILES = (
     "demo/schema-export/schema_guide.md",
     "demo/fixture-doctor/fixture_doctor.json",
     "demo/fixture-doctor/fixture_doctor.md",
+    "demo/command-matrix/command_matrix.json",
+    "demo/command-matrix/command_matrix.md",
+    "demo/command-matrix/command_matrix.html",
+    "demo/golden-replay/golden_replay.json",
+    "demo/golden-replay/golden_replay.md",
+    "demo/release-deck/release_deck.md",
+    "demo/release-deck/release_deck.html",
     "demo/static-docs/index.html",
     "demo/static-docs/index.md",
     "demo/static-docs/command_matrix.md",
@@ -1484,7 +1523,7 @@ def schema_guide() -> Dict[str, Any]:
     command_matrix = command_matrix_data()
     return {
         "boundary": BOUNDARY_TEXT,
-        "version": "0.5.0",
+        "version": PROJECT_VERSION,
         "input_files": input_files,
         "output_artifacts": output_artifacts,
         "command_matrix": command_matrix,
@@ -1546,26 +1585,42 @@ def build_schema_export(out_dir: Path) -> SchemaExportPaths:
 
 
 def command_matrix_data() -> List[Dict[str, Any]]:
+    boundary = "Local deterministic analysis; no live data, broker connection, order placement, or advice."
+    rows = [
+        ("build-packet", "Build the core liquidity runway packet.", ["portfolio.json", "ledger.json", "assumptions.json"], ["liquidity_packet.json", "liquidity_packet.md", "liquidity_packet.html"], "portfolio-liquidity-runway-lab build-packet --scenario stress --out dist/packet", True),
+        ("compare-history", "Compare reserve and burn snapshots over time.", ["history.json"], ["stdout JSON", "optional JSON file"], "portfolio-liquidity-runway-lab compare-history --out dist/history_compare.json", False),
+        ("review-ledger", "Flag ledger review prompts and unusual scheduled events.", ["ledger.json"], ["stdout JSON", "optional JSON file"], "portfolio-liquidity-runway-lab review-ledger --out dist/ledger_review.json", False),
+        ("static-dashboard", "Build the packet HTML dashboard without JavaScript.", ["portfolio.json", "ledger.json", "assumptions.json"], ["liquidity_packet.json", "liquidity_packet.md", "liquidity_packet.html"], "portfolio-liquidity-runway-lab static-dashboard --scenario stress --out dist/dashboard", True),
+        ("scenario-gallery", "Compare named scenarios side by side.", ["portfolio.json", "ledger.json", "assumptions.json"], ["scenario_gallery.json", "scenario_gallery.md", "scenario_gallery.html"], "portfolio-liquidity-runway-lab scenario-gallery --out dist/scenario-gallery", True),
+        ("assumption-audit", "Audit portfolio, ledger, and assumptions for review issues.", ["portfolio.json", "ledger.json", "assumptions.json"], ["assumption_audit.json", "assumption_audit.md"], "portfolio-liquidity-runway-lab assumption-audit --portfolio portfolio_liquidity_runway_lab/examples/portfolio_concentrated.json --out dist/assumption-audit", False),
+        ("batch-compare", "Compare multiple portfolio JSON files under shared scenarios.", ["portfolio directory", "ledger.json", "assumptions.json"], ["batch_compare.json", "batch_compare.md", "batch_compare.html"], "portfolio-liquidity-runway-lab batch-compare --portfolios-dir portfolios --scenarios base,stress --out dist/batch-compare", True),
+        ("casebook", "Assemble packet, scenario, audit, and batch evidence for release owners.", ["portfolio.json", "portfolio directory", "ledger.json", "assumptions.json"], ["casebook.json", "casebook.md", "casebook.html"], "portfolio-liquidity-runway-lab casebook --scenario stress --scenarios base,stress,income_shock --out dist/casebook", True),
+        ("artifact-catalog", "Inventory demo and doc artifacts with SHA256 hashes.", ["repo or output root"], ["artifact_catalog.json", "artifact_catalog.md"], "portfolio-liquidity-runway-lab artifact-catalog --out docs", False),
+        ("release-check", "Validate expected files, public scan, and no-script HTML.", ["repo root"], ["release_check.json", "release_check.md"], "portfolio-liquidity-runway-lab release-check --out docs", False),
+        ("visual-receipt", "Write a compact Markdown review receipt.", ["portfolio.json", "ledger.json", "assumptions.json"], ["visual_receipt.md"], "portfolio-liquidity-runway-lab visual-receipt --scenario stress --out demo/visual_receipt.md", False),
+        ("schema-export", "Export input and artifact schema documentation.", ["built-in schema metadata"], ["schema_guide.json", "schema_guide.md"], "portfolio-liquidity-runway-lab schema-export --out docs", False),
+        ("fixture-doctor", "Run all workflows against isolated copied fixtures.", ["bundled or supplied examples"], ["fixture_doctor.json", "fixture_doctor.md"], "portfolio-liquidity-runway-lab fixture-doctor --out docs", True),
+        ("docs-export", "Export compact static documentation bundle.", ["README and generated release evidence"], ["static-docs/index.html", "static-docs/index.md", "static-docs/*.md"], "portfolio-liquidity-runway-lab docs-export --out docs/static-docs", True),
+        ("command-matrix", "Export the full deterministic command catalog.", ["built-in command metadata"], ["command_matrix.json", "command_matrix.md", "command_matrix.html"], "portfolio-liquidity-runway-lab command-matrix --out docs/command-matrix", True),
+        ("golden-replay", "Regenerate committed demos into a temp directory and compare hashes/content.", ["repo root", "committed demo artifacts"], ["golden_replay.json", "golden_replay.md"], "portfolio-liquidity-runway-lab golden-replay --root . --out docs/golden-replay", False),
+        ("release-deck", "Build a one-page promotion and release evidence deck.", ["repo docs and demo evidence"], ["release_deck.md", "release_deck.html"], "portfolio-liquidity-runway-lab release-deck --root . --out docs/release-deck", True),
+        ("quickstart-check", "Copy packaged examples and build a packet from an empty directory.", ["bundled examples"], ["copied examples", "packet artifacts"], "portfolio-liquidity-runway-lab quickstart-check --out liquidity-demo", True),
+        ("selfcheck", "Run deterministic smoke checks against bundled examples.", ["bundled examples"], ["stdout JSON"], "portfolio-liquidity-runway-lab selfcheck", True),
+        ("public-scan", "Scan repo tree for public-release concerns.", ["repo root"], ["stdout JSON", "optional JSON file"], "portfolio-liquidity-runway-lab public-scan --root .", False),
+        ("release-manifest", "Emit deterministic release file inventory.", ["repo root"], ["stdout JSON", "optional JSON file"], "portfolio-liquidity-runway-lab release-manifest --out docs/release_manifest.json", False),
+        ("maturity-report", "Report basic repo maturity checks.", ["repo root"], ["stdout JSON", "optional JSON file"], "portfolio-liquidity-runway-lab maturity-report --out docs/maturity_report.json", False),
+    ]
     return [
-        {"command": "build-packet", "inputs": ["portfolio.json", "ledger.json", "assumptions.json"], "outputs": ["liquidity_packet.json", "liquidity_packet.md", "liquidity_packet.html"], "no_script_html": True},
-        {"command": "compare-history", "inputs": ["history.json"], "outputs": ["stdout JSON", "optional JSON file"], "no_script_html": False},
-        {"command": "review-ledger", "inputs": ["ledger.json"], "outputs": ["stdout JSON", "optional JSON file"], "no_script_html": False},
-        {"command": "static-dashboard", "inputs": ["portfolio.json", "ledger.json", "assumptions.json"], "outputs": ["liquidity_packet.html"], "no_script_html": True},
-        {"command": "scenario-gallery", "inputs": ["portfolio.json", "ledger.json", "assumptions.json"], "outputs": ["scenario_gallery.json", "scenario_gallery.md", "scenario_gallery.html"], "no_script_html": True},
-        {"command": "assumption-audit", "inputs": ["portfolio.json", "ledger.json", "assumptions.json"], "outputs": ["assumption_audit.json", "assumption_audit.md"], "no_script_html": False},
-        {"command": "batch-compare", "inputs": ["portfolio directory", "ledger.json", "assumptions.json"], "outputs": ["batch_compare.json", "batch_compare.md", "batch_compare.html"], "no_script_html": True},
-        {"command": "casebook", "inputs": ["portfolio.json", "portfolio directory", "ledger.json", "assumptions.json"], "outputs": ["casebook.json", "casebook.md", "casebook.html"], "no_script_html": True},
-        {"command": "artifact-catalog", "inputs": ["repo or output root"], "outputs": ["artifact_catalog.json", "artifact_catalog.md"], "no_script_html": False},
-        {"command": "release-check", "inputs": ["repo root"], "outputs": ["release_check.json", "release_check.md"], "no_script_html": False},
-        {"command": "visual-receipt", "inputs": ["portfolio.json", "ledger.json", "assumptions.json"], "outputs": ["visual_receipt.md"], "no_script_html": False},
-        {"command": "quickstart-check", "inputs": ["bundled examples"], "outputs": ["copied examples", "packet artifacts"], "no_script_html": True},
-        {"command": "selfcheck", "inputs": ["bundled examples"], "outputs": ["stdout JSON"], "no_script_html": True},
-        {"command": "public-scan", "inputs": ["repo root"], "outputs": ["stdout JSON", "optional JSON file"], "no_script_html": False},
-        {"command": "release-manifest", "inputs": ["repo root"], "outputs": ["stdout JSON", "optional JSON file"], "no_script_html": False},
-        {"command": "maturity-report", "inputs": ["repo root"], "outputs": ["stdout JSON", "optional JSON file"], "no_script_html": False},
-        {"command": "schema-export", "inputs": ["built-in schema metadata"], "outputs": ["schema_guide.json", "schema_guide.md"], "no_script_html": False},
-        {"command": "fixture-doctor", "inputs": ["bundled or supplied examples"], "outputs": ["fixture_doctor.json", "fixture_doctor.md"], "no_script_html": True},
-        {"command": "docs-export", "inputs": ["README and generated release evidence"], "outputs": ["static-docs/index.html", "static-docs/index.md", "static-docs/*.md"], "no_script_html": True},
+        {
+            "command": command,
+            "purpose": purpose,
+            "inputs": inputs,
+            "outputs": outputs,
+            "demo_command": demo_command,
+            "risk_boundary": boundary,
+            "no_script_html": no_script_html,
+        }
+        for command, purpose, inputs, outputs, demo_command, no_script_html in rows
     ]
 
 
@@ -1600,6 +1655,8 @@ def fixture_doctor(work_dir: Path, examples_dir: Optional[Path] = None) -> Dict[
         {"command": "review-ledger", "argv": ["review-ledger", "--ledger", copied["ledger.json"], "--out", (work_dir / "ledger_review.json").as_posix()]},
         {"command": "schema-export", "argv": ["schema-export", "--out", (work_dir / "schema-export").as_posix()]},
         {"command": "docs-export", "argv": ["docs-export", "--root", work_dir.as_posix(), "--out", (work_dir / "static-docs").as_posix()]},
+        {"command": "command-matrix", "argv": ["command-matrix", "--out", (work_dir / "command-matrix").as_posix()]},
+        {"command": "release-deck", "argv": ["release-deck", "--root", work_dir.as_posix(), "--out", (work_dir / "release-deck").as_posix()]},
         {"command": "artifact-catalog", "argv": ["artifact-catalog", "--root", work_dir.as_posix(), "--paths", "packet,dashboard,scenario-gallery,assumption-audit,batch-compare,casebook,schema-export,static-docs", "--out", (work_dir / "catalog").as_posix()]},
         {"command": "release-check", "argv": ["release-check", "--root", work_dir.as_posix(), "--out", (work_dir / "release-check").as_posix()]},
         {"command": "public-scan", "argv": ["public-scan", "--root", work_dir.as_posix(), "--out", (work_dir / "public_scan.json").as_posix()]},
@@ -1653,6 +1710,14 @@ def fixture_doctor(work_dir: Path, examples_dir: Optional[Path] = None) -> Dict[
                 paths = build_docs_export(work_dir, work_dir / "static-docs")
                 output_paths = [paths.index_html_path.as_posix(), paths.index_markdown_path.as_posix()]
                 passed = paths.index_html_path.exists() and not _contains_script_tag(paths.index_html_path)
+            elif command == "command-matrix":
+                paths = build_command_matrix(work_dir / "command-matrix")
+                output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix(), paths.html_path.as_posix()]
+                passed = paths.html_path.exists() and not _contains_script_tag(paths.html_path)
+            elif command == "release-deck":
+                paths = build_release_deck(work_dir, work_dir / "release-deck")
+                output_paths = [paths.markdown_path.as_posix(), paths.html_path.as_posix()]
+                passed = paths.html_path.exists() and not _contains_script_tag(paths.html_path)
             elif command == "artifact-catalog":
                 paths = build_artifact_catalog(work_dir, work_dir / "catalog", ["packet", "dashboard", "scenario-gallery", "assumption-audit", "batch-compare", "casebook", "schema-export", "static-docs"])
                 output_paths = [paths.json_path.as_posix(), paths.markdown_path.as_posix()]
@@ -1768,11 +1833,66 @@ def render_docs_index_markdown(root: Path) -> str:
 
 
 def render_command_matrix_markdown() -> str:
-    lines = ["# Command Matrix", "", "| Command | Inputs | Outputs | Static no-JS HTML |", "| --- | --- | --- | --- |"]
+    lines = [
+        "# Command Matrix",
+        "",
+        f"> {BOUNDARY_TEXT}",
+        "",
+        f"Version: `{PROJECT_VERSION}`",
+        "",
+        "| Command | Purpose | Inputs | Outputs | Demo command | Risk boundary | Static no-JS HTML |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+    ]
     for item in command_matrix_data():
-        lines.append(f"| `{item['command']}` | {', '.join(item['inputs']) or 'none'} | {', '.join(item['outputs']) or 'stdout'} | {str(item['no_script_html']).lower()} |")
+        lines.append(
+            f"| `{item['command']}` | {item['purpose']} | {', '.join(item['inputs']) or 'none'} | "
+            f"{', '.join(item['outputs']) or 'stdout'} | `{item['demo_command']}` | {item['risk_boundary']} | "
+            f"{str(item['no_script_html']).lower()} |"
+        )
     lines.append("")
     return "\n".join(lines)
+
+
+def command_matrix() -> Dict[str, Any]:
+    return {"boundary": BOUNDARY_TEXT, "version": PROJECT_VERSION, "commands": command_matrix_data()}
+
+
+def render_command_matrix_html(catalog: Mapping[str, Any]) -> str:
+    rows = []
+    for item in catalog["commands"]:
+        rows.append(
+            "<tr>"
+            f"<td><code>{html.escape(item['command'])}</code></td>"
+            f"<td>{html.escape(item['purpose'])}</td>"
+            f"<td>{html.escape(', '.join(item['inputs']) or 'none')}</td>"
+            f"<td>{html.escape(', '.join(item['outputs']) or 'stdout')}</td>"
+            f"<td><code>{html.escape(item['demo_command'])}</code></td>"
+            f"<td>{html.escape(item['risk_boundary'])}</td>"
+            f"<td>{html.escape(str(item['no_script_html']).lower())}</td>"
+            "</tr>"
+        )
+    body = (
+        "<h1>Command Matrix</h1>\n"
+        f"<blockquote>{html.escape(str(catalog['boundary']))}</blockquote>\n"
+        f"<p>Version: <code>{html.escape(str(catalog['version']))}</code></p>\n"
+        "<table><tr><th>Command</th><th>Purpose</th><th>Inputs</th><th>Outputs</th>"
+        "<th>Demo command</th><th>Risk boundary</th><th>Static no-JS HTML</th></tr>\n"
+        + "\n".join(rows)
+        + "\n</table>"
+    )
+    return _html_shell("Command Matrix", body)
+
+
+def build_command_matrix(out_dir: Path) -> CommandMatrixPaths:
+    catalog = command_matrix()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    json_path = out_dir / "command_matrix.json"
+    markdown_path = out_dir / "command_matrix.md"
+    html_path = out_dir / "command_matrix.html"
+    dump_json(catalog, json_path)
+    markdown_path.write_text(render_command_matrix_markdown(), encoding="utf-8")
+    html_path.write_text(render_command_matrix_html(catalog), encoding="utf-8")
+    return CommandMatrixPaths(out_dir, json_path, markdown_path, html_path)
 
 
 def render_boundaries_markdown() -> str:
@@ -1864,6 +1984,264 @@ def build_docs_export(root: Path, out_dir: Path) -> DocsExportPaths:
     return DocsExportPaths(out_dir, index_html_path, out_dir / "index.md")
 
 
+def _prepare_demo_portfolios(root: Path, target: Path) -> Path:
+    target.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(bundled_example_path("portfolio"), target / "portfolio.json")
+    shutil.copyfile(bundled_example_path("portfolio_concentrated"), target / "portfolio_concentrated.json")
+    return target
+
+
+def _generate_replay_artifacts(root: Path, generated_demo: Path) -> List[str]:
+    generated_demo.mkdir(parents=True, exist_ok=True)
+    portfolios = _prepare_demo_portfolios(root, generated_demo / "batch-inputs")
+    build_scenario_gallery(bundled_example_path("portfolio"), bundled_example_path("ledger"), bundled_example_path("assumptions"), generated_demo / "scenario-gallery")
+    build_assumption_audit(bundled_example_path("portfolio_concentrated"), bundled_example_path("ledger"), bundled_example_path("assumptions"), generated_demo / "assumption-audit")
+    build_batch_compare(portfolios, bundled_example_path("ledger"), bundled_example_path("assumptions"), generated_demo / "batch-compare", ["base", "stress"])
+    build_casebook(
+        bundled_example_path("portfolio"),
+        bundled_example_path("ledger"),
+        bundled_example_path("assumptions"),
+        portfolios,
+        generated_demo / "casebook",
+        "stress",
+        ["base", "stress", "income_shock"],
+    )
+    build_schema_export(generated_demo / "schema-export")
+    build_visual_receipt(bundled_example_path("portfolio"), bundled_example_path("ledger"), bundled_example_path("assumptions"), generated_demo / "visual_receipt.md", "stress")
+    build_command_matrix(generated_demo / "command-matrix")
+    replay_prefix = generated_demo.as_posix()
+    for path in generated_demo.rglob("*"):
+        if path.is_file() and path.suffix.lower() in {".json", ".md", ".html"}:
+            text = path.read_text(encoding="utf-8")
+            path.write_text(text.replace(replay_prefix, "demo"), encoding="utf-8")
+    return [
+        "scenario-gallery/scenario_gallery.json",
+        "scenario-gallery/scenario_gallery.md",
+        "scenario-gallery/scenario_gallery.html",
+        "assumption-audit/assumption_audit.json",
+        "assumption-audit/assumption_audit.md",
+        "batch-compare/batch_compare.json",
+        "batch-compare/batch_compare.md",
+        "batch-compare/batch_compare.html",
+        "casebook/casebook.json",
+        "casebook/casebook.md",
+        "casebook/casebook.html",
+        "schema-export/schema_guide.json",
+        "schema-export/schema_guide.md",
+        "visual_receipt.md",
+        "command-matrix/command_matrix.json",
+        "command-matrix/command_matrix.md",
+        "command-matrix/command_matrix.html",
+    ]
+
+
+def golden_replay(root: Path, replay_dir: Path) -> Dict[str, Any]:
+    generated_demo = replay_dir / "demo"
+    expected = _generate_replay_artifacts(root, generated_demo)
+    comparisons = []
+    for rel in expected:
+        committed = root / "demo" / rel
+        generated = generated_demo / rel
+        committed_exists = committed.exists()
+        generated_exists = generated.exists()
+        committed_sha = _sha256_file(committed) if committed_exists else None
+        generated_sha = _sha256_file(generated) if generated_exists else None
+        content_match = committed_exists and generated_exists and committed.read_bytes() == generated.read_bytes()
+        comparisons.append(
+            {
+                "path": f"demo/{rel}",
+                "generated_path": (Path("replay") / "demo" / rel).as_posix(),
+                "status": "pass" if content_match else "fail",
+                "committed_exists": committed_exists,
+                "generated_exists": generated_exists,
+                "committed_sha256": committed_sha,
+                "generated_sha256": generated_sha,
+                "size_bytes_committed": committed.stat().st_size if committed_exists else None,
+                "size_bytes_generated": generated.stat().st_size if generated_exists else None,
+            }
+        )
+    status = "pass" if all(item["status"] == "pass" for item in comparisons) else "fail"
+    return {
+        "boundary": BOUNDARY_TEXT,
+        "version": PROJECT_VERSION,
+        "status": status,
+        "root": root.as_posix(),
+        "replay_dir": replay_dir.as_posix(),
+        "artifact_count": len(comparisons),
+        "pass_count": sum(1 for item in comparisons if item["status"] == "pass"),
+        "fail_count": sum(1 for item in comparisons if item["status"] == "fail"),
+        "comparisons": comparisons,
+    }
+
+
+def render_golden_replay_markdown(report: Mapping[str, Any]) -> str:
+    lines = [
+        "# Golden Replay",
+        "",
+        f"> {report['boundary']}",
+        "",
+        f"Version: `{report['version']}`",
+        f"Status: `{report['status']}`",
+        f"Compared artifacts: {report['artifact_count']}",
+        f"Passed: {report['pass_count']}",
+        f"Failed: {report['fail_count']}",
+        "",
+        "| Artifact | Status | Committed SHA256 | Generated SHA256 | Committed bytes | Generated bytes |",
+        "| --- | --- | --- | --- | ---: | ---: |",
+    ]
+    for item in report["comparisons"]:
+        lines.append(
+            f"| `{item['path']}` | `{item['status']}` | `{item['committed_sha256'] or ''}` | "
+            f"`{item['generated_sha256'] or ''}` | {item['size_bytes_committed'] or ''} | {item['size_bytes_generated'] or ''} |"
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
+def build_golden_replay(root: Path, out_dir: Path, replay_dir: Optional[Path] = None) -> GoldenReplayPaths:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    temp_replay: Optional[tempfile.TemporaryDirectory[str]] = None
+    if replay_dir is None:
+        temp_replay = tempfile.TemporaryDirectory(prefix="plrl-golden-replay-")
+        actual_replay = Path(temp_replay.name)
+    else:
+        actual_replay = replay_dir
+        if actual_replay.exists():
+            shutil.rmtree(actual_replay)
+        actual_replay.mkdir(parents=True, exist_ok=True)
+    try:
+        report = golden_replay(root, actual_replay)
+        if temp_replay is not None:
+            report["replay_dir"] = "temporary"
+    finally:
+        if temp_replay is not None:
+            temp_replay.cleanup()
+    json_path = out_dir / "golden_replay.json"
+    markdown_path = out_dir / "golden_replay.md"
+    dump_json(report, json_path)
+    markdown_path.write_text(render_golden_replay_markdown(report), encoding="utf-8")
+    return GoldenReplayPaths(out_dir, json_path, markdown_path)
+
+
+def release_deck(root: Path) -> Dict[str, Any]:
+    matrix = command_matrix_data()
+    release = release_check(root)
+    maturity = maturity_report(root)
+    catalog = artifact_catalog(root, ["demo", "docs"])
+    return {
+        "boundary": BOUNDARY_TEXT,
+        "version": PROJECT_VERSION,
+        "title": "Portfolio Liquidity Runway Lab v0.6.0 Release Deck",
+        "product_value": [
+            "Builds deterministic local liquidity runway packets from JSON inputs.",
+            "Packages scenario, audit, batch comparison, casebook, schema, command, and replay evidence.",
+            "Keeps outputs static and reviewable with no runtime dependencies and no JavaScript in generated HTML demos.",
+        ],
+        "commands": [{"command": item["command"], "purpose": item["purpose"]} for item in matrix],
+        "evidence": {
+            "release_check_status": release["status"],
+            "maturity_score": maturity["score"],
+            "maturity_total": len(maturity["checks"]),
+            "artifact_count": catalog["artifact_count"],
+            "html_files": release["html_files"],
+        },
+        "risks": [
+            "Outputs depend on supplied local JSON quality and should be reviewed against source records.",
+            "Static scenarios are assumptions, not predictions or transaction instructions.",
+            "No live integrations means users must update inputs manually before each review.",
+        ],
+        "next_roadmap": [
+            "Add optional CSV import/export adapters while preserving zero live-data behavior.",
+            "Expand fixture doctor coverage for malformed batch directories and scenario edge cases.",
+            "Add signed release bundle checksums for downstream archival workflows.",
+        ],
+    }
+
+
+def render_release_deck_markdown(deck: Mapping[str, Any]) -> str:
+    lines = [
+        f"# {deck['title']}",
+        "",
+        f"> {deck['boundary']}",
+        "",
+        "## Product Value",
+        "",
+    ]
+    lines.extend(f"- {item}" for item in deck["product_value"])
+    lines.extend(["", "## Commands", "", "| Command | Purpose |", "| --- | --- |"])
+    for item in deck["commands"]:
+        lines.append(f"| `{item['command']}` | {item['purpose']} |")
+    lines.extend(
+        [
+            "",
+            "## Evidence",
+            "",
+            f"- Release check: `{deck['evidence']['release_check_status']}`",
+            f"- Maturity score: `{deck['evidence']['maturity_score']}/{deck['evidence']['maturity_total']}`",
+            f"- Cataloged artifacts: `{deck['evidence']['artifact_count']}`",
+            f"- No-script HTML files: `{len(deck['evidence']['html_files'])}`",
+            "",
+            "## Risks",
+            "",
+        ]
+    )
+    lines.extend(f"- {item}" for item in deck["risks"])
+    lines.extend(["", "## Next Roadmap", ""])
+    lines.extend(f"- {item}" for item in deck["next_roadmap"])
+    lines.append("")
+    return "\n".join(lines)
+
+
+def render_release_deck_html(deck: Mapping[str, Any]) -> str:
+    md = render_release_deck_markdown(deck)
+    body = []
+    in_list = False
+    in_table = False
+    for line in md.splitlines():
+        if line.startswith("# "):
+            body.append(f"<h1>{html.escape(line[2:])}</h1>")
+        elif line.startswith("## "):
+            if in_list:
+                body.append("</ul>")
+                in_list = False
+            if in_table:
+                body.append("</table>")
+                in_table = False
+            body.append(f"<h2>{html.escape(line[3:])}</h2>")
+        elif line.startswith("> "):
+            body.append(f"<blockquote>{html.escape(line[2:])}</blockquote>")
+        elif line.startswith("- "):
+            if not in_list:
+                body.append("<ul>")
+                in_list = True
+            body.append(f"<li>{html.escape(line[2:])}</li>")
+        elif line.startswith("| `"):
+            if not in_table:
+                body.append("<table>")
+                in_table = True
+            cells = [cell.strip().strip("`") for cell in line.strip("|").split("|")]
+            body.append("<tr>" + "".join(f"<td>{html.escape(cell)}</td>" for cell in cells) + "</tr>")
+        elif line.startswith("| ---"):
+            continue
+        elif line.strip():
+            body.append(f"<p>{html.escape(line)}</p>")
+    if in_list:
+        body.append("</ul>")
+    if in_table:
+        body.append("</table>")
+    return _html_shell(str(deck["title"]), "\n".join(body))
+
+
+def build_release_deck(root: Path, out_dir: Path) -> ReleaseDeckPaths:
+    deck = release_deck(root)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    markdown_path = out_dir / "release_deck.md"
+    html_path = out_dir / "release_deck.html"
+    markdown_path.write_text(render_release_deck_markdown(deck), encoding="utf-8")
+    html_path.write_text(render_release_deck_html(deck), encoding="utf-8")
+    return ReleaseDeckPaths(out_dir, markdown_path, html_path)
+
+
 def artifact_catalog(root: Path, paths: Iterable[str] = ("demo", "docs")) -> Dict[str, Any]:
     entries = []
     for part in paths:
@@ -1905,6 +2283,12 @@ def _regeneration_command_for(rel: str) -> str:
         return "portfolio-liquidity-runway-lab fixture-doctor --out demo/fixture-doctor"
     if rel.startswith("demo/static-docs/") or rel.startswith("docs/static-docs/"):
         return "portfolio-liquidity-runway-lab docs-export --out demo/static-docs"
+    if rel.startswith("demo/command-matrix/") or rel.startswith("docs/command-matrix/"):
+        return "portfolio-liquidity-runway-lab command-matrix --out demo/command-matrix"
+    if rel.startswith("demo/golden-replay/") or rel.startswith("docs/golden-replay/"):
+        return "portfolio-liquidity-runway-lab golden-replay --out demo/golden-replay"
+    if rel.startswith("demo/release-deck/") or rel.startswith("docs/release-deck/"):
+        return "portfolio-liquidity-runway-lab release-deck --out demo/release-deck"
     if rel == "demo/visual_receipt.md":
         return "portfolio-liquidity-runway-lab visual-receipt --out demo/visual_receipt.md --scenario stress"
     if rel == "docs/release_manifest.json":
@@ -2089,7 +2473,7 @@ def release_manifest(root: Path) -> Dict[str, Any]:
             files.append(path.relative_to(root).as_posix())
     return {
         "name": "portfolio-liquidity-runway-lab",
-        "version": "0.5.0",
+        "version": PROJECT_VERSION,
         "boundary": BOUNDARY_TEXT,
         "files": files,
         "console_script": "portfolio-liquidity-runway-lab",
@@ -2123,6 +2507,12 @@ def maturity_report(root: Path) -> Dict[str, Any]:
         "demo_schema_export": (root / "demo/schema-export/schema_guide.md").exists(),
         "demo_fixture_doctor": (root / "demo/fixture-doctor/fixture_doctor.md").exists(),
         "demo_static_docs": (root / "demo/static-docs/index.html").exists(),
+        "demo_command_matrix": (root / "demo/command-matrix/command_matrix.html").exists(),
+        "demo_golden_replay": (root / "demo/golden-replay/golden_replay.md").exists(),
+        "demo_release_deck": (root / "demo/release-deck/release_deck.html").exists(),
+        "command_matrix": (root / "docs/command-matrix/command_matrix.html").exists(),
+        "golden_replay": (root / "docs/golden-replay/golden_replay.md").exists(),
+        "release_deck": (root / "docs/release-deck/release_deck.html").exists(),
         "demo_visual_receipt": (root / "demo/visual_receipt.md").exists(),
         "tests": (root / "tests").exists(),
         "agent_skill": (root / "skills/agent/portfolio-liquidity-runway-lab/SKILL.md").exists(),

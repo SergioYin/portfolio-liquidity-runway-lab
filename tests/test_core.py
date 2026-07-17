@@ -11,9 +11,12 @@ from portfolio_liquidity_runway_lab.core import (
     build_assumption_audit,
     build_batch_compare,
     build_casebook,
+    build_command_matrix,
     build_docs_export,
     build_fixture_doctor,
+    build_golden_replay,
     build_packet,
+    build_release_deck,
     build_release_check,
     build_scenario_gallery,
     build_schema_export,
@@ -316,6 +319,73 @@ class CoreTests(unittest.TestCase):
             self.assertEqual(first_html, paths.index_html_path.read_text(encoding="utf-8"))
             self.assertEqual(first_markdown, paths.index_markdown_path.read_text(encoding="utf-8"))
 
+    def test_command_matrix_writes_deterministic_no_script_catalog(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "matrix"
+            paths = build_command_matrix(out)
+            first_json = paths.json_path.read_text(encoding="utf-8")
+            first_markdown = paths.markdown_path.read_text(encoding="utf-8")
+            first_html = paths.html_path.read_text(encoding="utf-8")
+            payload = json.loads(first_json)
+            commands = {item["command"]: item for item in payload["commands"]}
+            self.assertIn("golden-replay", commands)
+            self.assertIn("release-deck", commands)
+            self.assertIn("risk_boundary", commands["command-matrix"])
+            self.assertIn("demo_command", commands["command-matrix"])
+            self.assertIn("Command Matrix", first_markdown)
+            self.assertIn("<!doctype html>", first_html)
+            self.assertNotIn("<script", first_html.lower())
+            build_command_matrix(out)
+            self.assertEqual(first_json, paths.json_path.read_text(encoding="utf-8"))
+            self.assertEqual(first_markdown, paths.markdown_path.read_text(encoding="utf-8"))
+            self.assertEqual(first_html, paths.html_path.read_text(encoding="utf-8"))
+
+    def test_golden_replay_reports_pass_and_failure_modes(self):
+        repo_root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "repo"
+            (root / "demo").mkdir(parents=True)
+            generated = root / "generated"
+            # First create committed demo artifacts from the same builders.
+            build_golden_replay(repo_root, root / "seed", generated)
+            for path in (generated / "demo").rglob("*"):
+                if path.is_file():
+                    target = root / "demo" / path.relative_to(generated / "demo")
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes(path.read_bytes())
+
+            paths = build_golden_replay(root, root / "replay")
+            first_json = paths.json_path.read_text(encoding="utf-8")
+            report = json.loads(first_json)
+            self.assertEqual(report["status"], "pass")
+            self.assertGreater(report["pass_count"], 5)
+            self.assertEqual(report["fail_count"], 0)
+
+            (root / "demo" / "visual_receipt.md").write_text("changed\n", encoding="utf-8")
+            failing_paths = build_golden_replay(root, root / "replay-fail")
+            failing = json.loads(failing_paths.json_path.read_text(encoding="utf-8"))
+            self.assertEqual(failing["status"], "fail")
+            self.assertTrue(any(item["path"] == "demo/visual_receipt.md" and item["status"] == "fail" for item in failing["comparisons"]))
+
+    def test_release_deck_writes_deterministic_no_script_one_pager(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "README.md").write_text("# Demo\n\nQuickstart\n\nDoes not fetch live data.\n", encoding="utf-8")
+            (root / "demo").mkdir()
+            (root / "docs").mkdir()
+            (root / "demo" / "sample.html").write_text("<!doctype html>\n<p>sample</p>\n", encoding="utf-8")
+            out = root / "deck"
+            paths = build_release_deck(root, out)
+            first_md = paths.markdown_path.read_text(encoding="utf-8")
+            first_html = paths.html_path.read_text(encoding="utf-8")
+            self.assertIn("Product Value", first_md)
+            self.assertIn("golden-replay", first_md)
+            self.assertIn("<!doctype html>", first_html)
+            self.assertNotIn("<script", first_html.lower())
+            build_release_deck(root, out)
+            self.assertEqual(first_md, paths.markdown_path.read_text(encoding="utf-8"))
+            self.assertEqual(first_html, paths.html_path.read_text(encoding="utf-8"))
+
     def test_release_check_passes_and_reports_failure_modes(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -351,6 +421,9 @@ class CoreTests(unittest.TestCase):
         self.assertIn("schema-export", readme)
         self.assertIn("fixture-doctor", readme)
         self.assertIn("docs-export", readme)
+        self.assertIn("command-matrix", readme)
+        self.assertIn("golden-replay", readme)
+        self.assertIn("release-deck", readme)
         self.assertIn("scenario-gallery", readme)
         self.assertIn("assumption-audit", readme)
         self.assertIn("batch-compare", readme)
@@ -372,12 +445,15 @@ class CoreTests(unittest.TestCase):
         self.assertIn("docs/schema_guide.json", manifest["files"])
         self.assertIn("docs/fixture_doctor.json", manifest["files"])
         self.assertIn("docs/static-docs/index.html", manifest["files"])
+        self.assertIn("docs/command-matrix/command_matrix.json", manifest["files"])
+        self.assertIn("docs/golden-replay/golden_replay.json", manifest["files"])
+        self.assertIn("docs/release-deck/release_deck.html", manifest["files"])
         self.assertIn("demo/casebook/casebook.md", manifest["files"])
         self.assertIn("demo/scenario-gallery/scenario_gallery.md", manifest["files"])
         self.assertIn("demo/assumption-audit/assumption_audit.md", manifest["files"])
         self.assertIn("demo/batch-compare/batch_compare.html", manifest["files"])
         self.assertIn("README.md", manifest["files"])
-        self.assertEqual(manifest["version"], "0.5.0")
+        self.assertEqual(manifest["version"], "0.6.0")
 
 
 if __name__ == "__main__":

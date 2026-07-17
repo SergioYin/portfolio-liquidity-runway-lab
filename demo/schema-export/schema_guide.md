@@ -2,7 +2,7 @@
 
 > Educational static analysis only. This tool uses local synthetic or user-supplied inputs, does not fetch live data, does not connect to brokers, does not place orders, and does not provide tax, legal, investment, buy, sell, or hold advice.
 
-Version: `0.5.0`
+Version: `0.6.0`
 
 ## Input Files
 
@@ -97,7 +97,7 @@ Required fields: `snapshots`
 | `build-packet` | portfolio.json, ledger.json, assumptions.json | liquidity_packet.json, liquidity_packet.md, liquidity_packet.html | true |
 | `compare-history` | history.json | stdout JSON, optional JSON file | false |
 | `review-ledger` | ledger.json | stdout JSON, optional JSON file | false |
-| `static-dashboard` | portfolio.json, ledger.json, assumptions.json | liquidity_packet.html | true |
+| `static-dashboard` | portfolio.json, ledger.json, assumptions.json | liquidity_packet.json, liquidity_packet.md, liquidity_packet.html | true |
 | `scenario-gallery` | portfolio.json, ledger.json, assumptions.json | scenario_gallery.json, scenario_gallery.md, scenario_gallery.html | true |
 | `assumption-audit` | portfolio.json, ledger.json, assumptions.json | assumption_audit.json, assumption_audit.md | false |
 | `batch-compare` | portfolio directory, ledger.json, assumptions.json | batch_compare.json, batch_compare.md, batch_compare.html | true |
@@ -105,11 +105,14 @@ Required fields: `snapshots`
 | `artifact-catalog` | repo or output root | artifact_catalog.json, artifact_catalog.md | false |
 | `release-check` | repo root | release_check.json, release_check.md | false |
 | `visual-receipt` | portfolio.json, ledger.json, assumptions.json | visual_receipt.md | false |
+| `schema-export` | built-in schema metadata | schema_guide.json, schema_guide.md | false |
+| `fixture-doctor` | bundled or supplied examples | fixture_doctor.json, fixture_doctor.md | true |
+| `docs-export` | README and generated release evidence | static-docs/index.html, static-docs/index.md, static-docs/*.md | true |
+| `command-matrix` | built-in command metadata | command_matrix.json, command_matrix.md, command_matrix.html | true |
+| `golden-replay` | repo root, committed demo artifacts | golden_replay.json, golden_replay.md | false |
+| `release-deck` | repo docs and demo evidence | release_deck.md, release_deck.html | true |
 | `quickstart-check` | bundled examples | copied examples, packet artifacts | true |
 | `selfcheck` | bundled examples | stdout JSON | true |
 | `public-scan` | repo root | stdout JSON, optional JSON file | false |
 | `release-manifest` | repo root | stdout JSON, optional JSON file | false |
 | `maturity-report` | repo root | stdout JSON, optional JSON file | false |
-| `schema-export` | built-in schema metadata | schema_guide.json, schema_guide.md | false |
-| `fixture-doctor` | bundled or supplied examples | fixture_doctor.json, fixture_doctor.md | true |
-| `docs-export` | README and generated release evidence | static-docs/index.html, static-docs/index.md, static-docs/*.md | true |

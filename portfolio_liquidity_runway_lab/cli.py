@@ -16,9 +16,12 @@ from .core import (
     build_artifact_catalog,
     build_batch_compare,
     build_casebook,
+    build_command_matrix,
     build_docs_export,
     build_fixture_doctor,
+    build_golden_replay,
     build_packet,
+    build_release_deck,
     build_release_check,
     build_schema_export,
     build_scenario_gallery,
@@ -281,6 +284,49 @@ def cmd_docs_export(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_command_matrix(args: argparse.Namespace) -> int:
+    paths = build_command_matrix(Path(args.out))
+    _print_json(
+        {
+            "status": "ok",
+            "boundary": BOUNDARY_TEXT,
+            "json": str(paths.json_path),
+            "markdown": str(paths.markdown_path),
+            "html": str(paths.html_path),
+        }
+    )
+    return 0
+
+
+def cmd_golden_replay(args: argparse.Namespace) -> int:
+    paths = build_golden_replay(Path(args.root), Path(args.out), Path(args.replay_dir) if args.replay_dir else None)
+    result = load_json(paths.json_path)
+    _print_json(
+        {
+            "status": result["status"],
+            "boundary": BOUNDARY_TEXT,
+            "json": str(paths.json_path),
+            "markdown": str(paths.markdown_path),
+            "pass_count": result["pass_count"],
+            "fail_count": result["fail_count"],
+        }
+    )
+    return 0 if result["status"] == "pass" else 1
+
+
+def cmd_release_deck(args: argparse.Namespace) -> int:
+    paths = build_release_deck(Path(args.root), Path(args.out))
+    _print_json(
+        {
+            "status": "ok",
+            "boundary": BOUNDARY_TEXT,
+            "markdown": str(paths.markdown_path),
+            "html": str(paths.html_path),
+        }
+    )
+    return 0
+
+
 def cmd_quickstart_check(args: argparse.Namespace) -> int:
     out = Path(args.out)
     if out.exists() and not out.is_dir():
@@ -354,6 +400,14 @@ def cmd_selfcheck(args: argparse.Namespace) -> int:
                 and "<script" not in batch_paths.html_path.read_text(encoding="utf-8").lower()
                 and batch.get("scenario_names") == ["base", "stress"]
                 and len(batch.get("summary", [])) == 4
+            ),
+            "command_matrix": (
+                build_command_matrix(tmp_path / "command-matrix").html_path.read_text(encoding="utf-8").lower().find("<script")
+                == -1
+            ),
+            "release_deck": (
+                build_release_deck(tmp_path, tmp_path / "release-deck").html_path.read_text(encoding="utf-8").lower().find("<script")
+                == -1
             ),
             "casebook": (
                 build_casebook(
@@ -506,6 +560,21 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--root", default=".", help="Repository or artifact root.")
     p.add_argument("--out", default="dist/static-docs", help="Output directory.")
     p.set_defaults(func=cmd_docs_export)
+
+    p = sub.add_parser("command-matrix", help="Export deterministic JSON, Markdown, and no-JavaScript HTML command catalog.")
+    p.add_argument("--out", default="dist/command-matrix", help="Output directory.")
+    p.set_defaults(func=cmd_command_matrix)
+
+    p = sub.add_parser("golden-replay", help="Regenerate key demo artifacts and compare them against committed demos.")
+    p.add_argument("--root", default=".", help="Repository root.")
+    p.add_argument("--out", default="dist/golden-replay", help="Output directory for replay summary artifacts.")
+    p.add_argument("--replay-dir", help="Optional directory for regenerated artifacts. Defaults to --out/replay.")
+    p.set_defaults(func=cmd_golden_replay)
+
+    p = sub.add_parser("release-deck", help="Build deterministic Markdown and no-JavaScript HTML release deck.")
+    p.add_argument("--root", default=".", help="Repository root.")
+    p.add_argument("--out", default="dist/release-deck", help="Output directory.")
+    p.set_defaults(func=cmd_release_deck)
 
     p = sub.add_parser("quickstart-check", help="Copy bundled examples and build a packet from an empty directory.")
     p.add_argument("--out", default="quickstart-output", help="Output directory for example files and packet.")

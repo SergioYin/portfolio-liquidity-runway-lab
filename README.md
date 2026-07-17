@@ -24,7 +24,10 @@ portfolio-liquidity-runway-lab visual-receipt --out liquidity-demo/visual_receip
 portfolio-liquidity-runway-lab schema-export --out liquidity-demo/schema-export
 portfolio-liquidity-runway-lab fixture-doctor --out liquidity-demo/fixture-doctor
 portfolio-liquidity-runway-lab docs-export --root . --out liquidity-demo/static-docs
+portfolio-liquidity-runway-lab command-matrix --out liquidity-demo/command-matrix
+portfolio-liquidity-runway-lab release-deck --root . --out liquidity-demo/release-deck
 portfolio-liquidity-runway-lab artifact-catalog --root liquidity-demo
+portfolio-liquidity-runway-lab golden-replay --root . --out liquidity-demo/golden-replay
 portfolio-liquidity-runway-lab release-check --root .
 ```
 
@@ -52,8 +55,15 @@ Example outputs:
 - `liquidity-demo/fixture-doctor/fixture_doctor.md`
 - `liquidity-demo/static-docs/index.html`
 - `liquidity-demo/static-docs/index.md`
+- `liquidity-demo/command-matrix/command_matrix.json`
+- `liquidity-demo/command-matrix/command_matrix.md`
+- `liquidity-demo/command-matrix/command_matrix.html`
+- `liquidity-demo/release-deck/release_deck.md`
+- `liquidity-demo/release-deck/release_deck.html`
+- `liquidity-demo/golden-replay/golden_replay.json`
+- `liquidity-demo/golden-replay/golden_replay.md`
 
-The packet contains liquidity buckets, stress-haircut values, monthly runway rows, forced-sale warnings, and review prompts. The scenario gallery compares bundled `base`, `stress`, `income_shock`, and `reserve_rebuild` scenarios across deterministic JSON, Markdown, and no-JavaScript HTML artifacts. `assumption-audit` validates portfolio, ledger, and assumptions JSON for liquidity tier completeness, nonnumeric values, suspicious yields or fees, missing scenarios, reserve thresholds, and scheduled event issues. `batch-compare` compares runway, reserves, and warnings across a directory of portfolio JSON files that share one ledger and assumptions file. `casebook` combines packet, scenario gallery, assumption audit, and batch compare summaries into deterministic JSON, Markdown, and no-JavaScript HTML release-owner artifacts. `schema-export` writes deterministic JSON and Markdown guides for every supported input file and output artifact. `fixture-doctor` copies examples into an isolated work directory, runs the command plan, and writes pass/fail diagnosis artifacts. `docs-export` creates a compact no-JavaScript documentation bundle linking README summary, command matrix, boundaries, demos, and release evidence. `artifact-catalog` walks demo/docs outputs and records file sizes, SHA256 hashes, and regeneration commands. `release-check` validates expected package/docs/demo files, public scan results, and generated HTML script tags. The visual receipt is a compact Markdown showcase that links the packet artifacts, boundary text, liquidity bucket bars, and regeneration commands. Open `liquidity-demo/packet/liquidity_packet.html`, inspect `liquidity-demo/scenario-gallery/scenario_gallery.html`, inspect `liquidity-demo/batch-compare/batch_compare.html`, inspect `liquidity-demo/casebook/casebook.html`, inspect `liquidity-demo/static-docs/index.html`, inspect `demo/visual_receipt.md`, or run supporting checks:
+The packet contains liquidity buckets, stress-haircut values, monthly runway rows, forced-sale warnings, and review prompts. The scenario gallery compares bundled `base`, `stress`, `income_shock`, and `reserve_rebuild` scenarios across deterministic JSON, Markdown, and no-JavaScript HTML artifacts. `assumption-audit` validates portfolio, ledger, and assumptions JSON for liquidity tier completeness, nonnumeric values, suspicious yields or fees, missing scenarios, reserve thresholds, and scheduled event issues. `batch-compare` compares runway, reserves, and warnings across a directory of portfolio JSON files that share one ledger and assumptions file. `casebook` combines packet, scenario gallery, assumption audit, and batch compare summaries into deterministic JSON, Markdown, and no-JavaScript HTML release-owner artifacts. `schema-export` writes deterministic JSON and Markdown guides for every supported input file and output artifact. `fixture-doctor` copies examples into an isolated work directory, runs the command plan, and writes pass/fail diagnosis artifacts. `docs-export` creates a compact no-JavaScript documentation bundle linking README summary, command matrix, boundaries, demos, and release evidence. `command-matrix` writes the full deterministic JSON, Markdown, and no-JavaScript HTML command catalog with purpose, inputs, outputs, demo command, and risk boundary for every CLI command. `release-deck` builds a deterministic Markdown and no-JavaScript HTML one-page promotion/release deck covering product value, commands, evidence, risks, and roadmap. `golden-replay` regenerates key demo artifacts into a replay directory and compares committed demo hashes/content with JSON and Markdown pass/fail summaries. `artifact-catalog` walks demo/docs outputs and records file sizes, SHA256 hashes, and regeneration commands. `release-check` validates expected package/docs/demo files, public scan results, and generated HTML script tags. The visual receipt is a compact Markdown showcase that links the packet artifacts, boundary text, liquidity bucket bars, and regeneration commands. Open `liquidity-demo/packet/liquidity_packet.html`, inspect `liquidity-demo/scenario-gallery/scenario_gallery.html`, inspect `liquidity-demo/batch-compare/batch_compare.html`, inspect `liquidity-demo/casebook/casebook.html`, inspect `liquidity-demo/static-docs/index.html`, inspect `liquidity-demo/command-matrix/command_matrix.html`, inspect `liquidity-demo/release-deck/release_deck.html`, inspect `demo/visual_receipt.md`, or run supporting checks:
 
 ```bash
 portfolio-liquidity-runway-lab compare-history
@@ -65,7 +75,10 @@ portfolio-liquidity-runway-lab casebook --portfolios-dir liquidity-demo/portfoli
 portfolio-liquidity-runway-lab schema-export --out docs
 portfolio-liquidity-runway-lab fixture-doctor --out docs
 portfolio-liquidity-runway-lab docs-export --out docs/static-docs
+portfolio-liquidity-runway-lab command-matrix --out docs/command-matrix
+portfolio-liquidity-runway-lab release-deck --root . --out docs/release-deck
 portfolio-liquidity-runway-lab artifact-catalog --out docs
+portfolio-liquidity-runway-lab golden-replay --root . --out docs/golden-replay
 portfolio-liquidity-runway-lab release-check --out docs
 portfolio-liquidity-runway-lab selfcheck
 portfolio-liquidity-runway-lab public-scan
@@ -95,6 +108,9 @@ python -m portfolio_liquidity_runway_lab selfcheck
 - `schema-export`: export deterministic JSON and Markdown schema guides for supported inputs and artifacts.
 - `fixture-doctor`: copy examples to a work directory, run the command plan, and write pass/fail JSON and Markdown diagnosis.
 - `docs-export`: export a compact static no-JavaScript documentation bundle.
+- `command-matrix`: export deterministic JSON, Markdown, and no-JavaScript HTML command catalog with purpose, inputs, outputs, demo command, and risk boundary for every CLI command.
+- `golden-replay`: regenerate key demo artifacts and compare SHA256/content against committed demos with JSON and Markdown pass/fail summaries.
+- `release-deck`: build a one-page deterministic Markdown and no-JavaScript HTML promotion/release deck.
 - `quickstart-check`: copy packaged synthetic examples and build a packet.
 - `selfcheck`: run a smoke test against packaged examples.
 - `public-scan`: scan a repo tree for public-release concerns.

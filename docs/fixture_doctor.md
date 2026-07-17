@@ -28,6 +28,8 @@ Work dir: `dist/fixture-doctor-work`
 | `review-ledger` | `review-ledger --ledger dist/fixture-doctor-work/examples/ledger.json --out dist/fixture-doctor-work/ledger_review.json` |
 | `schema-export` | `schema-export --out dist/fixture-doctor-work/schema-export` |
 | `docs-export` | `docs-export --root dist/fixture-doctor-work --out dist/fixture-doctor-work/static-docs` |
+| `command-matrix` | `command-matrix --out dist/fixture-doctor-work/command-matrix` |
+| `release-deck` | `release-deck --root dist/fixture-doctor-work --out dist/fixture-doctor-work/release-deck` |
 | `artifact-catalog` | `artifact-catalog --root dist/fixture-doctor-work --paths packet,dashboard,scenario-gallery,assumption-audit,batch-compare,casebook,schema-export,static-docs --out dist/fixture-doctor-work/catalog` |
 | `release-check` | `release-check --root dist/fixture-doctor-work --out dist/fixture-doctor-work/release-check` |
 | `public-scan` | `public-scan --root dist/fixture-doctor-work --out dist/fixture-doctor-work/public_scan.json` |
@@ -49,6 +51,8 @@ Work dir: `dist/fixture-doctor-work`
 | `review-ledger` | `pass` | `dist/fixture-doctor-work/ledger_review.json` |  |
 | `schema-export` | `pass` | `dist/fixture-doctor-work/schema-export/schema_guide.json`, `dist/fixture-doctor-work/schema-export/schema_guide.md` |  |
 | `docs-export` | `pass` | `dist/fixture-doctor-work/static-docs/index.html`, `dist/fixture-doctor-work/static-docs/index.md` |  |
+| `command-matrix` | `pass` | `dist/fixture-doctor-work/command-matrix/command_matrix.json`, `dist/fixture-doctor-work/command-matrix/command_matrix.md`, `dist/fixture-doctor-work/command-matrix/command_matrix.html` |  |
+| `release-deck` | `pass` | `dist/fixture-doctor-work/release-deck/release_deck.md`, `dist/fixture-doctor-work/release-deck/release_deck.html` |  |
 | `artifact-catalog` | `pass` | `dist/fixture-doctor-work/catalog/artifact_catalog.json`, `dist/fixture-doctor-work/catalog/artifact_catalog.md` |  |
 | `release-check` | `pass` | `dist/fixture-doctor-work/release-check/release_check.json`, `dist/fixture-doctor-work/release-check/release_check.md` |  |
 | `public-scan` | `pass` | `dist/fixture-doctor-work/public_scan.json` |  |
